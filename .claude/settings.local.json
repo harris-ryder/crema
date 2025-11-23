@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:ai-sdk.dev)",
+      "WebFetch(domain:sandpack.codesandbox.io)",
+      "WebSearch"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
