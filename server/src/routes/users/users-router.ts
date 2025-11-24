@@ -5,7 +5,7 @@ import z from "zod";
 export const usersRouter = new Hono();
 
 const route = usersRouter
-  .basePath("/api")
+  .basePath("/users")
   .post(
     "/sign-in",
     zValidator(

@@ -1,13 +1,10 @@
-import dotenv from "dotenv";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
-import { usersRouter } from "./users/users-router";
-import config from "./config";
-import { postsRouter } from "./posts/posts-router";
-import { assetsRouter } from "./assets/assets-router";
+import config from "./config.ts";
+import { usersRouter } from "./users/users-router.ts";
+import { postsRouter } from "./posts/posts-router.ts";
+import { assetsRouter } from "./assets/assets-router.ts";
 
 const app = new Hono();
 
