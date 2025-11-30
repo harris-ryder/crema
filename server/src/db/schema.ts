@@ -28,6 +28,7 @@ export const usersTable = pgTable("users", {
   password: text(),
   bio: text(),
   password_salt: text(),
+  avatar_uri: text(),
   ...timestamps,
 });
 
@@ -35,34 +36,11 @@ export const postsTable = pgTable("posts", {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => randomUUID()),
-  name: text().notNull(),
+  description: text(),
+  image_uri: text().notNull(),
   user_id: uuid()
     .references(() => usersTable.id, cascade)
     .notNull(),
-  ...timestamps,
-});
-
-export const userAvatarsTable = pgTable("user_avatars", {
-  id: uuid()
-    .primaryKey()
-    .$defaultFn(() => randomUUID()),
-  user_id: uuid()
-    .references(() => usersTable.id, cascade)
-    .notNull()
-    .unique(),
-  uri: text().notNull(),
-  ...timestamps,
-});
-
-export const postImagesTable = pgTable("post_images", {
-  id: uuid()
-    .primaryKey()
-    .$defaultFn(() => randomUUID()),
-  post_id: uuid()
-    .references(() => postsTable.id, cascade)
-    .notNull(),
-  uri: text().notNull(),
-  order: integer().default(0),
   ...timestamps,
 });
 
