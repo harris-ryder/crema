@@ -1,17 +1,18 @@
 import { Hono } from "hono";
 import { authRequiredMiddleware } from "../../middlewares/auth-required-middleware.ts";
 import { db } from "../../db/index.ts";
-import { postsTable } from "../../db/schema.ts";
-import { desc } from "drizzle-orm";
+import { postsTable, postReactionsTable } from "../../db/schema.ts";
+import { desc, sql, and } from "drizzle-orm";
 import {
   insertPostImageSchema,
+  insertPostReactionSchema,
   selectPostSchema,
 } from "../../db/schema.types.ts";
 import z from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { createPost } from "./create-post.ts";
-import { uploadImage } from "./upload-image.ts";
+import { uploadImage } from "../../helpers.ts/upload-image.ts";
 
 export const postsRouter = new Hono();
 
@@ -94,6 +95,72 @@ const route = postsRouter
       });
 
       return c.json({ success: true, post }, 201);
+    }
+  )
+  .put(
+    "/:postId/reaction",
+    authRequiredMiddleware,
+    zValidator("param", z.object({ postId: selectPostSchema.shape.id })),
+    zValidator(
+      "json",
+      z.object({ emoji: insertPostReactionSchema.shape.emoji })
+    ),
+    async (c) => {
+      const postId = c.req.valid("param").postId;
+      const { emoji } = c.req.valid("json");
+      const user = c.get("user");
+      if (!user) {
+        return c.text("missing user", 401);
+      }
+
+      const [reaction] = await db
+        .insert(postReactionsTable)
+        .values({
+          post_id: postId,
+          user_id: user.id,
+          emoji: emoji,
+        })
+        .onConflictDoUpdate({
+          target: [postReactionsTable.post_id, postReactionsTable.user_id],
+          set: {
+            emoji: emoji,
+            updated_at: new Date(),
+          },
+        })
+        .returning();
+
+      return c.json({ success: true, reaction }, 200);
+    }
+  )
+  .delete(
+    "/:postId/reaction",
+    authRequiredMiddleware,
+    zValidator("param", z.object({ postId: selectPostSchema.shape.id })),
+    async (c) => {
+      const postId = c.req.valid("param").postId;
+      const user = c.get("user");
+      if (!user) {
+        return c.text("missing user", 401);
+      }
+
+      const deleted = await db
+        .delete(postReactionsTable)
+        .where(
+          and(
+            eq(postReactionsTable.post_id, postId),
+            eq(postReactionsTable.user_id, user.id)
+          )
+        )
+        .returning();
+
+      if (deleted.length === 0) {
+        return c.json(
+          { success: false, message: "No reaction to delete" },
+          404
+        );
+      }
+
+      return c.json({ success: true }, 200);
     }
   );
 

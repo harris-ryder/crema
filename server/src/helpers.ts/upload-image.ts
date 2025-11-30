@@ -2,9 +2,9 @@ import { randomUUID } from "crypto";
 import fs from "fs/promises";
 import path from "path";
 import { z } from "zod";
-import { config } from "../../config.ts";
-import { imageMimeTypes } from "../../mime.ts";
-import { selectPostImageSchema } from "../../db/schema.types.ts";
+import { config } from "../config.ts";
+import { imageMimeTypes } from "../mime.ts";
+import { selectPostImageSchema } from "../db/schema.types.ts";
 
 export const uploadImageParams = z.object({
   file: z
