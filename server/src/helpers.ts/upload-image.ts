@@ -4,7 +4,7 @@ import path from "path";
 import { z } from "zod";
 import { config } from "../config.ts";
 import { imageMimeTypes } from "../mime.ts";
-import { selectPostImageSchema } from "../db/schema.types.ts";
+import { selectPostSchema } from "../db/schema.types.ts";
 
 export const uploadImageParams = z.object({
   file: z
@@ -18,7 +18,7 @@ export const uploadImageParams = z.object({
 export const uploadImage = z
   .function()
   .args(uploadImageParams)
-  .returns(z.promise(selectPostImageSchema.shape.image_uri))
+  .returns(z.promise(selectPostSchema.shape.image_uri))
   .implement(async ({ file }) => {
     if (!imageMimeTypes.includes(file.type)) {
       throw new Error(

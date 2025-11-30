@@ -2,9 +2,8 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
 import config from "./config.ts";
-import { usersRouter } from "./users/users-router.ts";
-import { postsRouter } from "./posts/posts-router.ts";
-import { assetsRouter } from "./assets/assets-router.ts";
+import { postsRouter } from "./routes/posts/posts-router.ts";
+import { usersRouter } from "./routes/users/users-router.ts";
 
 const app = new Hono();
 
@@ -17,11 +16,14 @@ app.use(
   })
 );
 
-const route = app
-  .route("/", usersRouter)
-  .route("/", postsRouter)
-  .route("/", assetsRouter);
+const route = app.route("/", usersRouter).route("/", postsRouter);
 
-serve(app);
+const port = 3004;
+serve({
+  fetch: app.fetch,
+  port,
+});
+
+console.log(`Server running on http://localhost:${port}`);
 
 export { app };

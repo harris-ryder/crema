@@ -2,9 +2,8 @@ import { Hono } from "hono";
 import { authRequiredMiddleware } from "../../middlewares/auth-required-middleware.ts";
 import { db } from "../../db/index.ts";
 import { postsTable, postReactionsTable } from "../../db/schema.ts";
-import { desc, sql, and } from "drizzle-orm";
+import { desc, and } from "drizzle-orm";
 import {
-  insertPostImageSchema,
   insertPostReactionSchema,
   selectPostSchema,
 } from "../../db/schema.types.ts";
@@ -12,7 +11,10 @@ import z from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { createPost } from "./create-post.ts";
-import { uploadImage } from "../../helpers.ts/upload-image.ts";
+import {
+  uploadImage,
+  uploadImageParams,
+} from "../../helpers.ts/upload-image.ts";
 
 export const postsRouter = new Hono();
 
@@ -59,7 +61,7 @@ const route = postsRouter
     zValidator(
       "form",
       z.object({
-        file: insertPostImageSchema.shape.file,
+        file: uploadImageParams.shape.file,
         description: z.string().optional(),
       })
     ),

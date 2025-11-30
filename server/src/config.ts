@@ -14,7 +14,7 @@ export const config = {
   postgres: {
     connectionString:
       process.env.POSTGRES_CONNECTION_STRING ||
-      "postgres://postgres:shh@localhost:5432/crema",
+      "postgres://postgres:shh@localhost:5433/crema",
   },
 };
 
