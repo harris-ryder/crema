@@ -1,6 +1,12 @@
-export const imageMimeTypes = [
-  "image/png",
-  "image/jpeg",
-  "image/webp",
-  "image/jpg",
-];
+export const imageMimeTypes = {
+  png: "image/png",
+  jpeg: "image/jpeg",
+  jpg: "image/jpeg",
+  webp: "image/webp",
+};
+
+export function getImageMimeType(extension: string) {
+  const normalizedExtension =
+    extension.toLowerCase() as keyof typeof imageMimeTypes;
+  return imageMimeTypes[normalizedExtension] || "application/octet-stream";
+}

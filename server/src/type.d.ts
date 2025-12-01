@@ -1,8 +1,7 @@
 import "hono";
-import type { ApiRoute } from "./users/users-router";
-import type { UsersRoute } from "./users/users-router";
-import type { PostsRoute } from "./posts/posts-router";
-import type { AssetsRoute } from "./assets/assets-router";
+import type { UsersRoute } from "./routes/users/users-router.ts";
+import type { PostsRoute } from "./routes/posts/posts-router.ts";
+import type { ImagesRoute } from "./routes/images/images-router.ts";
 
 declare module "hono" {
   interface ContextVariableMap {
@@ -12,4 +11,4 @@ declare module "hono" {
   }
 }
 
-export type AppType = UsersRoute | PostsRoute | AssetsRoute;
+export type AppType = UsersRoute | PostsRoute | ImagesRoute;

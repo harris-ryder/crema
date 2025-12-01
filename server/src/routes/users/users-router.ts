@@ -210,4 +210,4 @@ const route = usersRouter
     }
   );
 
-export type UserRoute = typeof route;
+export type UsersRoute = typeof route;

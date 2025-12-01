@@ -7,12 +7,7 @@ import { imageMimeTypes } from "../mime.ts";
 import { selectPostSchema } from "../db/schema.types.ts";
 
 export const uploadImageParams = z.object({
-  file: z
-    .instanceof(File)
-    .refine((file) => imageMimeTypes.includes(file.type), {
-      message:
-        "Invalid file type. Only PNG, JPEG, and WebP images are allowed.",
-    }),
+  file: z.instanceof(File),
 });
 
 export const uploadImage = z
@@ -20,10 +15,14 @@ export const uploadImage = z
   .args(uploadImageParams)
   .returns(z.promise(selectPostSchema.shape.image_uri))
   .implement(async ({ file }) => {
-    if (!imageMimeTypes.includes(file.type)) {
+    if (
+      !Object.values(imageMimeTypes).some((mimeType) =>
+        file.type.startsWith(mimeType)
+      )
+    ) {
       throw new Error(
         "Invalid file type, only the following types are allowed: " +
-          imageMimeTypes.join(", ")
+          Object.values(imageMimeTypes).join(", ")
       );
     }
 

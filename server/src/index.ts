@@ -5,6 +5,7 @@ import config from "./config.ts";
 import { postsRouter } from "./routes/posts/posts-router.ts";
 import { usersRouter } from "./routes/users/users-router.ts";
 import { decodeTokenMiddleware } from "./middlewares/decode-token-middleware.ts";
+import { imagesRouter } from "./routes/images/images-router.ts";
 
 const app = new Hono();
 
@@ -17,7 +18,10 @@ app.use(
   })
 );
 
-const route = app.route("/", usersRouter).route("/", postsRouter);
+const route = app
+  .route("/", usersRouter)
+  .route("/", postsRouter)
+  .route("/", imagesRouter);
 
 const port = 3004;
 serve({
