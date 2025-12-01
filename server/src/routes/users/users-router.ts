@@ -50,14 +50,14 @@ const route = usersRouter
     async (c) => {
       const { id } = c.req.valid("param");
       try {
-        const [{ username }] = await db
+        const [{ username, bio, avatar_uri }] = await db
           .select()
           .from(usersTable)
           .where(eq(usersTable.id, id))
           .limit(1);
         return c.json({
           success: true,
-          user: { id, username },
+          user: { id, username, bio, avatar_uri },
         });
       } catch (error) {
         console.error(error);

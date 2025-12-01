@@ -4,10 +4,11 @@ import { cors } from "hono/cors";
 import config from "./config.ts";
 import { postsRouter } from "./routes/posts/posts-router.ts";
 import { usersRouter } from "./routes/users/users-router.ts";
+import { decodeTokenMiddleware } from "./middlewares/decode-token-middleware.ts";
 
 const app = new Hono();
 
-// Add CORS middleware
+app.use(decodeTokenMiddleware);
 app.use(
   "*",
   cors({
