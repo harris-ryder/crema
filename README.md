@@ -32,11 +32,11 @@ This monorepo contains three main applications:
 - **Auth**: Google Sign-In integration
 - **Features**: Feed view, activity tracking, user profiles
 
-### 3. Database (`/postgres`)
+### 3. Database
 
 - **Stack**: PostgreSQL 16
-- **Deployment**: Docker container
-- **ORM**: Drizzle ORM for migrations and type-safe queries
+- **Deployment**: Docker container (via `docker-compose.yml` at root)
+- **ORM**: Drizzle ORM for migrations and type-safe queries (managed in `/server`)
 
 ## Prerequisites
 
@@ -191,8 +191,7 @@ crema/
 │   ├── components/  # Reusable components
 │   ├── contexts/    # React contexts (auth, etc.)
 │   └── config.ts    # App configuration
-├── postgres/        # Database Docker setup
-│   └── docker-compose.yml
+├── docker-compose.yml # PostgreSQL database setup
 └── .env            # Shared environment variables
 ```
 
