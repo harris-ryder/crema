@@ -1,12 +1,12 @@
 // app/_layout.tsx
 import { Stack } from "expo-router";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuth, AuthProvider } from "@/contexts/auth-context";
 import { ActivityIndicator, View } from "react-native";
 
-export default function RootLayout() {
+function RootLayoutNav() {
   const { user, isLoading } = useAuth();
 
-  if (!isLoading) {
+  if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator />
@@ -26,5 +26,13 @@ export default function RootLayout() {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
     </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }

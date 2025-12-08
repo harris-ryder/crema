@@ -6,7 +6,13 @@ import { db } from "../../db/index.ts";
 
 export const createUser = z
   .function()
-  .args(z.object({ user: insertUserSchema.extend({ password: z.string() }) }))
+  .args(
+    z.object({
+      user: insertUserSchema
+        .omit({ username: true })
+        .extend({ password: z.string() }),
+    })
+  )
   .returns(z.promise(selectUserSchema))
   .implement(async ({ user }) => {
     const salt = await bcrypt.genSalt();

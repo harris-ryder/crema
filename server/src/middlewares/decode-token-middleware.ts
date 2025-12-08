@@ -18,6 +18,7 @@ export const decodeTokenMiddleware = async (c: Context, next: Next) => {
   if (!token) {
     return await next();
   }
+  console.log("token @ decode", token);
   const payload = verifyToken({ token });
   if (payload) {
     c.set("user", { id: payload.id });

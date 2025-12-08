@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import fs from "fs/promises";
 import path from "path";
 import { z } from "zod";
-import { config } from "../config.ts";
+import config from "../../config.ts";
 import { imageMimeTypes } from "../mime.ts";
 import { selectPostSchema } from "../db/schema.types.ts";
 
@@ -30,7 +30,7 @@ export const uploadImage = z
     const uri = randomUUID() + fileExtension;
 
     const fileBuffer = Buffer.from(await file.arrayBuffer());
-    const dir = path.join(config.dataPath, "images");
+    const dir = path.join(config.storage.dataPath, "images");
 
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(path.join(dir, uri), fileBuffer);

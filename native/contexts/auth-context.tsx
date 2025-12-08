@@ -13,19 +13,13 @@ import { ZodIssue } from "zod";
 export type User = InferResponseType<
   (typeof client.users)[":id"]["$get"]
 >["user"];
-type SignUpBody = InferRequestType<
-  (typeof client.users)["sign-up"]["$post"]
->["json"];
-type loginBody = InferRequestType<
-  (typeof client.users)["sign-in"]["$post"]
->["json"];
 
 export interface AuthContextType {
   user: User;
   header: { authorization: string };
   isLoading: boolean;
-  signUp(credentials: SignUpBody): Promise<void>;
-  logIn(credentials: loginBody): Promise<void>;
+  googleSignIn(idToken: string): Promise<void>;
+  signOut: () => Promise<void>;
   errors: ZodIssue[];
   getMe: () => Promise<void>;
 }
@@ -36,8 +30,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   header: { authorization: `` },
   isLoading: true,
-  signUp: () => Promise.resolve(),
-  logIn: () => Promise.resolve(),
+  googleSignIn: () => Promise.resolve(),
+  signOut: () => Promise.resolve(),
   errors: [],
   getMe: () => Promise.resolve(),
 });
@@ -73,16 +67,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     setToken(_token);
     setIsLoading(true);
-    const response = await (
-      await client.users.me.$get({
+    
+    try {
+      const res = await client.users.me.$get({
         header: {
           authorization: `Bearer ${_token || ""}`,
         },
-      })
-    ).json();
-    if (response.success) {
-      setUser(response.data.user);
-    } else {
+      });
+      
+      // Check if response is ok before trying to parse JSON
+      if (!res.ok) {
+        console.log("Response not OK:", res.status);
+        setUser(null);
+        setToken(null);
+        await clearAuthToken();
+        setIsLoading(false);
+        return;
+      }
+      
+      const response = await res.json();
+      if (response.success) {
+        setUser(response.data.user);
+      } else {
+        console.log("response.error", response.error);
+        setUser(null);
+        setToken(null);
+        await clearAuthToken();
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
       setUser(null);
       setToken(null);
       await clearAuthToken();
@@ -90,51 +103,61 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false);
   };
 
-  const logIn = async (
-    credentials: InferRequestType<
-      (typeof client.users)["sign-in"]["$post"]
-    >["json"]
-  ) => {
+  const googleSignIn = async (idToken: string) => {
     if (isLoading) {
       return;
     }
     setIsLoading(true);
-    const response = await (
-      await client.users["sign-in"].$post({
-        json: credentials,
-      })
-    ).json();
-    if (response.success) {
-      await saveAuthToken(response.token);
-      setToken(response.token);
-      await getMe();
+    setErrors([]);
+
+    try {
+      // Call your backend endpoint for Google Sign-In
+      // You'll need to create this endpoint on your server
+      console.log("Attempting OAuth call to:", client.oauth.google.$url());
+      console.log("With token:", { token: idToken });
+      
+      const res = await client.oauth.google.$post({
+        json: { token: idToken },
+      });
+      
+      // Check if response is ok before trying to parse JSON
+      if (!res.ok) {
+        console.error("OAuth response not OK:", res.status);
+        const errorText = await res.text();
+        console.error("Error response:", errorText);
+        setErrors([{ message: "Failed to sign in with Google - server error" }] as ZodIssue[]);
+        setIsLoading(false);
+        return;
+      }
+      
+      const response = await res.json();
+      console.log("response", response);
+      if (response.success) {
+        await saveAuthToken(response.token);
+        setToken(response.token);
+        await getMe();
+      } else {
+        setErrors(response.error || []);
+      }
+    } catch (error) {
+      console.error("Google Sign-In error:", error);
+      setErrors([{ message: "Failed to sign in with Google - network error" }] as ZodIssue[]);
+    } finally {
       setIsLoading(false);
-    } else {
-      setErrors([...errors, ...response.error]);
     }
   };
 
-  const signUp = async (
-    credentials: InferRequestType<
-      (typeof client.users)["sign-up"]["$post"]
-    >["json"]
-  ) => {
-    if (isLoading) {
-      return;
-    }
+  const signOut = async () => {
     setIsLoading(true);
-    const response = await (
-      await client.users["sign-up"].$post({
-        json: credentials,
-      })
-    ).json();
-    setIsLoading(false);
-    if (response.success) {
-      await saveAuthToken(response.token);
-      setToken(response.token);
-      await getMe();
-    } else {
-      setErrors([...errors, ...response.error]);
+    try {
+      await clearAuthToken();
+      setToken(null);
+      setUser(null);
+      setErrors([]);
+    } catch (error) {
+      console.error("Sign out error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -148,8 +171,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         user,
         isLoading,
         errors,
-        signUp,
-        logIn,
+        googleSignIn,
+        signOut,
         getMe,
         header: { authorization: `Bearer ${token || ""}` },
       }}

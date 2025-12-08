@@ -9,7 +9,7 @@ import path from "path";
 
 // Get __dirname in ES modules
 // Comment out for react native and web
-// const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Environment-aware helper to safely access process.env
 const getEnv = (key: string, fallback?: string) => {
@@ -65,13 +65,13 @@ const config = {
 
   // File storage
   // Comment out for react native and web
-  // storage: {
-  //   staticFilesPath: getEnv(
-  //     "STATIC_FILES_PATH",
-  //     path.join(__dirname, "static")
-  //   ),
-  //   dataPath: getEnv("DATA_PATH", path.join(__dirname, "data")),
-  // },
+  storage: {
+    staticFilesPath: getEnv(
+      "STATIC_FILES_PATH",
+      path.join(__dirname, "static")
+    ),
+    dataPath: getEnv("DATA_PATH", path.join(__dirname, "data")),
+  },
 } as const;
 
 export default config;

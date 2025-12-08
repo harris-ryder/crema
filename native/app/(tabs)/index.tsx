@@ -5,10 +5,12 @@ import { useState } from "react";
 
 import Button from "@/components/Button";
 import ImageViewer from "@/components/ImageViewer";
+import { useAuth } from "@/contexts/auth-context";
 
 const PlaceholderImage = require("@/assets/images/icon.png");
 
 export default function Index() {
+  const { signOut } = useAuth();
   const [selectedImage, setSelectedImage] = useState<string | undefined>(
     undefined
   );
@@ -41,7 +43,7 @@ export default function Index() {
           label="Choose a photo"
           onPress={pickImageAsync}
         />
-        <Button label="Use this photo" />
+        <Button theme="primary" label="Logout" onPress={signOut} />
       </View>
     </View>
   );

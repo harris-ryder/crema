@@ -7,7 +7,7 @@ import { z } from "zod";
 import { selectPostSchema, selectUserSchema } from "../../db/schema.types.ts";
 import { db } from "../../db/index.ts";
 import { postsTable, usersTable } from "../../db/schema.ts";
-import config from "../../config.ts";
+import config from "../../../config.ts";
 import { getImageMimeType } from "../../mime.ts";
 
 export const imagesRouter = new Hono();
@@ -29,7 +29,7 @@ const route = imagesRouter
         return c.json({ success: false, error: "File not found" }, 404);
       }
       const imageBuffer = await fs.readFile(
-        path.join(config.dataPath, "images", post.image_uri)
+        path.join(config.storage.dataPath, "images", post.image_uri)
       );
       const fileExtension = path.extname(post.image_uri).slice(1);
       const contentType =
@@ -55,7 +55,7 @@ const route = imagesRouter
         return c.json({ success: false, error: "File not found" }, 404);
       }
       const imageBuffer = await fs.readFile(
-        path.join(config.dataPath, "images", user.avatar_uri)
+        path.join(config.storage.dataPath, "images", user.avatar_uri)
       );
       const fileExtension = path.extname(user.avatar_uri).slice(1);
       const contentType =

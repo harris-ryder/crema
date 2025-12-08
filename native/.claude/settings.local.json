@@ -3,7 +3,8 @@
     "allow": [
       "Read(//Users/harrisryder/repos/Personal/crema/server/src/**)",
       "Read(//Users/harrisryder/repos/Personal/modelnote/**)",
-      "Read(//Users/harrisryder/repos/Personal/crema/server/**)"
+      "Read(//Users/harrisryder/repos/Personal/crema/server/**)",
+      "Read(//Users/harrisryder/repos/Personal/crema/**)"
     ],
     "deny": [],
     "ask": []

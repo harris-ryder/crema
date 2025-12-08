@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { selectUserSchema } from "../db/schema.types.ts";
-import { config } from "../config.ts";
+import config from "../../config.ts";
 import jwt from "jsonwebtoken";
 
 export const createTokenSchema = selectUserSchema.pick({ id: true });

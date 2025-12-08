@@ -70,43 +70,6 @@ const route = usersRouter
       }
     }
   )
-  .post(
-    "/sign-up",
-    zValidator("json", insertUserSchema.extend({ password: z.string() })),
-    async (c) => {
-      try {
-        const user = await createUser({ user: c.req.valid("json") });
-        const token = createToken(user);
-
-        return c.json<{ success: true; token: string }>(
-          { success: true, token },
-          201
-        );
-      } catch (error) {
-        console.error(error);
-        return c.json<{ success: false; error: any }>(
-          {
-            success: false,
-            error:
-              error instanceof Error ? error.message : "Internal Server Error",
-          },
-          500
-        );
-      }
-    }
-  )
-  .post("/sign-in", zValidator("json", signInArgs), async (c) => {
-    try {
-      const { token } = await signIn(c.req.valid("json"));
-      return c.json<{ success: true; token: string }>({ success: true, token });
-    } catch (error) {
-      console.error(error);
-      return c.json<{ success: false; error: any }>({
-        success: false,
-        error: error instanceof Error ? error.message : "Internal Server Error",
-      });
-    }
-  })
   .put(
     "/profile-picture",
     authRequiredMiddleware,
