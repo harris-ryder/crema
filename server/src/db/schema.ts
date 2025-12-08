@@ -26,9 +26,7 @@ export const usersTable = pgTable("users", {
     .$defaultFn(() => randomUUID()),
   username: text().unique().notNull(),
   email: text().unique().notNull(),
-  password: text(),
   bio: text(),
-  password_salt: text(),
   avatar_uri: text(),
   ...timestamps,
 });

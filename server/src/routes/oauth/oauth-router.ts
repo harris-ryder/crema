@@ -17,7 +17,7 @@ const route = oauthRouter.post(
   async (c) => {
     const ticket = await googleClient.verifyIdToken({
       idToken: c.req.valid("json").token,
-      audience: config.oauth.google.clientId,
+      audience: config.oauth.google.webClientId,
     });
     const payload = ticket.getPayload();
     console.log("payload", payload);

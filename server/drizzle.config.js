@@ -1,11 +1,12 @@
 import { defineConfig } from "drizzle-kit";
-import { config } from "../config.ts";
 
 export default defineConfig({
   out: "./drizzle",
   schema: "./src/db/schema.ts",
   dialect: "postgresql",
   dbCredentials: {
-    url: config.database.connectionString,
+    url:
+      process.env.POSTGRES_CONNECTION_STRING ||
+      "postgres://postgres:shh@localhost:5433/crema",
   },
 });

@@ -14,6 +14,8 @@ A full-stack social media application with a Node.js backend, React Native mobil
 
 **Note:** When updating configuration, ensure changes are replicated across all `config.ts` files to maintain consistency.
 
+**Exception:** The `/server/drizzle.config.ts` file reads directly from `process.env` instead of importing from `config.ts`. This is due to ES module/CommonJS compatibility issues with drizzle-kit. The drizzle configuration still uses the same environment variables but accesses them directly.
+
 ## Architecture
 
 This monorepo contains three main applications:

@@ -67,35 +67,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     setToken(_token);
     setIsLoading(true);
-    
+
     try {
       const res = await client.users.me.$get({
         header: {
           authorization: `Bearer ${_token || ""}`,
         },
       });
-      
+
       // Check if response is ok before trying to parse JSON
       if (!res.ok) {
-        console.log("Response not OK:", res.status);
         setUser(null);
         setToken(null);
         await clearAuthToken();
         setIsLoading(false);
         return;
       }
-      
+
       const response = await res.json();
       if (response.success) {
         setUser(response.data.user);
       } else {
-        console.log("response.error", response.error);
         setUser(null);
         setToken(null);
         await clearAuthToken();
       }
     } catch (error) {
-      console.error("Error fetching user:", error);
       setUser(null);
       setToken(null);
       await clearAuthToken();
@@ -111,37 +108,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setErrors([]);
 
     try {
-      // Call your backend endpoint for Google Sign-In
-      // You'll need to create this endpoint on your server
-      console.log("Attempting OAuth call to:", client.oauth.google.$url());
-      console.log("With token:", { token: idToken });
-      
       const res = await client.oauth.google.$post({
         json: { token: idToken },
       });
-      
-      // Check if response is ok before trying to parse JSON
+
       if (!res.ok) {
         console.error("OAuth response not OK:", res.status);
         const errorText = await res.text();
         console.error("Error response:", errorText);
-        setErrors([{ message: "Failed to sign in with Google - server error" }] as ZodIssue[]);
+        setErrors([
+          { message: "Failed to sign in with Google - server error" },
+        ] as ZodIssue[]);
         setIsLoading(false);
         return;
       }
-      
+
       const response = await res.json();
-      console.log("response", response);
       if (response.success) {
         await saveAuthToken(response.token);
         setToken(response.token);
         await getMe();
       } else {
-        setErrors(response.error || []);
+        setErrors([
+          { message: "Failed to sign in with Google - server error" },
+        ] as ZodIssue[]);
       }
     } catch (error) {
       console.error("Google Sign-In error:", error);
-      setErrors([{ message: "Failed to sign in with Google - network error" }] as ZodIssue[]);
+      setErrors([
+        { message: "Failed to sign in with Google - network error" },
+      ] as ZodIssue[]);
     } finally {
       setIsLoading(false);
     }
