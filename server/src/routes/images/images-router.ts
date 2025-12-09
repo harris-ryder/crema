@@ -9,6 +9,8 @@ import { db } from "../../db/index.ts";
 import { postsTable, usersTable } from "../../db/schema.ts";
 import config from "../../../config.ts";
 import { getImageMimeType } from "../../mime.ts";
+import { authRequiredMiddleware } from "../../middlewares/auth-required-middleware.ts";
+import { uploadImage } from "../../helpers/upload-image.ts";
 
 export const imagesRouter = new Hono();
 
@@ -64,6 +66,74 @@ const route = imagesRouter
       return c.body(imageBuffer, 200, {
         "Content-Type": contentType,
       });
+    }
+  )
+  .put(
+    "/users/profile-picture",
+    authRequiredMiddleware,
+    zValidator(
+      "form",
+      z.object({
+        file: z
+          .instanceof(File)
+          .refine((file) => file.type.startsWith("image/"), {
+            message: "File must be an image",
+          }),
+      })
+    ),
+    async (c) => {
+      const user = c.get("user");
+      if (!user) {
+        return c.text("Unauthorized", 401);
+      }
+
+      const body = await c.req.parseBody();
+      if (!(body["file"] instanceof File)) {
+        return c.text("Invalid file", 400);
+      }
+
+      try {
+        const [{ avatar_uri: oldAvatarUri }] = await db
+          .select()
+          .from(usersTable)
+          .where(eq(usersTable.id, user.id));
+
+        const avatarUri = await uploadImage({ file: body["file"] });
+
+        const [updatedUser] = await db
+          .update(usersTable)
+          .set({
+            avatar_uri: avatarUri,
+            updated_at: new Date(),
+          })
+          .where(eq(usersTable.id, user.id))
+          .returning();
+
+        if (oldAvatarUri) {
+          await fs.unlink(
+            path.join(config.storage.dataPath, "images", oldAvatarUri)
+          );
+        }
+        console.log("updatedUser", updatedUser);
+
+        return c.json(
+          {
+            success: true,
+            user: updatedUser,
+          },
+          200
+        );
+      } catch (error) {
+        console.error(error);
+        return c.json(
+          {
+            success: false,
+            error:
+              error instanceof Error ? error.message : "Failed to upload image",
+          },
+          500
+        );
+      }
     }
   );
 

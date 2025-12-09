@@ -75,15 +75,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
       });
 
-      // Check if response is ok before trying to parse JSON
-      if (!res.ok) {
-        setUser(null);
-        setToken(null);
-        await clearAuthToken();
-        setIsLoading(false);
-        return;
-      }
-
       const response = await res.json();
       if (response.success) {
         setUser(response.data);

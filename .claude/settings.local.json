@@ -5,7 +5,9 @@
       "WebFetch(domain:sandpack.codesandbox.io)",
       "WebSearch",
       "WebFetch(domain:docs.expo.dev)",
-      "WebFetch(domain:expo.dev)"
+      "WebFetch(domain:expo.dev)",
+      "Bash(ls:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

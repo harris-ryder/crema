@@ -6,11 +6,65 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { useAuth } from "@/contexts/auth-context";
+import { loadAuthToken, useAuth } from "@/contexts/auth-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import config from "../../config";
+import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
 
-export default function ProfileScreen() {
+const postImage = async (imageUri: string) => {
+  const token = await loadAuthToken();
+
+  const formData = new FormData();
+  formData.append("file", {
+    uri: imageUri,
+    type: "image/jpeg",
+    name: "profile.jpg",
+  } as any);
+
+  const response = await fetch(
+    `${config.urls.backend}/images/users/profile-picture`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    }
+  );
+
+  const result = await response.json();
+
+  if (result.success) {
+    return result;
+  } else {
+    throw new Error("Failed to update image");
+  }
+};
+
+export default function Profile() {
   const { user, signOut } = useAuth();
+  const [imageVersion, setImageVersion] = useState(0);
+
+  const pickImageAsync = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      try {
+        const response = await postImage(result.assets[0].uri);
+        if (response.success) {
+          setImageVersion(prev => prev + 1); // Increment to trigger cache bust
+        }
+      } catch (error) {
+        // Handle upload error silently or show user feedback
+      }
+    }
+  };
 
   if (!user) {
     return (
@@ -27,13 +81,24 @@ export default function ProfileScreen() {
     >
       <View style={styles.profileHeader}>
         <View style={styles.avatarContainer}>
-          {user.avatar_url ? (
-            <Image source={{ uri: user.avatar_url }} style={styles.avatar} />
+          {user.id ? (
+            <Image
+              source={{
+                uri: `${config.urls.backend}/images/users/${user.id}?v=${imageVersion}`,
+              }}
+              style={styles.avatar}
+            />
           ) : (
             <View style={styles.avatarPlaceholder}>
               <Ionicons name="person" size={50} color="#666" />
             </View>
           )}
+          <TouchableOpacity
+            style={styles.addPhotoButton}
+            onPress={pickImageAsync}
+          >
+            <Ionicons name="add" size={20} color="#25292e" />
+          </TouchableOpacity>
         </View>
 
         <Text style={styles.username}>@{user.username || "username"}</Text>
@@ -121,6 +186,7 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     marginBottom: 20,
+    position: "relative",
   },
   avatar: {
     width: 120,
@@ -211,5 +277,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#ff4444",
+  },
+  addPhotoButton: {
+    position: "absolute",
+    bottom: 5,
+    right: 5,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#ffd33d",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 3,
+    borderColor: "#25292e",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
