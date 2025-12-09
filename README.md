@@ -42,11 +42,26 @@ This monorepo contains three main applications:
 
 ## Prerequisites
 
-- Node.js (v18 or higher)
+- **Node.js v22.0.0 or higher** (we use v22.17.1)
+  - For consistent versions, use: `nvm use` (reads `.nvmrc`)
+  - Or install manually from [nodejs.org](https://nodejs.org/)
 - Docker and Docker Compose
 - Android Studio (for Android development)
 - Xcode (for iOS development, macOS only)
 - Android SDK
+
+### Node.js Version Management
+
+This project uses Node.js v22+ for modern features like `--experimental-transform-types`. To ensure consistency:
+
+```bash
+# If using nvm (recommended)
+nvm use
+
+# Or install the specific version
+nvm install 22.17.1
+nvm use 22.17.1
+```
 
 ## Setup Instructions
 

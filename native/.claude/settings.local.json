@@ -5,7 +5,9 @@
       "Read(//Users/harrisryder/repos/Personal/modelnote/**)",
       "Read(//Users/harrisryder/repos/Personal/crema/server/**)",
       "Read(//Users/harrisryder/repos/Personal/crema/**)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []
