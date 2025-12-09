@@ -66,8 +66,5 @@ export const postReactionsTable = pgTable(
     emoji: reactionEnum("emoji").notNull(),
     ...timestamps,
   },
-  (table) => [
-    // One reaction per user per post (user can change their reaction)
-    unique().on(table.post_id, table.user_id),
-  ]
+  (table) => [unique().on(table.post_id, table.user_id)]
 );
