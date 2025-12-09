@@ -4,9 +4,8 @@ import {
   text,
   timestamp,
   type ReferenceConfig,
-  integer,
-  unique,
   pgEnum,
+  unique,
 } from "drizzle-orm/pg-core";
 import { randomUUID } from "crypto";
 
@@ -67,8 +66,8 @@ export const postReactionsTable = pgTable(
     emoji: reactionEnum("emoji").notNull(),
     ...timestamps,
   },
-  (table) => ({
+  (table) => [
     // One reaction per user per post (user can change their reaction)
-    uniqueUserPost: unique().on(table.post_id, table.user_id),
-  })
+    unique().on(table.post_id, table.user_id),
+  ]
 );

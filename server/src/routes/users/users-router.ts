@@ -5,11 +5,8 @@ import { authRequiredMiddleware } from "../../middlewares/auth-required-middlewa
 import { db } from "../../db/index.ts";
 import { usersTable } from "../../db/schema.ts";
 import { eq } from "drizzle-orm";
-import { insertUserSchema, selectUserSchema } from "../../db/schema.types.ts";
-import { createUser } from "./create-user.ts";
-import { createToken } from "../../helpers.ts/token.ts";
-import { signIn, signInArgs } from "./sign-in.ts";
-import { uploadImage } from "../../helpers.ts/upload-image.ts";
+import { selectUserSchema } from "../../db/schema.types.ts";
+import { uploadImage } from "../../helpers/upload-image.ts";
 import { updateUsername } from "./update-username.ts";
 
 export const usersRouter = new Hono();

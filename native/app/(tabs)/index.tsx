@@ -7,7 +7,7 @@ import Button from "@/components/Button";
 import ImageViewer from "@/components/ImageViewer";
 import { useAuth } from "@/contexts/auth-context";
 
-const PlaceholderImage = require("@/assets/images/icon.png");
+import PlaceholderImage from "@/assets/images/icon.png";
 
 export default function Index() {
   const { signOut } = useAuth();

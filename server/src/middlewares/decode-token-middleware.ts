@@ -1,8 +1,5 @@
 import type { Context, Next } from "hono";
-import { db } from "../db/index.ts";
-import { usersTable } from "../db/schema.ts";
-import { eq } from "drizzle-orm";
-import { verifyToken } from "../helpers.ts/token.ts";
+import { verifyToken } from "../helpers/token.ts";
 
 export const decodeTokenMiddleware = async (c: Context, next: Next) => {
   const auth = c.req.header("authorization");

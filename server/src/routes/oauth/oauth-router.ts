@@ -5,7 +5,7 @@ import config from "../../../config.ts";
 import { db } from "../../db/index.ts";
 import { usersTable } from "../../db/schema.ts";
 import { eq } from "drizzle-orm";
-import { createToken } from "../../helpers.ts/token.ts";
+import { createToken } from "../../helpers/token.ts";
 import { Hono } from "hono";
 
 const googleClient = new OAuth2Client();

@@ -11,10 +11,7 @@ import z from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { createPost } from "./create-post.ts";
-import {
-  uploadImage,
-  uploadImageParams,
-} from "../../helpers.ts/upload-image.ts";
+import { uploadImage, uploadImageParams } from "../../helpers/upload-image.ts";
 
 export const postsRouter = new Hono();
 

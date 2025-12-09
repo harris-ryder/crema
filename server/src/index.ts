@@ -19,7 +19,7 @@ app.use(
   })
 );
 
-const route = app
+app
   .route("/", usersRouter)
   .route("/", oauthRouter)
   .route("/", postsRouter)

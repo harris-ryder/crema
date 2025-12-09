@@ -1,4 +1,4 @@
-import { InferRequestType, InferResponseType } from "hono/client";
+import { InferResponseType } from "hono/client";
 import { client } from "@/api/client";
 import {
   createContext,
