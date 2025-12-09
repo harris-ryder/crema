@@ -15,7 +15,7 @@ import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function UsernameSetup() {
-  const { user, header } = useAuth();
+  const { user, header, getMe } = useAuth();
   const [username, setUsername] = useState(user?.username || "");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -47,6 +47,7 @@ export default function UsernameSetup() {
       setError("Failed to update username");
     } finally {
       setIsLoading(false);
+      await getMe();
     }
   };
 

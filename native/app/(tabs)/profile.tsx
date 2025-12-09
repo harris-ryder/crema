@@ -11,6 +11,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import config from "../../config";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
+import { router } from "expo-router";
 
 const postImage = async (imageUri: string) => {
   const token = await loadAuthToken();
@@ -115,13 +116,17 @@ export default function Profile() {
           </View>
         </View>
 
-        <View style={styles.infoRow}>
+        <TouchableOpacity 
+          style={styles.infoRow} 
+          onPress={() => router.push("/(profile)/update-username")}
+        >
           <Ionicons name="person-outline" size={20} color="#8b8e92" />
           <View style={styles.infoContent}>
             <Text style={styles.infoLabel}>Username</Text>
             <Text style={styles.infoValue}>@{user.username || "Not set"}</Text>
           </View>
-        </View>
+          <Ionicons name="chevron-forward" size={20} color="#8b8e92" />
+        </TouchableOpacity>
 
         <View style={styles.infoRow}>
           <Ionicons name="id-card-outline" size={20} color="#8b8e92" />
@@ -145,11 +150,6 @@ export default function Profile() {
       </View>
 
       <View style={styles.actionSection}>
-        <TouchableOpacity style={styles.editButton}>
-          <Ionicons name="create-outline" size={20} color="#fff" />
-          <Text style={styles.editButtonText}>Edit Profile</Text>
-        </TouchableOpacity>
-
         <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
           <Ionicons name="log-out-outline" size={20} color="#ff4444" />
           <Text style={styles.logoutButtonText}>Sign Out</Text>
@@ -247,20 +247,6 @@ const styles = StyleSheet.create({
   actionSection: {
     padding: 20,
     gap: 15,
-  },
-  editButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#ffd33d",
-    padding: 15,
-    borderRadius: 12,
-    gap: 10,
-  },
-  editButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#25292e",
   },
   logoutButton: {
     flexDirection: "row",
