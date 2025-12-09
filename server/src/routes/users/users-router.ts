@@ -34,10 +34,10 @@ const route = usersRouter
 
     return c.json<{
       success: true;
-      data: { user: typeof userRecord };
+      data: typeof userRecord;
     }>({
       success: true,
-      data: { user: userRecord },
+      data: userRecord,
     });
   })
   .get(

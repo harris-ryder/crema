@@ -14,7 +14,6 @@ import { router } from "expo-router";
 export type User = InferResponseType<
   (typeof client.users)[":id"]["$get"]
 >["user"];
-
 export interface AuthContextType {
   user: User;
   header: { authorization: string };
@@ -87,7 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const response = await res.json();
       if (response.success) {
-        setUser(response.data.user);
+        setUser(response.data);
       } else {
         setUser(null);
         setToken(null);
