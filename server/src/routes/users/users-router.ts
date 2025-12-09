@@ -10,6 +10,7 @@ import { createUser } from "./create-user.ts";
 import { createToken } from "../../helpers.ts/token.ts";
 import { signIn, signInArgs } from "./sign-in.ts";
 import { uploadImage } from "../../helpers.ts/upload-image.ts";
+import { updateUsername } from "./update-username.ts";
 
 export const usersRouter = new Hono();
 
@@ -34,14 +35,12 @@ const route = usersRouter
       );
     }
 
-    const { password, password_salt, ...userWithoutPasswordData } = userRecord;
-
     return c.json<{
       success: true;
-      data: { user: Omit<typeof userRecord, "password" | "password_salt"> };
+      data: { user: typeof userRecord };
     }>({
       success: true,
-      data: { user: userWithoutPasswordData },
+      data: { user: userRecord },
     });
   })
   .get(
@@ -106,12 +105,10 @@ const route = usersRouter
           .where(eq(usersTable.id, user.id))
           .returning();
 
-        const { password, password_salt, ...userWithoutPassword } = updatedUser;
-
         return c.json(
           {
             success: true,
-            user: userWithoutPassword,
+            user: updatedUser,
           },
           200
         );
@@ -150,12 +147,10 @@ const route = usersRouter
           .where(eq(usersTable.id, user.id))
           .returning();
 
-        const { password, password_salt, ...userWithoutPassword } = updatedUser;
-
         return c.json(
           {
             success: true,
-            user: userWithoutPassword,
+            user: updatedUser,
           },
           200
         );
@@ -170,6 +165,34 @@ const route = usersRouter
           500
         );
       }
+    }
+  )
+  .put(
+    "/username",
+    authRequiredMiddleware,
+    zValidator(
+      "json",
+      z.object({
+        username: z
+          .string()
+          .min(3, "Username must be at least 3 characters")
+          .max(30, "Username must be at most 30 characters")
+          .regex(
+            /^[a-zA-Z0-9_]+$/,
+            "Username can only contain letters, numbers, and underscores"
+          ),
+      })
+    ),
+    async (c) => {
+      const user = c.get("user");
+      if (!user) {
+        return c.text("Unauthorized", 401);
+      }
+
+      const { username } = c.req.valid("json");
+      const result = await updateUsername(user.id, username);
+
+      return c.json(result, result.success ? 200 : 400);
     }
   );
 
