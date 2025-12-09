@@ -3,7 +3,9 @@
     "allow": [
       "WebFetch(domain:ai-sdk.dev)",
       "WebFetch(domain:sandpack.codesandbox.io)",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:docs.expo.dev)",
+      "WebFetch(domain:expo.dev)"
     ],
     "deny": [],
     "ask": []
