@@ -5,6 +5,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  RefreshControl,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
@@ -22,6 +23,7 @@ export default function Index() {
     InferResponseType<typeof client.posts.$get>["posts"]
   >([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -40,8 +42,13 @@ export default function Index() {
     }
   };
 
-  const fetchPosts = async () => {
-    setIsLoading(true);
+  const fetchPosts = async (isRefresh = false) => {
+    if (isRefresh) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
+    
     try {
       const res = await client.posts.$get({}, { headers: header });
       const response = await res.json();
@@ -52,8 +59,17 @@ export default function Index() {
     } catch (error) {
       console.error("Failed to fetch posts:", error);
     } finally {
-      setIsLoading(false);
+      if (isRefresh) {
+        setIsRefreshing(false);
+      } else {
+        setIsLoading(false);
+      }
     }
+  };
+
+  const onRefresh = () => {
+    console.log("Pull to refresh triggered");
+    fetchPosts(true);
   };
 
   useEffect(() => {
@@ -65,6 +81,17 @@ export default function Index() {
       style={styles.scrollContainer}
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={true}
+      refreshControl={
+        <RefreshControl
+          refreshing={isRefreshing}
+          onRefresh={onRefresh}
+          colors={["#ffd33d"]}
+          tintColor="#ffd33d"
+          progressBackgroundColor="#25292e"
+        />
+      }
+      bounces={true}
+      alwaysBounceVertical={true}
     >
       <View style={styles.footerContainer}>
         <Button theme="primary" label="Create Post" onPress={pickImageAsync} />
@@ -117,6 +144,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingBottom: 120,
+    minHeight: "100%",
   },
   footerContainer: {
     paddingVertical: 20,
