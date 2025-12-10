@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 
@@ -48,7 +49,7 @@ export default function Index() {
     } else {
       setIsLoading(true);
     }
-    
+
     try {
       const res = await client.posts.$get({}, { headers: header });
       const response = await res.json();
@@ -101,9 +102,21 @@ export default function Index() {
         {posts.map((post) => (
           <View key={post.id} style={styles.postCard}>
             <View style={styles.postHeader}>
-              {/* <Text style={styles.username}>
-                @{post.user?.username || "user"}
-              </Text> */}
+              {post.user?.id ? (
+                <Image
+                  source={{
+                    uri: `${config.urls.backend}/images/users/${post.user.id}`,
+                  }}
+                  style={styles.avatar}
+                />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Ionicons name="person" size={50} color="#666" />
+                </View>
+              )}
+              <Text style={styles.username}>
+                {post.user?.username || "user"}
+              </Text>
               <Text style={styles.timestamp}>
                 {new Date(post.created_at).toLocaleDateString()}
               </Text>
@@ -194,5 +207,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#8b8e92",
     textAlign: "center",
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  avatarPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#2a2f35",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
   },
 });

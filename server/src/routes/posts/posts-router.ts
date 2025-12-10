@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { authRequiredMiddleware } from "../../middlewares/auth-required-middleware.ts";
 import { db } from "../../db/index.ts";
-import { postsTable, postReactionsTable } from "../../db/schema.ts";
+import { postsTable, postReactionsTable, usersTable } from "../../db/schema.ts";
 import { desc, and } from "drizzle-orm";
 import {
   insertPostReactionSchema,
@@ -19,8 +19,19 @@ const route = postsRouter
   .basePath("/posts")
   .get("/", async (c) => {
     const posts = await db
-      .select()
+      .select({
+        id: postsTable.id,
+        description: postsTable.description,
+        image_uri: postsTable.image_uri,
+        created_at: postsTable.created_at,
+        updated_at: postsTable.updated_at,
+        user: {
+          id: usersTable.id,
+          username: usersTable.username,
+        },
+      })
       .from(postsTable)
+      .innerJoin(usersTable, eq(postsTable.user_id, usersTable.id))
       .orderBy(desc(postsTable.created_at))
       .limit(50);
     return c.json({ success: true, posts });
