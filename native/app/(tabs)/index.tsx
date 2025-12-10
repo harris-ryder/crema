@@ -1,13 +1,27 @@
-import { View, StyleSheet, ScrollView, Text } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Text,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { useEffect, useState } from "react";
 
 import Button from "@/components/Button";
-import ImageViewer from "@/components/ImageViewer";
 import { router } from "expo-router";
-
-import PlaceholderImage from "@/assets/images/icon.png";
+import { useAuth } from "@/contexts/auth-context";
+import { client } from "@/api/client";
+import config from "@/config";
+import { InferResponseType } from "hono/client";
 
 export default function Index() {
+  const { header } = useAuth();
+  const [posts, setPosts] = useState<
+    InferResponseType<typeof client.posts.$get>["posts"]
+  >([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -19,12 +33,32 @@ export default function Index() {
     if (!result.canceled) {
       router.push({
         pathname: "/create-post",
-        params: { imageUri: result.assets[0].uri }
+        params: { imageUri: result.assets[0].uri },
       });
     } else {
       alert("You did not select any image.");
     }
   };
+
+  const fetchPosts = async () => {
+    setIsLoading(true);
+    try {
+      const res = await client.posts.$get({}, { headers: header });
+      const response = await res.json();
+
+      if (response.success) {
+        setPosts(response.posts || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch posts:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   return (
     <ScrollView
@@ -33,60 +67,43 @@ export default function Index() {
       showsVerticalScrollIndicator={true}
     >
       <View style={styles.footerContainer}>
-        <Button
-          theme="primary"
-          label="Create Post"
-          onPress={pickImageAsync}
-        />
-      </View>
-      <View style={styles.imageContainer}>
-        <ImageViewer
-          imgSource={PlaceholderImage}
-        />
+        <Button theme="primary" label="Create Post" onPress={pickImageAsync} />
       </View>
 
-      <View style={styles.contentSection}>
-        <Text style={styles.sectionTitle}>Test Content Area</Text>
-        <Text style={styles.contentText}>
-          This is scrollable content to test if it appears behind the floating
-          tab bar.
-        </Text>
-      </View>
+      <View style={styles.postsContainer}>
+        {posts.map((post) => (
+          <View key={post.id} style={styles.postCard}>
+            <View style={styles.postHeader}>
+              {/* <Text style={styles.username}>
+                @{post.user?.username || "user"}
+              </Text> */}
+              <Text style={styles.timestamp}>
+                {new Date(post.created_at).toLocaleDateString()}
+              </Text>
+            </View>
 
-      <View style={styles.contentSection}>
-        <Text style={styles.sectionTitle}>Features</Text>
-        {[1, 2, 3, 4, 5].map((item) => (
-          <View key={item} style={styles.featureCard}>
-            <Text style={styles.featureTitle}>Feature {item}</Text>
-            <Text style={styles.featureText}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </Text>
+            {post.image_uri && (
+              <Image
+                source={{
+                  uri: `${config.urls.backend}/images/posts/${post.id}`,
+                }}
+                style={styles.postImage}
+              />
+            )}
+
+            {post.description && (
+              <Text style={styles.postDescription}>{post.description}</Text>
+            )}
           </View>
         ))}
-      </View>
 
-      <View style={styles.contentSection}>
-        <Text style={styles.sectionTitle}>More Content</Text>
-        {[1, 2, 3].map((item) => (
-          <View key={item} style={styles.featureCard}>
-            <Text style={styles.featureTitle}>Section {item}</Text>
-            <Text style={styles.featureText}>
-              Keep scrolling to see if content goes behind the tab bar. This
-              should be hidden when it scrolls under the floating white tab bar.
+        {posts.length === 0 && !isLoading && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>
+              No posts yet. Create the first one!
             </Text>
           </View>
-        ))}
-      </View>
-
-      <View style={styles.bottomTestSection}>
-        <Text style={styles.testText}>
-          🔍 Bottom content - should scroll behind tab bar
-        </Text>
-        <Text style={styles.testText}>📱 Test line 1</Text>
-        <Text style={styles.testText}>📱 Test line 2</Text>
-        <Text style={styles.testText}>📱 Test line 3</Text>
-        <Text style={styles.testText}>📱 Last visible line?</Text>
+        )}
       </View>
     </ScrollView>
   );
@@ -99,60 +116,55 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    alignItems: "center",
     paddingBottom: 120,
-  },
-  imageContainer: {
-    paddingTop: 20,
-    paddingBottom: 20,
   },
   footerContainer: {
     paddingVertical: 20,
     alignItems: "center",
   },
-  contentSection: {
-    width: "100%",
-    paddingHorizontal: 20,
-    marginVertical: 20,
+  postsContainer: {
+    paddingHorizontal: 15,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 15,
-  },
-  contentText: {
-    fontSize: 16,
-    color: "#ccc",
-    lineHeight: 24,
-  },
-  featureCard: {
+  postCard: {
     backgroundColor: "#2a2f35",
-    padding: 20,
     borderRadius: 15,
-    marginBottom: 15,
+    marginBottom: 20,
+    padding: 15,
   },
-  featureTitle: {
-    fontSize: 18,
+  postHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  username: {
+    fontSize: 16,
     fontWeight: "600",
     color: "#ffd33d",
-    marginBottom: 10,
   },
-  featureText: {
+  timestamp: {
+    fontSize: 12,
+    color: "#8b8e92",
+  },
+  postImage: {
+    width: "100%",
+    height: 250,
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+  postDescription: {
     fontSize: 14,
-    color: "#aaa",
+    color: "#fff",
     lineHeight: 20,
   },
-  bottomTestSection: {
-    padding: 20,
-    backgroundColor: "#1a1d21",
-    marginTop: 20,
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
   },
-  testText: {
+  emptyText: {
     fontSize: 16,
-    color: "#fff",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#333",
+    color: "#8b8e92",
+    textAlign: "center",
   },
 });
