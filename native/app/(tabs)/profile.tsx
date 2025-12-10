@@ -33,6 +33,7 @@ const postImage = async (imageUri: string) => {
       body: formData,
     }
   );
+  console.log("response", response);
 
   const result = await response.json();
 
@@ -59,7 +60,7 @@ export default function Profile() {
       try {
         const response = await postImage(result.assets[0].uri);
         if (response.success) {
-          setImageVersion(prev => prev + 1); // Increment to trigger cache bust
+          setImageVersion((prev) => prev + 1); // Increment to trigger cache bust
         }
       } catch (error) {
         // Handle upload error silently or show user feedback
@@ -116,8 +117,8 @@ export default function Profile() {
           </View>
         </View>
 
-        <TouchableOpacity 
-          style={styles.infoRow} 
+        <TouchableOpacity
+          style={styles.infoRow}
           onPress={() => router.push("/(profile)/update-username")}
         >
           <Ionicons name="person-outline" size={20} color="#8b8e92" />

@@ -34,7 +34,7 @@ const config = {
   // URLs
   urls: {
     // Backend API
-    backend: getEnv("BACKEND_URL", "http://192.168.3.158:3004"),
+    backend: getEnv("BACKEND_URL", "http://10.19.3.247:3004"),
 
     // Frontend apps
     web: getEnv("FRONTEND_URL", "http://localhost:5173"),
