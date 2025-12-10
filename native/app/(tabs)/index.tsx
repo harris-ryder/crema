@@ -18,6 +18,27 @@ import { client } from "@/api/client";
 import config from "@/config";
 import { InferResponseType } from "hono/client";
 
+// const addReaction = async (postId: string, emoji: "👍" | "❤️" | "😂" | "🔥" | "🎉" | "👏") => {
+//   try {
+//     const res = await client.posts[":postId"]["reaction"].$put(
+//       {
+//         param: { postId },
+//         json: { emoji },
+//       },
+//       { headers: header }
+//     );
+
+//     const response = await res.json();
+//     if (response.success) {
+//       console.log("Reaction added successfully");
+//       // Optionally refresh posts to show updated reactions
+//     }
+//   } catch (error) {
+//     console.error("Failed to add reaction:", error);
+//     Alert.alert("Error", "Failed to add reaction");
+//   }
+// };
+
 export default function Index() {
   const { header } = useAuth();
   const [posts, setPosts] = useState<
