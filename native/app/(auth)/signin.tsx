@@ -14,6 +14,7 @@ GoogleSignin.configure({
     "157821791942-m36u8iqssodtm9440adgr8noq3vmut9m.apps.googleusercontent.com",
   scopes: ["profile", "email"],
   offlineAccess: false,
+  forceCodeForRefreshToken: true,
 });
 
 export default function SignInScreen() {
@@ -23,6 +24,9 @@ export default function SignInScreen() {
     try {
       // Check if device has Google Play services
       await GoogleSignin.hasPlayServices();
+
+      // Sign out any existing session to force account selection
+      await GoogleSignin.signOut();
 
       // Initiate sign-in process
       const userInfo = await GoogleSignin.signIn();
