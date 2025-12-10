@@ -65,11 +65,6 @@ export default function CreatePost() {
       </TouchableOpacity>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Create Post</Text>
-        <Text style={styles.subtitle}>
-          Share your moment with the Crema community
-        </Text>
-
         <View style={styles.imageContainer}>
           {imageUri && (
             <Image source={{ uri: imageUri }} style={styles.selectedImage} />
@@ -133,19 +128,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: "center",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#ccc",
-    textAlign: "center",
-    marginBottom: 30,
   },
   imageContainer: {
     alignItems: "center",
