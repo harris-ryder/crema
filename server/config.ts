@@ -1,25 +1,18 @@
-/**
- * Global configuration for Crema
- * Shared across server, web, and native applications
- */
-
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import path from "path";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 
 // Get __dirname in ES modules
-// Comment out for react native and web
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Environment-aware helper to safely access process.env
-const getEnv = (key: string, fallback?: string) => {
-  // Use globalThis to access process without TypeScript errors
-  const globalProcess = (globalThis as any).process;
-  if (typeof globalProcess !== "undefined" && globalProcess.env) {
-    return globalProcess.env[key] || fallback;
-  }
-  return fallback;
-};
+// Helper function to get environment variables with fallback
+function getEnv(key: string, defaultValue: string): string {
+  return process.env[key] || defaultValue;
+}
 
 const config = {
   // Environment
