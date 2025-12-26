@@ -19,6 +19,8 @@ RUN npm ci --only=production
 COPY server/ ./
 
 # Expose the port that the application listens on.
+
+ENV PORT=3000
 EXPOSE 3000
 
 # Start the server

@@ -20,7 +20,7 @@ const config = {
 
   // Ports
   ports: {
-    server: 3004,
+    server: parseInt(getEnv("PORT", "3004")),
     web: 5173,
   },
 
