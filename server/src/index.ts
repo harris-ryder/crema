@@ -7,6 +7,7 @@ import { usersRouter } from "./routes/users/users-router.ts";
 import { decodeTokenMiddleware } from "./middlewares/decode-token-middleware.ts";
 import { imagesRouter } from "./routes/images/images-router.ts";
 import { oauthRouter } from "./routes/oauth/oauth-router.ts";
+import { pingRouter } from "./routes/ping/ping.ts";
 
 const app = new Hono();
 
@@ -18,6 +19,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.route("/", pingRouter);
 
 app
   .route("/", usersRouter)
