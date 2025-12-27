@@ -8,6 +8,7 @@ import { decodeTokenMiddleware } from "./middlewares/decode-token-middleware.ts"
 import { imagesRouter } from "./routes/images/images-router.ts";
 import { oauthRouter } from "./routes/oauth/oauth-router.ts";
 import { healthRouter } from "./routes/health/health.ts";
+import { db } from "./db/index.ts";
 
 const app = new Hono();
 
@@ -34,5 +35,10 @@ serve({
 });
 
 console.log(`Server running on http://localhost:${config.ports.server}`);
+
+// Check database connection
+db.execute("SELECT 1")
+  .then(() => console.log("postgres connected successfully"))
+  .catch((err) => console.error("postgres connection failed:", err.message));
 
 export { app };
