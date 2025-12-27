@@ -36,7 +36,7 @@ const config = {
   // Database
   database: {
     connectionString: getEnv(
-      "POSTGRES_CONNECTION_STRING",
+      "POSTGRES_CONNECTION",
       "postgres://postgres:shh@localhost:5433/crema"
     ),
   },
@@ -59,10 +59,6 @@ const config = {
   // File storage
   // Comment out for react native and web
   storage: {
-    staticFilesPath: getEnv(
-      "STATIC_FILES_PATH",
-      path.join(__dirname, "static")
-    ),
     dataPath: getEnv("DATA_PATH", path.join(__dirname, "data")),
   },
 } as const;
