@@ -57,3 +57,16 @@
   --color-brand-red: var(--color-brand-red)
   --color-brand-green: var(--color-brand-green)
 }
+
+@keyframes infinite-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-infinite-scroll {
+  animation: infinite-scroll 25s linear infinite;
+}
