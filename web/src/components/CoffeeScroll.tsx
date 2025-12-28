@@ -1,4 +1,4 @@
-export default function CoffeeScroll() {
+export default function CoffeeBanner() {
   const coffeeImages = Array.from({ length: 28 }, (_, i) => i + 1).sort(
     () => Math.random() - 0.5
   );
@@ -14,7 +14,7 @@ export default function CoffeeScroll() {
             key={`first-${num}`}
             src={`/coffee-thumbnails/${num}.webp`}
             alt={`Coffee ${num}`}
-            className="w-[90px] h-[90px] object-cover mx-2 flex-shrink-0"
+            className="w-[90px] h-[90px] object-cover mx-[1px] flex-shrink-0"
           />
         ))}
         {coffeeImages.map((num) => (
@@ -22,7 +22,7 @@ export default function CoffeeScroll() {
             key={`second-${num}`}
             src={`/coffee-thumbnails/${num}.webp`}
             alt={`Coffee ${num}`}
-            className="w-[90px] h-[90px] object-cover mx-2 flex-shrink-0"
+            className="w-[90px] h-[90px] object-cover mx-[1px] flex-shrink-0"
           />
         ))}
       </div>

@@ -1,4 +1,4 @@
-import CoffeeScroll from "./components/CoffeeScroll";
+import CoffeeBanner from "./components/CoffeeScroll";
 
 export default function App() {
   return (
@@ -6,9 +6,7 @@ export default function App() {
       <div className="flex-1" />
       <div className="flex-1 flex flex-col justify-center items-center">
         <img src="./icon.svg" className="w-12 h-12"></img>
-        <h1
-          className="mt-4 uppercase text-[36px] leading-none tracking-[-0.03em] font-climate"
-        >
+        <h1 className="mt-4 uppercase text-[36px] leading-none tracking-[-0.03em] font-climate">
           CREMA
         </h1>
       </div>
@@ -16,7 +14,7 @@ export default function App() {
       <div className="flex-1 flex flex-col justify-end items-center gap-24">
         <div className="flex flex-col gap-8 justify-center items-center">
           <div className="mt-8 w-screen">
-            <CoffeeScroll />
+            <CoffeeBanner />
           </div>
           <img
             src="./google-play-badge.svg"
@@ -24,9 +22,7 @@ export default function App() {
             className="h-12"
           />
         </div>
-        <p
-          className="text-content-primary pb-2 pl-2 self-start font-inter text-[12px] tracking-[-0.03em]"
-        >
+        <p className="text-content-primary pb-2 pl-2 self-start font-inter text-[12px] tracking-[-0.03em]">
           ©2025 Designed in London
         </p>
       </div>
