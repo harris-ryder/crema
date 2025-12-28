@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { client } from "@/api/client";
 import config from "@/config";
 import { InferResponseType } from "hono/client";
+import { type, useTheme } from "@/src/design";
 
 // const addReaction = async (postId: string, emoji: "👍" | "❤️" | "😂" | "🔥" | "🎉" | "👏") => {
 //   try {
@@ -41,6 +42,7 @@ import { InferResponseType } from "hono/client";
 
 export default function Index() {
   const { header } = useAuth();
+  const theme = useTheme();
   const [posts, setPosts] = useState<
     InferResponseType<typeof client.posts.$get>["posts"]
   >([]);
@@ -116,6 +118,12 @@ export default function Index() {
       alwaysBounceVertical={true}
     >
       <View style={styles.footerContainer}>
+        <Text style={[type.display1, { color: theme.colors.content.primary, fontSize: 48, textAlign: 'center', marginBottom: 10 }]}>
+          CREMA
+        </Text>
+        <Text style={[type.heading1, { color: theme.colors.brand.red, marginBottom: 20 }]}>
+          Share Your Moments
+        </Text>
         <Button theme="primary" label="Create Post" onPress={pickImageAsync} />
       </View>
 
@@ -135,7 +143,7 @@ export default function Index() {
                   <Ionicons name="person" size={50} color="#666" />
                 </View>
               )}
-              <Text style={styles.username}>
+              <Text style={[type.title, { color: theme.colors.brand.green }]}>
                 {post.user?.username || "user"}
               </Text>
               <Text style={styles.timestamp}>
@@ -153,14 +161,14 @@ export default function Index() {
             )}
 
             {post.description && (
-              <Text style={styles.postDescription}>{post.description}</Text>
+              <Text style={[type.body, { color: theme.colors.content.primary }]}>{post.description}</Text>
             )}
           </View>
         ))}
 
         {posts.length === 0 && !isLoading && (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>
+            <Text style={[type.weak, { color: theme.colors.content.tertiary, textAlign: 'center' }]}>
               No posts yet. Create the first one!
             </Text>
           </View>

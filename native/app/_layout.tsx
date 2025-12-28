@@ -2,11 +2,16 @@
 import { Stack } from "expo-router";
 import { useAuth, AuthProvider } from "@/contexts/auth-context";
 import { ActivityIndicator, View } from "react-native";
+import { useFonts } from "expo-font";
 
 function RootLayoutNav() {
   const { user, isLoading } = useAuth();
+  const [fontsLoaded] = useFonts({
+    Inter: require("../assets/fonts/Inter.ttf"),
+    ClimateCrisis: require("../assets/fonts/ClimateCrisis.ttf"),
+  });
 
-  if (isLoading) {
+  if (isLoading || !fontsLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator />
