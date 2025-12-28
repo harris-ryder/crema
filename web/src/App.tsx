@@ -3,20 +3,43 @@ import CoffeeScroll from "./components/CoffeeScroll";
 export default function App() {
   return (
     <div className="w-full h-svh flex flex-col justify-center items-center">
-      <img src="./icon.svg" className="w-12 h-12"></img>
-      <h1
-        style={{
-          fontFamily: "Climate Crisis",
-          fontSize: "36px",
-          letterSpacing: "-0.03em",
-          lineHeight: "1",
-        }}
-        className="mt-4 uppercase"
-      >
-        CREMA
-      </h1>
-      <div className="mt-8 w-full">
-        <CoffeeScroll />
+      <div className="flex-1" />
+      <div className="flex-1 flex flex-col justify-center items-center">
+        <img src="./icon.svg" className="w-12 h-12"></img>
+        <h1
+          style={{
+            fontFamily: "Climate Crisis",
+            fontSize: "36px",
+            letterSpacing: "-0.03em",
+            lineHeight: "1",
+          }}
+          className="mt-4 uppercase"
+        >
+          CREMA
+        </h1>
+      </div>
+
+      <div className="flex-1 flex flex-col justify-end items-center gap-24">
+        <div className="flex flex-col gap-8 justify-center items-center">
+          <div className="mt-8 w-screen">
+            <CoffeeScroll />
+          </div>
+          <img
+            src="./google-play-badge.svg"
+            alt="Get it on Google Play"
+            className="h-12"
+          />
+        </div>
+        <p
+          style={{
+            fontFamily: "Inter",
+            fontSize: "12px",
+            letterSpacing: "-0.03em",
+          }}
+          className="text-content-primary pb-2 pl-2 self-start"
+        >
+          ©2025 Designed in London
+        </p>
       </div>
     </div>
   );
