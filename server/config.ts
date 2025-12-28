@@ -17,7 +17,7 @@ function getEnv(key: string, defaultValue: string): string {
 const config = {
   environment: getEnv("NODE_ENV", "development"),
   ports: {
-    server: parseInt(getEnv("PORT", "3004")),
+    server: parseInt(getEnv("PORT", "3000")),
   },
   urls: {
     // Frontend apps

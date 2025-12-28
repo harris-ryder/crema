@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:blog.logto.io)",
+      "WebFetch(domain:cruip.com)",
+      "WebSearch",
+      "Read(//Users/harrisryder/repos/Personal/crema/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

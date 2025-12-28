@@ -7,7 +7,7 @@
         "./*"
       ],
       "@config": [
-        "./config.ts"
+        "../config.ts"
       ],
       "@server/*": [
         "../server/src/*"

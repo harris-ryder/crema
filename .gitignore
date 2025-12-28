@@ -15,6 +15,10 @@ dist-ssr
 *.local
 pg_data
 
+native/.env
+web/.env
+server/.env
+server/data/
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
