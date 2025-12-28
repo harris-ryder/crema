@@ -1,24 +1,39 @@
 # Crema
 
-A full-stack social media application with a Node.js backend, React Native mobile app, and PostgreSQL database.
+A full-stack social media application with a Node.js backend, React Native mobile app, React web app, and PostgreSQL database.
 
 ## Configuration Management
 
-**Important:** This project uses a shared configuration approach. The `config.ts` file is **identical** across all three applications (server, native, and web) with only minor differences in commented-out lines for platform-specific code.
+Each directory has its own `.env` file for environment-specific configuration:
 
-### Shared Configuration
-- Configuration values are read from the `.env` file at the root of the project
-- If environment variables are not set, the config falls back to default values
-- The `config.ts` files in `/server`, `/native`, and `/web` (if present) must remain synchronized
-- Platform-specific code (like Node.js imports) should be commented out where not applicable
+### Server Configuration (`/server/.env` → `/server/config.ts`)
+- Reads configuration from its own `.env` file using `dotenv`
+- Uses `process.env` with fallback values
+- Includes server-specific settings like file storage paths
+- Environment variables:
+  - `POSTGRES_CONNECTION`: PostgreSQL connection string
+  - `JWT_SECRET`: Secret key for JWT authentication
+  - `GOOGLE_WEB_CLIENT_ID`: OAuth client ID
+  - `PORT`: Server port (default: 3004)
+  - `DATA_PATH`: Directory for uploaded files
 
-**Note:** When updating configuration, ensure changes are replicated across all `config.ts` files to maintain consistency.
+### Web Configuration (`/web/.env` → `/web/src/config.ts`)
+- Uses its own `.env` file with Vite's `import.meta.env`
+- Minimal configuration focused on API connection
+- Environment variables (prefixed with `VITE_`):
+  - `VITE_BACKEND_URL`: Backend API URL
 
-**Exception:** The `/server/drizzle.config.ts` file reads directly from `process.env` instead of importing from `config.ts`. This is due to ES module/CommonJS compatibility issues with drizzle-kit. The drizzle configuration still uses the same environment variables but accesses them directly.
+### Native Configuration (`/native/.env` → `/native/config.ts`)
+- Has its own `.env` file for native app configuration
+- Uses `globalThis` to safely access process.env
+- Platform-specific code is commented out where not applicable
+- Environment variables specific to the mobile app
+
+**Note:** The `/server/drizzle.config.ts` file reads directly from `process.env` instead of importing from `config.ts` due to ES module/CommonJS compatibility issues with drizzle-kit.
 
 ## Architecture
 
-This monorepo contains three main applications:
+This monorepo contains four main applications:
 
 ### 1. Server (`/server`)
 
@@ -34,7 +49,14 @@ This monorepo contains three main applications:
 - **Auth**: Google Sign-In integration
 - **Features**: Feed view, activity tracking, user profiles
 
-### 3. Database
+### 3. Web App (`/web`)
+
+- **Stack**: React with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS v4 with CSS-first configuration
+- **Features**: Landing page with coffee gallery showcase
+
+### 4. Database
 
 - **Stack**: PostgreSQL 16
 - **Deployment**: Docker container (via `docker-compose.yml` at root)
@@ -67,26 +89,42 @@ nvm use 22.17.1
 
 ### 1. Environment Configuration
 
-Create a `.env` file in the root directory with the following variables:
+Each application directory requires its own `.env` file:
+
+#### Server (`/server/.env`)
 
 ```env
-# Backend Configuration
-BACKEND_URL=http://<YOUR_MACHINE_IP>:3004  # Use your machine's IP for universal access
-
-# Frontend URLs
-FRONTEND_URL=http://localhost:5173
-
 # Database
-POSTGRES_CONNECTION_STRING=postgres://postgres:shh@localhost:5433/crema
+POSTGRES_CONNECTION=postgres://postgres:shh@localhost:5433/crema
 
 # Authentication
 JWT_SECRET=your-jwt-secret-here
 
 # Google OAuth
 GOOGLE_WEB_CLIENT_ID=your-google-client-id
+
+# Server Configuration
+PORT=3004
+DATA_PATH=./data
 ```
 
-**Note:** The `BACKEND_URL` should use your machine's IP address (e.g., `http://10.19.3.247:3004`) instead of `localhost` to ensure it works across all platforms (Android emulator, iOS simulator, and physical devices).
+#### Web App (`/web/.env`)
+
+```env
+VITE_BACKEND_URL=http://localhost:3004
+```
+
+#### Native App (`/native/.env`)
+
+```env
+# Backend Configuration
+BACKEND_URL=http://<YOUR_MACHINE_IP>:3004  # Use your machine's IP for universal access
+
+# Google OAuth
+GOOGLE_WEB_CLIENT_ID=your-google-client-id
+```
+
+**Note:** For the native app, the `BACKEND_URL` should use your machine's IP address (e.g., `http://10.19.3.247:3004`) instead of `localhost` to ensure it works across all platforms (Android emulator, iOS simulator, and physical devices).
 
 ### 2. Database Setup
 
@@ -117,11 +155,27 @@ npm run dev
 
 The server will start on `http://localhost:3004`
 
-### 4. Native App Setup
+### 4. Web App Setup
+
+```bash
+cd web
+npm install
+
+# Create .env file (see Environment Configuration section above)
+
+# Start development server
+npm run dev
+```
+
+The web app will start on `http://localhost:5173`
+
+### 5. Native App Setup
 
 ```bash
 cd native
 npm install
+
+# Create .env file (see Environment Configuration section above)
 
 # Generate native projects
 npx expo prebuild
@@ -171,7 +225,13 @@ cd native/android
    cd server && npm run dev
    ```
 
-3. **Start Native App**:
+3. **Start Web App**:
+
+   ```bash
+   cd web && npm run dev
+   ```
+
+4. **Start Native App**:
    ```bash
    cd native && npx expo run:android
    # or
@@ -186,6 +246,12 @@ cd native/android
 - `npm run db:generate` - Generate database migrations
 - `npm run db:migrate` - Run database migrations
 - `npm run db:push` - Push schema changes to database
+
+**Web:**
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
 
 **Native:**
 
@@ -203,13 +269,18 @@ crema/
 │   │   ├── routes/  # API routes
 │   │   └── index.ts # Server entry point
 │   └── config.ts    # Server configuration
+├── web/             # React web application
+│   ├── src/
+│   │   ├── components/  # React components
+│   │   ├── App.tsx      # Main app component
+│   │   └── config.ts    # Web configuration
+│   └── public/      # Static assets
 ├── native/          # React Native mobile app
 │   ├── app/         # Expo Router screens
 │   ├── components/  # Reusable components
 │   ├── contexts/    # React contexts (auth, etc.)
 │   └── config.ts    # App configuration
-├── docker-compose.yml # PostgreSQL database setup
-└── .env            # Shared environment variables
+└── docker-compose.yml # PostgreSQL database setup
 ```
 
 ## Troubleshooting
@@ -219,19 +290,19 @@ crema/
 If the Android app can't connect to the server:
 
 1. Find your machine's IP address
-2. Update `BACKEND_ANDROID_URL` in `.env`
+2. Update `BACKEND_URL` in `/native/.env`
 3. Ensure your firewall allows connections on port 3004
 
 ### Database Connection Issues
 
 - Ensure Docker is running
 - Check that port 5433 is not in use
-- Verify connection string in `.env`
+- Verify connection string in `/server/.env`
 
 ### Google Sign-In Issues
 
 - Ensure SHA1 fingerprint is registered in Google Console
-- Verify client IDs in `.env` match Google Console
+- Verify client IDs in both `/server/.env` and `/native/.env` match Google Console
 - For Android, ensure you've run `npx expo prebuild`
 
 ## License
