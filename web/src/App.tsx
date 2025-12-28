@@ -7,13 +7,7 @@ export default function App() {
       <div className="flex-1 flex flex-col justify-center items-center">
         <img src="./icon.svg" className="w-12 h-12"></img>
         <h1
-          style={{
-            fontFamily: "Climate Crisis",
-            fontSize: "36px",
-            letterSpacing: "-0.03em",
-            lineHeight: "1",
-          }}
-          className="mt-4 uppercase"
+          className="mt-4 uppercase text-[36px] leading-none tracking-[-0.03em] font-climate"
         >
           CREMA
         </h1>
@@ -31,12 +25,7 @@ export default function App() {
           />
         </div>
         <p
-          style={{
-            fontFamily: "Inter",
-            fontSize: "12px",
-            letterSpacing: "-0.03em",
-          }}
-          className="text-content-primary pb-2 pl-2 self-start"
+          className="text-content-primary pb-2 pl-2 self-start font-inter text-[12px] tracking-[-0.03em]"
         >
           ©2025 Designed in London
         </p>

@@ -54,8 +54,11 @@
   --color-content-tertiary: var(--color-content-tertiary);
   --color-content-inverse: var(--color-content-inverse);
 
-  --color-brand-red: var(--color-brand-red)
-  --color-brand-green: var(--color-brand-green)
+  --color-brand-red: var(--color-brand-red);
+  --color-brand-green: var(--color-brand-green);
+  
+  --font-climate: "Climate Crisis", system-ui, sans-serif;
+  --font-inter: "Inter", system-ui, sans-serif;
 }
 
 @keyframes infinite-scroll {
