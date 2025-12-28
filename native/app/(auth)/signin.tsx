@@ -7,6 +7,8 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import { useAuth } from "@/contexts/auth-context";
+import HeartIcon from "@/src/ui/icons/HeartIcon";
+import { type, useTheme } from "@/src/design";
 
 // Configure Google Sign-In
 GoogleSignin.configure({
@@ -19,6 +21,7 @@ GoogleSignin.configure({
 
 export default function SignInScreen() {
   const { googleSignIn, isLoading, errors } = useAuth();
+  const theme = useTheme();
 
   const handleGoogleSignIn = async () => {
     try {
@@ -57,10 +60,26 @@ export default function SignInScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.colors.surface.primary },
+      ]}
+    >
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome to Crema</Text>
-        <Text style={styles.subtitle}>Sign in to continue</Text>
+        <HeartIcon width={80} height={80} fill={theme.colors.brand.red} />
+        <Text
+          style={[
+            type.display1,
+            {
+              color: theme.colors.content.primary,
+              fontSize: 48,
+              marginTop: 20,
+            },
+          ]}
+        >
+          CREMA
+        </Text>
 
         {errors.length > 0 && (
           <View style={styles.errorContainer}>
@@ -93,7 +112,6 @@ export default function SignInScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#25292e",
   },
   content: {
     flex: 1,
@@ -101,25 +119,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 30,
   },
-  title: {
-    fontSize: 36,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: "#999",
-    marginBottom: 40,
-  },
   buttonContainer: {
-    marginTop: 20,
+    marginTop: 40,
   },
   googleButton: {
     width: 240,
     height: 48,
   },
   errorContainer: {
+    marginTop: 20,
     marginBottom: 20,
     paddingHorizontal: 20,
   },
