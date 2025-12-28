@@ -285,6 +285,24 @@ crema/
 
 ## Troubleshooting
 
+### Android SDK Path Error
+
+If you get `SDK location not found` error after running `npx expo prebuild --clean`:
+
+1. Create `/native/android/local.properties` file:
+   ```
+   sdk.dir=/Users/[YOUR_USERNAME]/Library/Android/sdk  # macOS
+   sdk.dir=C:\\Users\\[YOUR_USERNAME]\\AppData\\Local\\Android\\sdk  # Windows
+   ```
+
+2. Or set the environment variable:
+   ```bash
+   export ANDROID_HOME=$HOME/Library/Android/sdk
+   export PATH=$PATH:$ANDROID_HOME/platform-tools
+   ```
+
+This error occurs because `prebuild --clean` regenerates the native folders without the SDK path configuration.
+
 ### Android Network Issues
 
 If the Android app can't connect to the server:
@@ -292,6 +310,25 @@ If the Android app can't connect to the server:
 1. Find your machine's IP address
 2. Update `BACKEND_URL` in `/native/.env`
 3. Ensure your firewall allows connections on port 3004
+
+#### Using ngrok for Development (Recommended)
+
+To bypass network configuration issues entirely:
+
+1. Install ngrok: `brew install ngrok` (macOS) or download from [ngrok.com](https://ngrok.com)
+2. Start your backend server: `cd server && npm run dev`
+3. Create ngrok tunnel: `ngrok http 3000`
+4. Update `/native/config.ts` with the ngrok URL
+5. Add ngrok bypass header to `/native/api/client.ts`:
+   ```typescript
+   export const client = hc<AppType>(config.urls.backend, {
+     headers: {
+       "ngrok-skip-browser-warning": "true",
+     },
+   });
+   ```
+
+This eliminates IP address issues and works from any network.
 
 ### Database Connection Issues
 

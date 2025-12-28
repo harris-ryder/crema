@@ -9,7 +9,8 @@
       "Bash(find:*)",
       "Bash(npx tsc:*)",
       "Bash(npm install:*)",
-      "Bash(npm uninstall:*)"
+      "Bash(npm uninstall:*)",
+      "Read(//Users/harrisryder/Library/Android/sdk/**)"
     ],
     "deny": [],
     "ask": []
