@@ -1,5 +1,5 @@
-import type { AppType } from "@backend/src/type";
-import config from "./config";
-import { hc } from "hono/client";
+// import type { AppType } from "@/types/app.ts";
+// import config from "./config";
+// import { hc } from "hono/client";
 
-export const client = hc<AppType>(config.backendUrl);
+// export const client = hc<AppType>(config.backendUrl);

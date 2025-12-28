@@ -15,38 +15,23 @@ function getEnv(key: string, defaultValue: string): string {
 }
 
 const config = {
-  // Environment
   environment: getEnv("NODE_ENV", "development"),
-
-  // Ports
   ports: {
     server: parseInt(getEnv("PORT", "3004")),
-    web: 5173,
   },
-
-  // URLs
   urls: {
-    // Backend API
-    backend: getEnv("BACKEND_URL", "http://192.168.3.158:3004"),
-
     // Frontend apps
     web: getEnv("FRONTEND_URL", "http://localhost:5173"),
   },
-
-  // Database
   database: {
     connectionString: getEnv(
       "POSTGRES_CONNECTION",
       "postgres://postgres:shh@localhost:5433/crema"
     ),
   },
-
-  // Authentication
   jwt: {
     secret: getEnv("JWT_SECRET", "your-jwt-secret-here"),
   },
-
-  // OAuth
   oauth: {
     google: {
       webClientId: getEnv(
@@ -55,9 +40,6 @@ const config = {
       ),
     },
   },
-
-  // File storage
-  // Comment out for react native and web
   storage: {
     dataPath: getEnv("DATA_PATH", path.join(__dirname, "data")),
   },
