@@ -1,12 +1,19 @@
 import CoffeeBanner from "./components/CoffeeScroll";
+import Lottie from "lottie-react";
+import animationData from "./shared/icons/heart-slice-lottie.json";
 
 export default function App() {
   return (
     <div className="w-full h-svh flex flex-col justify-center items-center">
       <div className="flex-1" />
       <div className="flex-1 flex flex-col justify-center items-center">
-        <img src="./icon.svg" className="w-12 h-12"></img>
-        <h1 className="mt-4 uppercase text-[36px] leading-none tracking-[-0.03em] font-climate">
+        <Lottie
+          animationData={animationData}
+          autoplay
+          loop={false}
+          style={{ width: 48, height: 48 }}
+        />
+        <h1 className="uppercase text-[36px] leading-none tracking-[-0.03em] font-climate">
           CREMA
         </h1>
       </div>

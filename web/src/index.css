@@ -71,5 +71,5 @@
 }
 
 .animate-infinite-scroll {
-  animation: infinite-scroll 55s linear infinite;
+  animation: infinite-scroll 100s linear infinite;
 }

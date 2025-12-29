@@ -14,7 +14,7 @@ export default function CoffeeBanner() {
             key={`first-${num}`}
             src={`/coffee-thumbnails/${num}.webp`}
             alt={`Coffee ${num}`}
-            className="w-[90px] h-[90px] object-cover mx-[1px] flex-shrink-0"
+            className="w-[120px] h-[120px] object-cover mx-[1px] flex-shrink-0"
           />
         ))}
         {coffeeImages.map((num) => (
@@ -22,7 +22,7 @@ export default function CoffeeBanner() {
             key={`second-${num}`}
             src={`/coffee-thumbnails/${num}.webp`}
             alt={`Coffee ${num}`}
-            className="w-[90px] h-[90px] object-cover mx-[1px] flex-shrink-0"
+            className="w-[120px] h-[120px] object-cover mx-[1px] flex-shrink-0"
           />
         ))}
       </div>
