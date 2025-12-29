@@ -1,10 +1,11 @@
 import CoffeeBanner from "./components/CoffeeScroll";
 import Lottie from "lottie-react";
 import animationData from "./shared/icons/heart-slice-lottie.json";
+import GooglePlayIcon from "./shared/icons/google-play-icon";
 
 export default function App() {
   return (
-    <div className="w-full h-svh flex flex-col justify-center items-center">
+    <div className="w-full h-[100dvh] flex flex-col justify-center items-center bg-surface-primary">
       <div className="flex-1" />
       <div className="flex-1 flex flex-col justify-center items-center">
         <Lottie
@@ -13,7 +14,7 @@ export default function App() {
           loop={false}
           style={{ width: 48, height: 48 }}
         />
-        <h1 className="uppercase text-[36px] leading-none tracking-[-0.03em] font-climate">
+        <h1 className="uppercase text-[36px] leading-none tracking-[-0.03em] font-climate text-content-primary">
           CREMA
         </h1>
       </div>
@@ -23,11 +24,7 @@ export default function App() {
           <div className="mt-8 w-screen">
             <CoffeeBanner />
           </div>
-          <img
-            src="./google-play-badge.svg"
-            alt="Get it on Google Play"
-            className="h-12"
-          />
+          <GooglePlayIcon />
         </div>
         <p className="text-content-primary pb-2 pl-2 self-start font-inter text-[12px] tracking-[-0.03em]">
           ©2025 Designed in London
