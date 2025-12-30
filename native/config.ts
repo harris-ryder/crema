@@ -1,6 +1,6 @@
 const config = {
   urls: {
-    backend: "https://2b01ac91790d.ngrok-free.app",
+    backend: "https://446b9e5025ef.ngrok-free.app",
   },
 } as const;
 

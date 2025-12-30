@@ -67,33 +67,22 @@ export default function SignInScreen() {
       ]}
     >
       <View style={styles.content}>
-        <HeartIcon width={80} height={80} fill={theme.colors.brand.red} />
+        <HeartIcon width={96} height={96} fill={theme.colors.brand.red} />
         <Text
           style={[
             type.display1,
             {
               color: theme.colors.content.primary,
-              fontSize: 48,
-              marginTop: 20,
+              fontSize: 36,
             },
           ]}
         >
           CREMA
         </Text>
 
-        {errors.length > 0 && (
-          <View style={styles.errorContainer}>
-            {errors.map((error, index) => (
-              <Text key={index} style={styles.errorText}>
-                {error.message}
-              </Text>
-            ))}
-          </View>
-        )}
-
         <View style={styles.buttonContainer}>
           {isLoading ? (
-            <ActivityIndicator size="large" color="#007AFF" />
+            <ActivityIndicator size="large" color={theme.colors.brand.red} />
           ) : (
             <GoogleSigninButton
               style={styles.googleButton}
@@ -104,6 +93,16 @@ export default function SignInScreen() {
             />
           )}
         </View>
+
+        {errors.length > 0 && (
+          <View style={styles.errorContainer}>
+            {errors.map((error, index) => (
+              <Text key={index} style={styles.errorText}>
+                {error.message}
+              </Text>
+            ))}
+          </View>
+        )}
       </View>
     </View>
   );
@@ -120,7 +119,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   buttonContainer: {
-    marginTop: 40,
+    marginTop: 24,
   },
   googleButton: {
     width: 240,
@@ -132,7 +131,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   errorText: {
-    color: "#FF3B30",
+    color: #FF1616,
     fontSize: 14,
     marginBottom: 5,
     textAlign: "center",
