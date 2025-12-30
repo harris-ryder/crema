@@ -12,6 +12,7 @@ import { client } from "@/api/client";
 import { Button } from "@/components/Button";
 import { router } from "expo-router";
 import { Theme, type, useTheme } from "@/src/design";
+import { Input } from "@/components/Input";
 
 export default function UsernameSetup() {
   const { user, header, getMe } = useAuth();
@@ -60,10 +61,10 @@ export default function UsernameSetup() {
         </Text>
 
         <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
+          <Input
+            size="lg"
             value={username}
-            onChangeText={(text) => {
+            onChangeText={(text: string) => {
               setUsername(text);
               setError("");
             }}
