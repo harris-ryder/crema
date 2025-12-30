@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useAuth } from "@/contexts/auth-context";
 import { client } from "@/api/client";
-import Button from "@/components/Button";
+import { Button } from "@/components/Button";
 import { router } from "expo-router";
 import { Theme, type, useTheme } from "@/src/design";
 
@@ -78,11 +78,14 @@ export default function UsernameSetup() {
         </View>
 
         <View style={styles.buttonContainer}>
-          <Button
-            theme="primary"
-            label={isLoading ? "Updating..." : "Continue"}
-            onPress={handleUpdateUsername}
-          />
+          <View style={{ alignSelf: "flex-end" }}>
+            <Button
+              variant="primary"
+              size="lg"
+              label={isLoading ? "Updating..." : "Continue"}
+              onPress={handleUpdateUsername}
+            />
+          </View>
         </View>
 
         {isLoading && (
@@ -105,27 +108,16 @@ const createStyles = (theme: Theme) =>
     },
     content: {
       flex: 1,
-      padding: 20,
+      paddingHorizontal: 36,
+      paddingVertical: 64,
       justifyContent: "space-between",
     },
     title: {
       ...type.heading1,
       color: theme.colors.content.primary,
     },
-    subtitle: {
-      fontSize: 16,
-      color: theme.colors.content.tertiary,
-      textAlign: "center",
-      marginBottom: 40,
-    },
     inputContainer: {
       marginBottom: 30,
-    },
-    label: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: theme.colors.content.primary,
-      marginBottom: 8,
     },
     input: {
       backgroundColor: theme.colors.surface.inverse,

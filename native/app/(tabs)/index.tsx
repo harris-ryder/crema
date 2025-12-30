@@ -11,7 +11,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 
-import Button from "@/components/Button";
+import { Button } from "@/components/Button";
 import { router } from "expo-router";
 import { useAuth } from "@/contexts/auth-context";
 import { client } from "@/api/client";
@@ -124,7 +124,7 @@ export default function Index() {
         <Text style={[type.heading1, { color: theme.colors.brand.red, marginBottom: 20 }]}>
           Share Your Moments
         </Text>
-        <Button theme="primary" label="Create Post" onPress={pickImageAsync} />
+        <Button variant="primary" label="Create Post" onPress={pickImageAsync} />
       </View>
 
       <View style={styles.postsContainer}>
