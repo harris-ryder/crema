@@ -3,9 +3,11 @@ import { Stack } from "expo-router";
 import { useAuth, AuthProvider } from "@/contexts/auth-context";
 import { ActivityIndicator, View } from "react-native";
 import { useFonts } from "expo-font";
+import { useTheme } from "@/src/design";
 
 function RootLayoutNav() {
   const { user, isLoading } = useAuth();
+  const theme = useTheme();
   const [fontsLoaded] = useFonts({
     Inter: require("../assets/fonts/Inter.ttf"),
     ClimateCrisis: require("../assets/fonts/ClimateCrisis.ttf"),
@@ -13,8 +15,13 @@ function RootLayoutNav() {
 
   if (isLoading || !fontsLoaded) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator />
+      <View style={{ 
+        flex: 1, 
+        justifyContent: "center", 
+        alignItems: "center",
+        backgroundColor: theme.colors.surface.primary 
+      }}>
+        <ActivityIndicator color={theme.colors.brand.red} />
       </View>
     );
   }

@@ -8,7 +8,7 @@ import {
 } from "@react-native-google-signin/google-signin";
 import { useAuth } from "@/contexts/auth-context";
 import HeartIcon from "@/src/ui/icons/HeartIcon";
-import { type, useTheme } from "@/src/design";
+import { type, useTheme, Theme } from "@/src/design";
 
 // Configure Google Sign-In
 GoogleSignin.configure({
@@ -22,6 +22,7 @@ GoogleSignin.configure({
 export default function SignInScreen() {
   const { googleSignIn, isLoading, errors } = useAuth();
   const theme = useTheme();
+  const styles = createStyles(theme);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -60,12 +61,7 @@ export default function SignInScreen() {
   };
 
   return (
-    <View
-      style={[
-        styles.container,
-        { backgroundColor: theme.colors.surface.primary },
-      ]}
-    >
+    <View style={styles.container}>
       <View style={styles.content}>
         <HeartIcon width={96} height={96} fill={theme.colors.brand.red} />
         <Text
@@ -108,32 +104,34 @@ export default function SignInScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 30,
-  },
-  buttonContainer: {
-    marginTop: 24,
-  },
-  googleButton: {
-    width: 240,
-    height: 48,
-  },
-  errorContainer: {
-    marginTop: 20,
-    marginBottom: 20,
-    paddingHorizontal: 20,
-  },
-  errorText: {
-    color: #FF1616,
-    fontSize: 14,
-    marginBottom: 5,
-    textAlign: "center",
-  },
-});
+const createStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.surface.primary,
+    },
+    content: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 30,
+    },
+    buttonContainer: {
+      marginTop: 24,
+    },
+    googleButton: {
+      width: 240,
+      height: 48,
+    },
+    errorContainer: {
+      marginTop: 20,
+      marginBottom: 20,
+      paddingHorizontal: 20,
+    },
+    errorText: {
+      color: theme.colors.brand.red,
+      fontSize: 14,
+      marginBottom: 5,
+      textAlign: "center",
+    },
+  });
