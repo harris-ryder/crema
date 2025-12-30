@@ -12,7 +12,7 @@ import {
 
 import { useTheme, type, palette, Theme } from "@/src/design";
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "secondary";
 type Size = "sm" | "md" | "lg";
 
 type Props = Omit<PressableProps, "style" | "disabled"> & {
@@ -22,7 +22,6 @@ type Props = Omit<PressableProps, "style" | "disabled"> & {
   loading?: boolean;
   disabled?: boolean;
   left?: React.ReactNode;
-  right?: React.ReactNode;
   style?: ViewStyle | ViewStyle[];
   textStyle?: TextStyle | TextStyle[];
 };
@@ -73,27 +72,6 @@ function getButtonVariants(theme: Theme): Record<Variant, VariantStyles> {
       spinnerColor: theme.colors.content.primary,
       pressed: { backgroundColor: pressedOverlay },
     },
-
-    ghost: {
-      container: {
-        backgroundColor: "transparent",
-        borderColor: "transparent",
-      },
-      label: { color: theme.colors.content.primary },
-      spinnerColor: theme.colors.content.primary,
-      pressed: { backgroundColor: pressedOverlay },
-    },
-
-    danger: {
-      container: {
-        backgroundColor: theme.colors.brand.red,
-        borderColor: "transparent",
-      },
-      // until you add theme.colors.brand.onRed
-      label: { color: palette.neutral0 },
-      spinnerColor: palette.neutral0,
-      pressed: { opacity: 0.9 },
-    },
   };
 }
 
@@ -104,7 +82,6 @@ export function Button({
   loading = false,
   disabled = false,
   left,
-  right,
   onPress,
   style,
   textStyle,
@@ -149,7 +126,6 @@ export function Button({
           </Text>
         )}
 
-        {right ? <View style={styles.slot}>{right}</View> : null}
       </View>
     </Pressable>
   );
