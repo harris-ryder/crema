@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, StyleSheet, SafeAreaView, Animated, Easing } from "react-native";
 import { useAuth } from "@/contexts/auth-context";
 import { client } from "@/api/client";
 import { Button } from "@/components/Button";
@@ -18,6 +18,35 @@ export default function UsernameSetup() {
   const [usernameUpdateStatus, setUsernameUpdateStatus] = useState<
     "loading" | "error" | "idle"
   >("idle");
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const lastValidationStatus = useRef(validationStatus);
+
+  useEffect(() => {
+    // Only animate if the status actually changed
+    if (lastValidationStatus.current === validationStatus) {
+      return;
+    }
+    
+    lastValidationStatus.current = validationStatus;
+    
+    if (validationStatus === "idle") {
+      // Fade out
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.ease),
+      }).start();
+    } else if (validationStatus === "valid" || validationStatus === "invalid" || validationStatus === "error") {
+      // Fade in
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.ease),
+      }).start();
+    }
+  }, [validationStatus, fadeAnim]);
 
   const handleUpdateUsername = async () => {
     try {
@@ -45,22 +74,22 @@ export default function UsernameSetup() {
   // Always render a View for the icon slot, but change its contents
   const ValidationIconSlot = () => {
     return (
-      <View style={styles.iconContainer}>
+      <Animated.View style={[styles.iconContainer, { opacity: fadeAnim }]}>
         {validationStatus === "valid" && (
           <MaterialIcons
-            name="check-circle"
+            name="check"
             size={24}
             color={theme.colors.brand.green}
           />
         )}
         {(validationStatus === "invalid" || validationStatus === "error") && (
           <MaterialIcons
-            name="cancel"
+            name="close"
             size={24}
             color={theme.colors.brand.red}
           />
         )}
-      </View>
+      </Animated.View>
     );
   };
 

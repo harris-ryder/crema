@@ -33,12 +33,12 @@ export default function useDebounceNameChecker() {
   const validateName = useCallback(
     async (name: string) => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
-      setValidationStatus("idle");
 
       const trimmedName = name.trim();
 
       // Early exit - If input string is empty
       if (!trimmedName) {
+        setValidationStatus("idle");
         return;
       }
 
@@ -53,6 +53,9 @@ export default function useDebounceNameChecker() {
         setValidationStatus("invalid");
         return;
       }
+
+      // Only clear status when we need to check with server
+      setValidationStatus("idle");
 
       debounceTimer.current = setTimeout(async () => {
         try {
