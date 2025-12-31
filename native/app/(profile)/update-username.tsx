@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,25 +7,23 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import { useAuth } from "@/contexts/auth-context";
-import { client } from "@/api/client";
 import { Button } from "@/components/Button";
-import { router } from "expo-router";
 import { Theme, type, useTheme } from "@/src/design";
 import { Input } from "@/components/Input";
 import { MaterialIcons } from "@expo/vector-icons";
-import useDebounceNameChecker from "./hooks/use-debounce-name-checker";
+import useNameValidatorAndUpdater from "./hooks/use-debounce-name-checker";
 
 export default function UsernameSetup() {
   const theme = useTheme();
   const styles = createStyles(theme);
-  const { header, getMe } = useAuth();
-  const { validationStatus, validateName } = useDebounceNameChecker();
-  const [username, setUsername] = useState("");
-  const [usernameUpdateStatus, setUsernameUpdateStatus] = useState<
-    "loading" | "error" | "idle"
-  >("idle");
+  const { validationStatus, validateName, updateName, usernameUpdateStatus } =
+    useNameValidatorAndUpdater();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const onContinuePress = async () => {
+    // Update username on the backend, but don't block process in meantime
+    await updateName();
+  };
 
   useEffect(() => {
     if (validationStatus === "idle") {
@@ -50,29 +48,6 @@ export default function UsernameSetup() {
       }).start();
     }
   }, [validationStatus, fadeAnim]);
-
-  const handleUpdateUsername = async () => {
-    try {
-      const res = await client.users.username.$put(
-        {
-          json: { username: username.trim() },
-        },
-        { headers: header }
-      );
-
-      const response = await res.json();
-
-      if (response.success) {
-        router.back();
-      }
-    } catch (error) {
-      console.error("Username update error:", error);
-      setUsernameUpdateStatus("error");
-    } finally {
-      setUsernameUpdateStatus("idle");
-      await getMe();
-    }
-  };
 
   // Always render a View for the icon slot, but change its contents
   const ValidationIconSlot = () => {
@@ -108,7 +83,6 @@ export default function UsernameSetup() {
             size="lg"
             onChangeText={async (text) => {
               await validateName(text);
-              setUsername(text);
             }}
             placeholder="username"
             autoCapitalize="none"
@@ -127,7 +101,7 @@ export default function UsernameSetup() {
               label={
                 usernameUpdateStatus === "loading" ? "Updating" : "Continue"
               }
-              onPress={handleUpdateUsername}
+              onPress={onContinuePress}
               disabled={
                 usernameUpdateStatus === "loading" ||
                 validationStatus === "invalid" ||

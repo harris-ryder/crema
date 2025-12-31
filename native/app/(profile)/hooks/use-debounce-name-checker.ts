@@ -16,11 +16,15 @@ const clientSideNameValidation = (name: string) => {
 
 export type validationStatusType = "idle" | "valid" | "invalid" | "error";
 
-export default function useDebounceNameChecker() {
+export default function useNameValidatorAndUpdater() {
   const { user, header } = useAuth();
   const [validationStatus, setValidationStatus] =
     useState<validationStatusType>("idle");
+  const [username, setUsername] = useState("");
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [usernameUpdateStatus, setUsernameUpdateStatus] = useState<
+    "loading" | "error" | "success" | "idle"
+  >("idle");
 
   useEffect(() => {
     return () => {
@@ -32,6 +36,7 @@ export default function useDebounceNameChecker() {
 
   const validateName = useCallback(
     async (name: string) => {
+      setUsername(name);
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
       const trimmedName = name.trim();
@@ -81,8 +86,33 @@ export default function useDebounceNameChecker() {
         }
       }, DEBOUNCE_DELAY);
     },
-    [header.authorization, user?.username]
+    [header.authorization, user?.username, username]
   );
 
-  return { validateName, validationStatus };
+  const updateName = async () => {
+    try {
+      const res = await client.users.username.$put(
+        {
+          json: { username: username.trim() },
+        },
+        { headers: header }
+      );
+
+      const response = await res.json();
+
+      if (response.success) {
+        setUsernameUpdateStatus("success");
+      }
+    } catch (error) {
+      console.error("Username update error:", error);
+      setUsernameUpdateStatus("error");
+    }
+  };
+
+  return {
+    validateName,
+    validationStatus,
+    updateName,
+    usernameUpdateStatus,
+  };
 }
