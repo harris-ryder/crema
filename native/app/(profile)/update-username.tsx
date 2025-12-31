@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -11,18 +11,26 @@ import { Button } from "@/components/Button";
 import { Theme, type, useTheme } from "@/src/design";
 import { Input } from "@/components/Input";
 import { MaterialIcons } from "@expo/vector-icons";
-import useNameValidatorAndUpdater from "./hooks/use-debounce-name-checker";
+import useNameValidatorAndUpdater from "./hooks/use-name-validator-and-updater";
 
 export default function UsernameSetup() {
   const theme = useTheme();
   const styles = createStyles(theme);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const [profileStep, setProfileStep] = useState<"name" | "photo">("name");
+
+  // hooks
   const { validationStatus, validateName, updateName, usernameUpdateStatus } =
     useNameValidatorAndUpdater();
-  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const onContinuePress = async () => {
     // Update username on the backend, but don't block process in meantime
-    await updateName();
+    if (profileStep === "name") {
+      await updateName();
+      setProfileStep("photo");
+      return;
+    }
   };
 
   useEffect(() => {
@@ -74,9 +82,10 @@ export default function UsernameSetup() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>
-          Choose{"\n"}your{"\n"}username
-        </Text>
+        <View>
+          <Text style={styles.title}>CHOOSE{"\n"}YOUR</Text>
+          <Text style={styles.titleAction}>USERNAME</Text>
+        </View>
 
         <View style={styles.inputContainer}>
           <Input
@@ -133,6 +142,10 @@ const createStyles = (theme: Theme) =>
     title: {
       ...type.heading1,
       color: theme.colors.content.primary,
+    },
+    titleAction: {
+      ...type.heading1,
+      color: theme.colors.brand.red,
     },
     inputContainer: {
       marginBottom: 30,
