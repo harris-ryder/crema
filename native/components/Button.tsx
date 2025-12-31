@@ -56,7 +56,6 @@ function getButtonVariants(theme: Theme): Record<Variant, VariantStyles> {
     primary: {
       container: {
         backgroundColor: theme.colors.surface.inverse,
-        borderColor: "transparent",
       },
       label: { color: theme.colors.surface.inverseOn },
       spinnerColor: theme.colors.surface.inverseOn,
@@ -66,7 +65,6 @@ function getButtonVariants(theme: Theme): Record<Variant, VariantStyles> {
     secondary: {
       container: {
         backgroundColor: theme.colors.surface.primary,
-        borderColor: theme.colors.border,
       },
       label: { color: theme.colors.content.primary },
       spinnerColor: theme.colors.content.primary,
@@ -125,7 +123,6 @@ export function Button({
             {label}
           </Text>
         )}
-
       </View>
     </Pressable>
   );
