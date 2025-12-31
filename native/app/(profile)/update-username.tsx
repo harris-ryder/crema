@@ -1,36 +1,25 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  SafeAreaView,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import { useAuth } from "@/contexts/auth-context";
 import { client } from "@/api/client";
 import { Button } from "@/components/Button";
 import { router } from "expo-router";
 import { Theme, type, useTheme } from "@/src/design";
 import { Input } from "@/components/Input";
+import { MaterialIcons } from "@expo/vector-icons";
+import useDebounceNameChecker from "./hooks/use-debounce-name-checker";
 
 export default function UsernameSetup() {
-  const { user, header, getMe } = useAuth();
   const theme = useTheme();
   const styles = createStyles(theme);
-  const [username, setUsername] = useState(user?.username || "");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { header, getMe } = useAuth();
+  const { validationStatus, validateName } = useDebounceNameChecker();
+  const [username, setUsername] = useState("");
+  const [usernameUpdateStatus, setUsernameUpdateStatus] = useState<
+    "loading" | "error" | "idle"
+  >("idle");
 
   const handleUpdateUsername = async () => {
-    if (!username.trim()) {
-      setError("Username cannot be empty");
-      return;
-    }
-
-    setIsLoading(true);
-    setError("");
-
     try {
       const res = await client.users.username.$put(
         {
@@ -46,11 +35,33 @@ export default function UsernameSetup() {
       }
     } catch (error) {
       console.error("Username update error:", error);
-      setError("Failed to update username");
+      setUsernameUpdateStatus("error");
     } finally {
-      setIsLoading(false);
+      setUsernameUpdateStatus("idle");
       await getMe();
     }
+  };
+
+  // Always render a View for the icon slot, but change its contents
+  const ValidationIconSlot = () => {
+    return (
+      <View style={styles.iconContainer}>
+        {validationStatus === "valid" && (
+          <MaterialIcons
+            name="check-circle"
+            size={24}
+            color={theme.colors.brand.green}
+          />
+        )}
+        {(validationStatus === "invalid" || validationStatus === "error") && (
+          <MaterialIcons
+            name="cancel"
+            size={24}
+            color={theme.colors.brand.red}
+          />
+        )}
+      </View>
+    );
   };
 
   return (
@@ -63,19 +74,18 @@ export default function UsernameSetup() {
         <View style={styles.inputContainer}>
           <Input
             size="lg"
-            value={username}
-            onChangeText={(text: string) => {
+            onChangeText={async (text) => {
+              await validateName(text);
               setUsername(text);
-              setError("");
             }}
             placeholder="Enter your username"
             placeholderTextColor={theme.colors.content.tertiary}
             autoCapitalize="none"
             autoCorrect={false}
-            autoFocus={true}
+            autoFocus={false}
             maxLength={30}
+            right={<ValidationIconSlot />}
           />
-          {error ? <Text style={styles.error}>{error}</Text> : null}
         </View>
 
         <View style={styles.buttonContainer}>
@@ -83,17 +93,19 @@ export default function UsernameSetup() {
             <Button
               variant="primary"
               size="lg"
-              label={isLoading ? "Updating..." : "Continue"}
+              label={
+                usernameUpdateStatus === "loading" ? "Updating" : "Continue"
+              }
               onPress={handleUpdateUsername}
+              disabled={
+                usernameUpdateStatus === "loading" ||
+                validationStatus === "invalid" ||
+                validationStatus === "idle" ||
+                validationStatus === "error"
+              }
             />
           </View>
         </View>
-
-        {isLoading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={theme.colors.brand.red} />
-          </View>
-        )}
       </View>
     </SafeAreaView>
   );
@@ -120,23 +132,15 @@ const createStyles = (theme: Theme) =>
     inputContainer: {
       marginBottom: 30,
     },
-    input: {
-      backgroundColor: theme.colors.surface.inverse,
-      padding: 15,
-      borderRadius: 8,
-      fontSize: 16,
-      color: theme.colors.content.inverse,
-      marginBottom: 8,
+    iconContainer: {
+      width: 24,
+      height: 24,
+      alignItems: "center",
+      justifyContent: "center",
     },
-    hint: {
-      fontSize: 12,
-      color: theme.colors.content.tertiary,
-      marginBottom: 5,
-    },
-    error: {
+    helperText: {
       fontSize: 14,
-      color: theme.colors.brand.red,
-      marginTop: 5,
+      marginTop: 8,
     },
     buttonContainer: {
       gap: 15,

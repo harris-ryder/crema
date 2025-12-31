@@ -1,6 +1,6 @@
 import { client } from "@/api/client";
 import { useAuth } from "@/contexts/auth-context";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const DEBOUNCE_DELAY = 500;
 
@@ -14,12 +14,21 @@ const clientSideNameValidation = (name: string) => {
   return true;
 };
 
-export const useDebounceNameChecker = () => {
+export type validationStatusType = "idle" | "valid" | "invalid" | "error";
+
+export default function useDebounceNameChecker() {
   const { user, header } = useAuth();
-  const [validationStatus, setValidationStatus] = useState<
-    "idle" | "checking" | "valid" | "invalid" | "error"
-  >("idle");
+  const [validationStatus, setValidationStatus] =
+    useState<validationStatusType>("idle");
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, []);
 
   const validateName = useCallback(
     async (name: string) => {
@@ -73,4 +82,4 @@ export const useDebounceNameChecker = () => {
   );
 
   return { validateName, validationStatus };
-};
+}

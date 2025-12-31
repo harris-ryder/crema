@@ -33,7 +33,6 @@ type InputStyles = {
   input: TextStyle;
   helper: TextStyle;
   errorText: TextStyle;
-  focusedRing: ViewStyle;
   errorRing: ViewStyle;
   disabled: ViewStyle;
 };
@@ -58,8 +57,6 @@ function withAlpha(hex: string, alpha: number) {
 }
 
 function getInputStyles(theme: Theme): InputStyles {
-  const focusRing = withAlpha(theme.colors.content.primary, 0.18);
-
   return {
     container: {
       width: "100%",
@@ -88,14 +85,6 @@ function getInputStyles(theme: Theme): InputStyles {
       color: theme.colors.brand.red,
       marginTop: theme.spacing[1.5],
     },
-    focusedRing: {
-      borderColor: theme.colors.content.primary,
-      // “ring” effect:
-      shadowColor: focusRing,
-      shadowOpacity: 1,
-      shadowRadius: 0,
-      shadowOffset: { width: 0, height: 0 },
-    },
     errorRing: {
       borderColor: theme.colors.brand.red,
       shadowColor: withAlpha(theme.colors.brand.red, 0.25),
@@ -119,15 +108,12 @@ export function Input({
   containerStyle,
   inputStyle,
   editable,
-  onFocus,
-  onBlur,
   placeholderTextColor,
   ...props
 }: Props) {
   const theme = useTheme();
   const stylesForTheme = getInputStyles(theme);
 
-  const [focused, setFocused] = React.useState(false);
   const isDisabled = disabled || editable === false;
 
   const sizeTokens = INPUT_SIZES[size];
@@ -143,7 +129,6 @@ export function Input({
             paddingVertical: sizeTokens.py,
             gap: theme.spacing[2], // 8
           },
-          focused && !isDisabled && !error ? stylesForTheme.focusedRing : null,
           error ? stylesForTheme.errorRing : null,
           isDisabled ? stylesForTheme.disabled : null,
           containerStyle,
@@ -154,14 +139,6 @@ export function Input({
         <TextInput
           {...props}
           editable={!isDisabled}
-          onFocus={(e) => {
-            setFocused(true);
-            onFocus?.(e);
-          }}
-          onBlur={(e) => {
-            setFocused(false);
-            onBlur?.(e);
-          }}
           placeholderTextColor={
             placeholderTextColor ?? theme.colors.content.tertiary
           }

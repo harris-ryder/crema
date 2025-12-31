@@ -108,6 +108,62 @@ const route = usersRouter
       }
     }
   )
+  .post(
+    "/check-username",
+    authRequiredMiddleware,
+    zValidator(
+      "json",
+      z.object({
+        username: z
+          .string()
+          .min(3, "Username must be at least 3 characters")
+          .max(30, "Username must be at most 30 characters")
+          .regex(
+            /^[a-zA-Z0-9_]+$/,
+            "Username can only contain letters, numbers, and underscores"
+          ),
+      })
+    ),
+    async (c) => {
+      const user = c.get("user");
+      if (!user) {
+        return c.text("Unauthorized", 401);
+      }
+
+      const { username } = c.req.valid("json");
+
+      try {
+        const [existingUser] = await db
+          .select({ id: usersTable.id })
+          .from(usersTable)
+          .where(eq(usersTable.username, username))
+          .limit(1);
+
+        const isAvailable = !existingUser || existingUser.id === user.id;
+
+        return c.json(
+          {
+            success: true,
+            available: isAvailable,
+          },
+          200
+        );
+      } catch (error) {
+        console.error("Username check error:", error);
+        return c.json(
+          {
+            success: false,
+            available: false,
+            error:
+              error instanceof Error
+                ? error.message
+                : "Failed to check username",
+          },
+          500
+        );
+      }
+    }
+  )
   .put(
     "/username",
     authRequiredMiddleware,
