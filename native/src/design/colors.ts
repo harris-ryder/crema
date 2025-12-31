@@ -18,8 +18,8 @@ type ColorScheme = {
   surface: {
     primary: string;
     onPrimary: string;
-    inverse: string;
-    inverseOn: string;
+    secondary: string;
+    tertiary: string;
   };
   content: {
     primary: string;
@@ -35,9 +35,9 @@ type ColorScheme = {
 export const lightColors: ColorScheme = {
   surface: {
     primary: palette.neutral0,
-    onPrimary: palette.neutral100,
-    inverse: palette.neutral900,
-    inverseOn: palette.neutral0,
+    onPrimary: palette.neutral900,
+    secondary: palette.neutral100,
+    tertiary: palette.neutral300,
   },
   content: {
     primary: palette.neutral900,
@@ -53,9 +53,9 @@ export const lightColors: ColorScheme = {
 export const darkColors: ColorScheme = {
   surface: {
     primary: palette.neutral900,
-    onPrimary: palette.neutral800,
-    inverse: palette.neutral0,
-    inverseOn: palette.neutral900,
+    onPrimary: palette.neutral0,
+    secondary: palette.neutral800,
+    tertiary: palette.neutral600,
   },
   content: {
     primary: palette.neutral0,

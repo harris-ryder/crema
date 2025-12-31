@@ -63,13 +63,13 @@ function getInputStyles(theme: Theme): InputStyles {
       flexDirection: "row",
       alignItems: "center",
       borderRadius: theme.spacing[6],
-      backgroundColor: lightColors.surface.onPrimary,
+      backgroundColor: theme.colors.surface.secondary,
     },
     input: {
       ...type.body,
       flex: 1,
       minWidth: 0,
-      color: lightColors.content.primary,
+      color: theme.colors.content.primary,
       includeFontPadding: false,
       ...(Platform.OS === "android"
         ? { textAlignVertical: "center" as const }
@@ -140,7 +140,8 @@ export function Input({
           {...props}
           editable={!isDisabled}
           placeholderTextColor={
-            placeholderTextColor ?? theme.colors.content.tertiary
+            placeholderTextColor ??
+            withAlpha(theme.colors.content.tertiary, 0.5)
           }
           style={[stylesForTheme.input, inputStyle]}
           accessibilityState={{ disabled: isDisabled }}

@@ -12,7 +12,7 @@ import {
 
 import { useTheme, type, palette, Theme } from "@/src/design";
 
-type Variant = "primary" | "secondary";
+type Variant = "primary";
 type Size = "sm" | "md" | "lg";
 
 type Props = Omit<PressableProps, "style" | "disabled"> & {
@@ -55,20 +55,11 @@ function getButtonVariants(theme: Theme): Record<Variant, VariantStyles> {
   return {
     primary: {
       container: {
-        backgroundColor: theme.colors.surface.inverse,
+        backgroundColor: theme.colors.surface.onPrimary,
       },
-      label: { color: theme.colors.surface.inverseOn },
-      spinnerColor: theme.colors.surface.inverseOn,
+      label: { color: theme.colors.content.inverse },
+      spinnerColor: theme.colors.content.inverse,
       pressed: { opacity: 0.9 },
-    },
-
-    secondary: {
-      container: {
-        backgroundColor: theme.colors.surface.primary,
-      },
-      label: { color: theme.colors.content.primary },
-      spinnerColor: theme.colors.content.primary,
-      pressed: { backgroundColor: pressedOverlay },
     },
   };
 }
@@ -104,7 +95,6 @@ export function Button({
         BUTTON_SIZES[size],
         {
           borderRadius: theme.spacing[96],
-          borderWidth: 1,
           gap: theme.spacing[2],
         },
         v.container,
@@ -143,6 +133,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   disabled: {
-    opacity: 0.55,
+    opacity: 0.5,
   },
 });

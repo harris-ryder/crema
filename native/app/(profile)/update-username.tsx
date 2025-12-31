@@ -119,7 +119,6 @@ export default function UsernameSetup() {
               setUsername(text);
             }}
             placeholder="username"
-            placeholderTextColor={theme.colors.content.tertiary}
             autoCapitalize="none"
             autoCorrect={false}
             autoFocus={false}
