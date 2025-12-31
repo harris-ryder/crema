@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, SafeAreaView, Animated, Easing } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  Animated,
+  Easing,
+} from "react-native";
 import { useAuth } from "@/contexts/auth-context";
 import { client } from "@/api/client";
 import { Button } from "@/components/Button";
@@ -26,9 +33,9 @@ export default function UsernameSetup() {
     if (lastValidationStatus.current === validationStatus) {
       return;
     }
-    
+
     lastValidationStatus.current = validationStatus;
-    
+
     if (validationStatus === "idle") {
       // Fade out
       Animated.timing(fadeAnim, {
@@ -37,7 +44,11 @@ export default function UsernameSetup() {
         useNativeDriver: true,
         easing: Easing.out(Easing.ease),
       }).start();
-    } else if (validationStatus === "valid" || validationStatus === "invalid" || validationStatus === "error") {
+    } else if (
+      validationStatus === "valid" ||
+      validationStatus === "invalid" ||
+      validationStatus === "error"
+    ) {
       // Fade in
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -107,7 +118,7 @@ export default function UsernameSetup() {
               await validateName(text);
               setUsername(text);
             }}
-            placeholder="Enter your username"
+            placeholder="username"
             placeholderTextColor={theme.colors.content.tertiary}
             autoCapitalize="none"
             autoCorrect={false}
