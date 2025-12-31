@@ -26,16 +26,8 @@ export default function UsernameSetup() {
     "loading" | "error" | "idle"
   >("idle");
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const lastValidationStatus = useRef(validationStatus);
 
   useEffect(() => {
-    // Only animate if the status actually changed
-    if (lastValidationStatus.current === validationStatus) {
-      return;
-    }
-
-    lastValidationStatus.current = validationStatus;
-
     if (validationStatus === "idle") {
       // Fade out
       Animated.timing(fadeAnim, {
