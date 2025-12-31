@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import {
   ActivityIndicator,
+  Animated,
+  Easing,
   Pressable,
   PressableProps,
   StyleSheet,
@@ -78,43 +80,54 @@ export function Button({
 }: Props) {
   const theme = useTheme();
   const isDisabled = disabled || loading;
+  const opacity = useRef(new Animated.Value(isDisabled ? 0.5 : 1)).current;
 
   const variants = getButtonVariants(theme);
   const v = variants[variant];
 
-  return (
-    <Pressable
-      {...rest}
-      disabled={isDisabled}
-      onPress={isDisabled ? undefined : onPress}
-      accessibilityRole="button"
-      accessibilityState={{ disabled: isDisabled, busy: loading }}
-      hitSlop={8}
-      style={({ pressed }) => [
-        styles.base,
-        BUTTON_SIZES[size],
-        {
-          borderRadius: theme.spacing[96],
-          gap: theme.spacing[2],
-        },
-        v.container,
-        pressed && !isDisabled ? v.pressed : null,
-        isDisabled ? styles.disabled : null,
-        style,
-      ]}
-    >
-      <View style={styles.row}>
-        {left ? <View style={styles.slot}>{left}</View> : null}
+  useEffect(() => {
+    Animated.timing(opacity, {
+      toValue: isDisabled ? 0.5 : 1,
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  }, [isDisabled, opacity]);
 
-        {loading ? (
-          <ActivityIndicator size="small" color={v.spinnerColor} />
-        ) : (
-          <Text numberOfLines={1} style={[type.body, v.label, textStyle]}>
-            {label}
-          </Text>
-        )}
-      </View>
-    </Pressable>
+  return (
+    <Animated.View style={{ opacity }}>
+      <Pressable
+        {...rest}
+        disabled={isDisabled}
+        onPress={isDisabled ? undefined : onPress}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: isDisabled, busy: loading }}
+        hitSlop={8}
+        style={({ pressed }) => [
+          styles.base,
+          BUTTON_SIZES[size],
+          {
+            borderRadius: theme.spacing[96],
+            gap: theme.spacing[2],
+          },
+          v.container,
+          pressed && !isDisabled ? v.pressed : null,
+          style,
+        ]}
+      >
+        <View style={styles.row}>
+          {left ? <View style={styles.slot}>{left}</View> : null}
+
+          {loading ? (
+            <ActivityIndicator size="small" color={v.spinnerColor} />
+          ) : (
+            <Text numberOfLines={1} style={[type.body, v.label, textStyle]}>
+              {label}
+            </Text>
+          )}
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 }
 
