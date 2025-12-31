@@ -1,5 +1,6 @@
 import { type, useTheme } from "@/src/design";
 import { Theme } from "@/src/design/theme";
+import { lightColors } from "@/src/design/colors";
 import React from "react";
 import {
   Platform,
@@ -65,13 +66,13 @@ function getInputStyles(theme: Theme): InputStyles {
       flexDirection: "row",
       alignItems: "center",
       borderRadius: theme.spacing[6],
-      backgroundColor: theme.colors.surface.onPrimary,
+      backgroundColor: lightColors.surface.onPrimary,
     },
     input: {
       ...type.body,
       flex: 1,
       minWidth: 0,
-      color: theme.colors.content.primary,
+      color: lightColors.content.primary,
       includeFontPadding: false,
       ...(Platform.OS === "android"
         ? { textAlignVertical: "center" as const }
