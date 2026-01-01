@@ -15,8 +15,7 @@ import { PenIcon } from "@/src/ui/icons";
 import LatteArtIcon from "@/src/ui/icons/latte-art-icon";
 
 interface PhotoSelectorProps {
-  isVisible?: boolean;
-  onPhotoSelected?: (uri: string) => void;
+  isActive?: boolean;
 }
 
 const postImage = async (imageUri: string) => {
@@ -49,10 +48,7 @@ const postImage = async (imageUri: string) => {
   }
 };
 
-export default function PhotoSelector({
-  isVisible = true,
-  onPhotoSelected,
-}: PhotoSelectorProps) {
+export default function PhotoSelector({ isActive = true }: PhotoSelectorProps) {
   const theme = useTheme();
   const styles = createStyles(theme);
   const { user } = useAuth();
@@ -64,7 +60,7 @@ export default function PhotoSelector({
   const translateYAnim = useRef(new Animated.Value(-50)).current;
 
   useEffect(() => {
-    if (isVisible) {
+    if (isActive) {
       // Fade in and translate down
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -99,7 +95,7 @@ export default function PhotoSelector({
         }),
       ]).start();
     }
-  }, [isVisible, fadeAnim, translateYAnim]);
+  }, [isActive, fadeAnim, translateYAnim]);
 
   const pickImageAsync = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -115,7 +111,6 @@ export default function PhotoSelector({
         if (response.success) {
           setLocalImageUri(result.assets[0].uri);
           setImageVersion((prev) => prev + 1);
-          onPhotoSelected?.(result.assets[0].uri);
         }
       } catch (error) {
         console.error("Failed to upload image:", error);
@@ -138,7 +133,7 @@ export default function PhotoSelector({
           transform: [{ translateY: translateYAnim }],
         },
       ]}
-      pointerEvents={isVisible ? "auto" : "none"}
+      pointerEvents={isActive ? "auto" : "none"}
     >
       <View style={styles.photoContainer}>
         {imageUri ? (

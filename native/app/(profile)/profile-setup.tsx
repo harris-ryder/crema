@@ -13,6 +13,7 @@ import { Input } from "@/components/Input";
 import { MaterialIcons } from "@expo/vector-icons";
 import useNameValidatorAndUpdater from "./hooks/use-name-validator-and-updater";
 import PhotoSelector from "./components/photo-selector";
+import { router } from "expo-router";
 
 export default function ProfileSetup() {
   const theme = useTheme();
@@ -35,50 +36,52 @@ export default function ProfileSetup() {
   } = useNameValidatorAndUpdater();
 
   const onContinuePress = async () => {
-    // Update username on the backend, but don't block process in meantime
-    if (profileStep === "name") {
-      // Calculate target width based on username length
-      // Min width of 0.3 (30%) + dynamic width based on character count
-      const targetWidth = Math.min(0.17 + username.length * 0.024, 0.9);
-
-      // Animate transition from username to photo
-      // Native animations (opacity and translate)
-      Animated.parallel([
-        Animated.timing(usernameFadeAnim, {
-          toValue: 0,
-          duration: 400,
-          delay: 700,
-          useNativeDriver: true,
-          easing: Easing.out(Easing.ease),
-        }),
-        Animated.timing(photoFadeAnim, {
-          toValue: 1,
-          duration: 400,
-          delay: 700,
-          useNativeDriver: true,
-          easing: Easing.out(Easing.ease),
-        }),
-        Animated.timing(inputTranslateYAnim, {
-          toValue: 160,
-          duration: 400,
-          delay: 700,
-          useNativeDriver: true,
-          easing: Easing.out(Easing.ease),
-        }),
-      ]).start();
-
-      // Width animation (non-native) - start separately
-      Animated.timing(inputWidthAnim, {
-        toValue: targetWidth,
-        duration: 400,
-        useNativeDriver: false, // Required for width animation
-        easing: Easing.out(Easing.ease),
-      }).start();
-
-      await updateName();
-      setProfileStep("photo");
+    if (profileStep === "photo") {
+      router.push("/(tabs)/profile");
       return;
     }
+    // Update username on the backend, but don't block process in meantime
+    // Calculate target width based on username length
+    // Min width of 0.3 (30%) + dynamic width based on character count
+    const targetWidth = Math.min(0.17 + username.length * 0.024, 0.9);
+
+    // Animate transition from username to photo
+    // Native animations (opacity and translate)
+    Animated.parallel([
+      Animated.timing(usernameFadeAnim, {
+        toValue: 0,
+        duration: 400,
+        delay: 700,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.ease),
+      }),
+      Animated.timing(photoFadeAnim, {
+        toValue: 1,
+        duration: 400,
+        delay: 700,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.ease),
+      }),
+      Animated.timing(inputTranslateYAnim, {
+        toValue: 160,
+        duration: 400,
+        delay: 700,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.ease),
+      }),
+    ]).start();
+
+    // Width animation (non-native) - start separately
+    Animated.timing(inputWidthAnim, {
+      toValue: targetWidth,
+      duration: 400,
+      useNativeDriver: false, // Required for width animation
+      easing: Easing.out(Easing.ease),
+    }).start();
+
+    await updateName();
+    setProfileStep("photo");
+    return;
   };
 
   useEffect(() => {
@@ -129,7 +132,7 @@ export default function ProfileSetup() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <PhotoSelector isVisible={profileStep === "photo"} />
+      <PhotoSelector isActive={profileStep === "photo"} />
       <View style={styles.content}>
         <View style={{ position: "relative" }}>
           <Text style={styles.title}>CHOOSE</Text>
