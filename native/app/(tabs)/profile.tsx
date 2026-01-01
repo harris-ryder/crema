@@ -188,6 +188,7 @@ const createStyles = (theme: Theme) =>
     },
     weekText: {
       paddingLeft: 36,
+      color: theme.colors.content.primary,
       ...type.title,
     },
     infoSection: {
