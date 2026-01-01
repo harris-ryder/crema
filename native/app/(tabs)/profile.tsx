@@ -119,10 +119,10 @@ export default function Profile() {
 
       <View style={styles.weeksContainer}>
         {weeks.map((week, index) => (
-          <>
+          <View style={{ flexDirection: "column", gap: 12 }} key={index}>
             <Text style={styles.weekText}>Week {week.weekNumber}</Text>
-            <WeekCarousel key={index} week={week} />
-          </>
+            <WeekCarousel week={week} />
+          </View>
         ))}
       </View>
 
