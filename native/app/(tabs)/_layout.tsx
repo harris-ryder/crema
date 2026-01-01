@@ -1,12 +1,15 @@
 import { Tabs, useRouter } from "expo-router";
 import { useEffect } from "react";
-import { Platform } from "react-native";
 import { useAuth } from "@/contexts/auth-context";
+import { CustomTabBar } from "@/components/custom-tab-bar";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useTheme } from "@/src/design";
 
 export default function TabLayout() {
   const { user, isLoading } = useAuth();
+  const theme = useTheme();
+
   const router = useRouter();
 
   useEffect(() => {
@@ -25,38 +28,8 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
-        tabBarActiveTintColor: "#25292e",
-        tabBarInactiveTintColor: "#8b8e92",
-        headerStyle: {
-          backgroundColor: "#25292e",
-        },
-        headerShadowVisible: false,
-        headerTintColor: "#fff",
-        tabBarStyle: {
-          position: "absolute",
-          bottom: 25,
-          left: 30,
-          right: 30,
-          marginHorizontal: 90,
-          backgroundColor: "#ffffff",
-          borderRadius: 25,
-          height: 70,
-          paddingBottom: Platform.OS === "ios" ? 0 : 10,
-          paddingTop: 10,
-          borderTopWidth: 0,
-          shadowColor: "#000",
-          shadowOffset: {
-            width: 0,
-            height: 5,
-          },
-          shadowOpacity: 0.15,
-          shadowRadius: 10,
-          elevation: 10,
-        },
-        tabBarItemStyle: {
-          paddingTop: 5,
-        },
         tabBarShowLabel: false,
       }}
     >
