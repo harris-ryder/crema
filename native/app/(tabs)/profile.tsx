@@ -12,9 +12,11 @@ import config from "../../config";
 import { Theme, useTheme, type } from "@/src/design";
 import { CoffeeCupIcon, LatteArtIcon } from "@/src/ui/icons";
 import WeekCarousel from "@/components/profile/week-carousel";
+import { client } from "@/api/client";
+import { useEffect } from "react";
 
 export default function Profile() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, header } = useAuth();
   const theme = useTheme();
   const styles = createStyles(theme);
 
@@ -28,6 +30,25 @@ export default function Profile() {
       posts: [],
     })),
   }));
+
+  useEffect(() => {
+    const fetchUserWeeks = async () => {
+      if (!user?.id || !header) return;
+
+      try {
+        const res = await client.posts[":userId"].weeks.$get(
+          { param: { userId: user.id }, query: { count: "7" } },
+          { headers: header }
+        );
+        const data = await res.json();
+        console.log("User weeks response:", data.weeks[0].days[0]);
+      } catch (error) {
+        console.error("Error fetching user weeks:", error);
+      }
+    };
+
+    fetchUserWeeks();
+  }, [user?.id, header]);
 
   if (!user) {
     return (
