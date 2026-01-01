@@ -47,7 +47,7 @@ export default function WeekCarousel({ week }: WeekCarouselProps) {
               style={[styles.emptyDay, getEmptyDayBorderRadius(index, week)]}
             >
               <Text
-                style={[type.body, { color: theme.colors.content.primary }]}
+                style={[type.title, { color: theme.colors.content.primary }]}
               >
                 {dayName}
               </Text>

@@ -2,7 +2,8 @@ const tracking = (fontSize: number, percent = -3) => fontSize * (percent / 100);
 
 export const fonts = {
   climate: "ClimateCrisis",
-  inter: "Inter",
+  inter: "Inter_400Regular",
+  interSemiBold: "Inter_600SemiBold",
 } as const;
 
 export const type = {
@@ -19,22 +20,19 @@ export const type = {
     includeFontPadding: false,
   },
   title: {
-    fontFamily: fonts.inter,
+    fontFamily: fonts.interSemiBold,
     fontSize: 16,
     letterSpacing: tracking(16, -3),
-    fontWeight: "600" as const,
   },
   body: {
     fontFamily: fonts.inter,
     fontSize: 16,
     letterSpacing: tracking(16, -3),
-    fontWeight: "400" as const,
   },
   weak: {
     fontFamily: fonts.inter,
     fontSize: 16,
     letterSpacing: tracking(16, -3),
-    fontWeight: "400" as const,
   },
 } as const;
 
