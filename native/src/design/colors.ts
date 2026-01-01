@@ -10,6 +10,7 @@ export const palette = {
   neutral700: "#616161",
   neutral800: "#424242",
   neutral900: "#212121",
+  neutral1000: "#000",
   brandRed: "#FF1616",
   brandGreen: "#1CB31F",
 } as const;
@@ -35,12 +36,12 @@ type ColorScheme = {
 export const lightColors: ColorScheme = {
   surface: {
     primary: palette.neutral0,
-    onPrimary: palette.neutral900,
+    onPrimary: palette.neutral1000,
     secondary: palette.neutral100,
     tertiary: palette.neutral300,
   },
   content: {
-    primary: palette.neutral900,
+    primary: palette.neutral1000,
     tertiary: palette.neutral600,
     inverse: palette.neutral0,
   },
@@ -52,15 +53,15 @@ export const lightColors: ColorScheme = {
 
 export const darkColors: ColorScheme = {
   surface: {
-    primary: palette.neutral900,
+    primary: palette.neutral1000,
     onPrimary: palette.neutral0,
-    secondary: palette.neutral800,
+    secondary: palette.neutral900,
     tertiary: palette.neutral600,
   },
   content: {
     primary: palette.neutral0,
     tertiary: palette.neutral100,
-    inverse: palette.neutral900,
+    inverse: palette.neutral1000,
   },
   brand: {
     red: palette.brandRed,
