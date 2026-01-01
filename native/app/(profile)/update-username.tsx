@@ -12,6 +12,7 @@ import { Theme, type, useTheme } from "@/src/design";
 import { Input } from "@/components/Input";
 import { MaterialIcons } from "@expo/vector-icons";
 import useNameValidatorAndUpdater from "./hooks/use-name-validator-and-updater";
+import PhotoSelector from "./PhotoSelector";
 
 export default function UsernameSetup() {
   const theme = useTheme();
@@ -20,6 +21,7 @@ export default function UsernameSetup() {
   const usernameFadeAnim = useRef(new Animated.Value(1)).current;
   const photoFadeAnim = useRef(new Animated.Value(0)).current;
   const inputWidthAnim = useRef(new Animated.Value(1)).current;
+  const inputTranslateYAnim = useRef(new Animated.Value(0)).current;
 
   const [profileStep, setProfileStep] = useState<"name" | "photo">("name");
 
@@ -37,29 +39,41 @@ export default function UsernameSetup() {
     if (profileStep === "name") {
       // Calculate target width based on username length
       // Min width of 0.3 (30%) + dynamic width based on character count
-      const targetWidth = Math.min(0.15 + username.length * 0.026, 0.9);
+      const targetWidth = Math.min(0.17 + username.length * 0.024, 0.9);
 
       // Animate transition from username to photo
+      // Native animations (opacity and translate)
       Animated.parallel([
         Animated.timing(usernameFadeAnim, {
           toValue: 0,
-          duration: 300,
+          duration: 400,
+          delay: 700,
           useNativeDriver: true,
           easing: Easing.out(Easing.ease),
         }),
         Animated.timing(photoFadeAnim, {
           toValue: 1,
-          duration: 300,
+          duration: 400,
+          delay: 700,
           useNativeDriver: true,
           easing: Easing.out(Easing.ease),
         }),
-        Animated.timing(inputWidthAnim, {
-          toValue: targetWidth,
-          duration: 300,
-          useNativeDriver: false, // Required for width animation
+        Animated.timing(inputTranslateYAnim, {
+          toValue: 160,
+          duration: 400,
+          delay: 700,
+          useNativeDriver: true,
           easing: Easing.out(Easing.ease),
         }),
       ]).start();
+
+      // Width animation (non-native) - start separately
+      Animated.timing(inputWidthAnim, {
+        toValue: targetWidth,
+        duration: 400,
+        useNativeDriver: false, // Required for width animation
+        easing: Easing.out(Easing.ease),
+      }).start();
 
       await updateName();
       setProfileStep("photo");
@@ -115,6 +129,7 @@ export default function UsernameSetup() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <PhotoSelector isVisible={profileStep === "photo"} />
       <View style={styles.content}>
         <View style={{ position: "relative" }}>
           <Text style={styles.title}>CHOOSE</Text>
@@ -133,7 +148,6 @@ export default function UsernameSetup() {
 
         <Animated.View
           style={[
-            styles.inputContainer,
             {
               width: inputWidthAnim.interpolate({
                 inputRange: [0, 1],
@@ -143,18 +157,27 @@ export default function UsernameSetup() {
             },
           ]}
         >
-          <Input
-            size="lg"
-            onChangeText={async (text) => {
-              await validateName(text);
-            }}
-            placeholder="username"
-            autoCapitalize="none"
-            autoCorrect={false}
-            autoFocus={false}
-            maxLength={30}
-            right={profileStep === "name" ? <ValidationIconSlot /> : null}
-          />
+          <Animated.View
+            style={[
+              styles.inputContainer,
+              {
+                transform: [{ translateY: inputTranslateYAnim }],
+              },
+            ]}
+          >
+            <Input
+              size="lg"
+              onChangeText={async (text) => {
+                await validateName(text);
+              }}
+              placeholder="username"
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoFocus={false}
+              maxLength={30}
+              right={profileStep === "name" ? <ValidationIconSlot /> : null}
+            />
+          </Animated.View>
         </Animated.View>
 
         <View style={styles.buttonContainer}>
