@@ -7,11 +7,10 @@ import {
   Animated,
   Easing,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useTheme, Theme } from "@/src/design";
 import { useAuth, loadAuthToken } from "@/contexts/auth-context";
-import config from "../../config";
+import config from "../../../config";
 import { PenIcon } from "@/src/ui/icons";
 import LatteArtIcon from "@/src/ui/icons/latte-art-icon";
 
@@ -124,13 +123,11 @@ export default function PhotoSelector({
     }
   };
 
-  let imageUri =
+  const imageUri =
     localImageUri ||
     (user?.id
       ? `${config.urls.backend}/images/users/${user.id}?v=${imageVersion}`
       : null);
-
-  imageUri = null;
 
   return (
     <Animated.View

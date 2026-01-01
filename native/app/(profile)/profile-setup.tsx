@@ -12,9 +12,9 @@ import { Theme, type, useTheme } from "@/src/design";
 import { Input } from "@/components/Input";
 import { MaterialIcons } from "@expo/vector-icons";
 import useNameValidatorAndUpdater from "./hooks/use-name-validator-and-updater";
-import PhotoSelector from "./PhotoSelector";
+import PhotoSelector from "./components/photo-selector";
 
-export default function UsernameSetup() {
+export default function ProfileSetup() {
   const theme = useTheme();
   const styles = createStyles(theme);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -221,10 +221,6 @@ const createStyles = (theme: Theme) =>
       ...type.heading1,
       color: theme.colors.content.primary,
     },
-    titleAction: {
-      ...type.heading1,
-      color: theme.colors.brand.red,
-    },
     inputContainer: {
       marginBottom: 30,
     },
@@ -234,21 +230,7 @@ const createStyles = (theme: Theme) =>
       alignItems: "center",
       justifyContent: "center",
     },
-    helperText: {
-      fontSize: 14,
-      marginTop: 8,
-    },
     buttonContainer: {
       gap: 15,
-    },
-    loadingContainer: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: "rgba(0,0,0,0.5)",
     },
   });
