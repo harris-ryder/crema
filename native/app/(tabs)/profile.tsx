@@ -119,7 +119,7 @@ export default function Profile() {
 
         <TouchableOpacity
           style={styles.infoRow}
-          onPress={() => router.push("/(profile)/update-username")}
+          onPress={() => router.push("/(profile)/profile-setup")}
         >
           <Ionicons name="person-outline" size={20} color="#8b8e92" />
           <View style={styles.infoContent}>
