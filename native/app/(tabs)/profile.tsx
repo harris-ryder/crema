@@ -78,7 +78,11 @@ export default function Profile() {
       <View style={styles.profileHeader}>
         <View style={styles.profileInfo}>
           <View style={styles.profileNames}>
-            <Text style={type.heading1}>Harris</Text>
+            <Text
+              style={[type.heading1, { color: theme.colors.content.primary }]}
+            >
+              Harris
+            </Text>
             <Text style={[type.body, { color: theme.colors.content.tertiary }]}>
               {user.username}
             </Text>
@@ -98,7 +102,7 @@ export default function Profile() {
         {user.id ? (
           <Image
             source={{
-              uri: `${config.urls.backend}/images/users/${user.id}`,
+              uri: `${config.urls.backend}/images/users/${user.id}?v=${user.updated_at}`,
             }}
             style={styles.avatar}
           />
@@ -115,7 +119,10 @@ export default function Profile() {
 
       <View style={styles.weeksContainer}>
         {weeks.map((week, index) => (
-          <WeekCarousel key={index} week={week} />
+          <>
+            <Text style={styles.weekText}>Week {week.weekNumber}</Text>
+            <WeekCarousel key={index} week={week} />
+          </>
         ))}
       </View>
 
@@ -149,7 +156,7 @@ const createStyles = (theme: Theme) =>
       justifyContent: "space-between",
       alignItems: "flex-start",
       paddingHorizontal: 36,
-      paddingVertical: 64,
+      paddingTop: 64,
     },
     profileInfo: {
       flexDirection: "column",
@@ -175,9 +182,13 @@ const createStyles = (theme: Theme) =>
       alignItems: "center",
     },
     weeksContainer: {
+      marginTop: 32,
       flexDirection: "column",
       gap: 16,
-      paddingVertical: 20,
+    },
+    weekText: {
+      paddingLeft: 36,
+      ...type.title,
     },
     infoSection: {
       padding: 20,
