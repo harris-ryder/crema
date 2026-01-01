@@ -8,7 +8,8 @@
       "WebFetch(domain:expo.dev)",
       "Bash(ls:*)",
       "Bash(curl:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

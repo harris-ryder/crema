@@ -15,12 +15,14 @@ function RootLayoutNav() {
 
   if (isLoading || !fontsLoaded) {
     return (
-      <View style={{ 
-        flex: 1, 
-        justifyContent: "center", 
-        alignItems: "center",
-        backgroundColor: theme.colors.surface.primary 
-      }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: theme.colors.surface.primary,
+        }}
+      >
         <ActivityIndicator color={theme.colors.brand.red} />
       </View>
     );

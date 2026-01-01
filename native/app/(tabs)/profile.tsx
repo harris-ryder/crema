@@ -6,67 +6,18 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { loadAuthToken, useAuth } from "@/contexts/auth-context";
+import { useAuth } from "@/contexts/auth-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import config from "../../config";
-import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
 import { router } from "expo-router";
-
-const postImage = async (imageUri: string) => {
-  const token = await loadAuthToken();
-
-  const formData = new FormData();
-  formData.append("file", {
-    uri: imageUri,
-    type: "image/jpeg",
-    name: "profile.jpg",
-  } as any);
-
-  const response = await fetch(
-    `${config.urls.backend}/images/users/profile-picture`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    }
-  );
-  console.log("response", response);
-
-  const result = await response.json();
-
-  if (result.success) {
-    return result;
-  } else {
-    throw new Error("Failed to update image");
-  }
-};
+import { Theme, useTheme, type } from "@/src/design";
+import { CoffeeCupIcon, LatteArtIcon } from "@/src/ui/icons";
+import { createTokenSchema } from "@server/helpers/token";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
-  const [imageVersion, setImageVersion] = useState(0);
-
-  const pickImageAsync = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      try {
-        const response = await postImage(result.assets[0].uri);
-        if (response.success) {
-          setImageVersion((prev) => prev + 1); // Increment to trigger cache bust
-        }
-      } catch (error) {
-        // Handle upload error silently or show user feedback
-      }
-    }
-  };
+  const theme = useTheme();
+  const styles = createStyles(theme);
 
   if (!user) {
     return (
@@ -82,28 +33,41 @@ export default function Profile() {
       contentContainerStyle={styles.contentContainer}
     >
       <View style={styles.profileHeader}>
-        <View style={styles.avatarContainer}>
-          {user.id ? (
-            <Image
-              source={{
-                uri: `${config.urls.backend}/images/users/${user.id}?v=${imageVersion}`,
-              }}
-              style={styles.avatar}
-            />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Ionicons name="person" size={50} color="#666" />
-            </View>
-          )}
-          <TouchableOpacity
-            style={styles.addPhotoButton}
-            onPress={pickImageAsync}
+        <View style={styles.profileInfo}>
+          <View style={styles.profileNames}>
+            <Text style={type.heading1}>Harris</Text>
+            <Text style={[type.body, { color: theme.colors.content.tertiary }]}>
+              {user.username}
+            </Text>
+          </View>
+          <Text style={[type.body, { color: theme.colors.content.primary }]}>
+            {user.bio || "bio empty"}
+          </Text>
+          <View
+            style={{ flexDirection: "row", alignContent: "center", gap: 4 }}
           >
-            <Ionicons name="add" size={20} color="#25292e" />
-          </TouchableOpacity>
+            <CoffeeCupIcon fill={theme.colors.content.primary} />
+            <Text style={[type.body, { color: theme.colors.content.primary }]}>
+              7 coffees made
+            </Text>
+          </View>
         </View>
-
-        <Text style={styles.username}>@{user.username || "username"}</Text>
+        {user.id ? (
+          <Image
+            source={{
+              uri: `${config.urls.backend}/images/users/${user.id}`,
+            }}
+            style={styles.avatar}
+          />
+        ) : (
+          <View style={styles.avatarPlaceholder}>
+            <LatteArtIcon
+              width={32}
+              height={32}
+              fill={theme.colors.surface.tertiary}
+            />
+          </View>
+        )}
       </View>
 
       <View style={styles.infoSection}>
@@ -113,7 +77,7 @@ export default function Profile() {
           <Ionicons name="mail-outline" size={20} color="#8b8e92" />
           <View style={styles.infoContent}>
             <Text style={styles.infoLabel}>Email</Text>
-            <Text style={styles.infoValue}>{user.email || "Not provided"}</Text>
+            {/* <Text style={styles.infoValue}>{user.email || "Not provided"}</Text> */}
           </View>
         </View>
 
@@ -137,7 +101,7 @@ export default function Profile() {
           </View>
         </View>
 
-        {user.created_at && (
+        {/* {user.created_at && (
           <View style={styles.infoRow}>
             <Ionicons name="calendar-outline" size={20} color="#8b8e92" />
             <View style={styles.infoContent}>
@@ -147,7 +111,7 @@ export default function Profile() {
               </Text>
             </View>
           </View>
-        )}
+        )} */}
       </View>
 
       <View style={styles.actionSection}>
@@ -160,130 +124,128 @@ export default function Profile() {
   );
 }
 
-const styles = StyleSheet.create({
-  scrollContainer: {
-    flex: 1,
-    backgroundColor: "#25292e",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#25292e",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  contentContainer: {
-    flexGrow: 1,
-    paddingBottom: 120,
-  },
-  text: {
-    color: "#fff",
-  },
-  profileHeader: {
-    alignItems: "center",
-    paddingTop: 40,
-    paddingBottom: 30,
-    borderBottomWidth: 1,
-    borderBottomColor: "#2a2f35",
-  },
-  avatarContainer: {
-    marginBottom: 20,
-    position: "relative",
-  },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: "#ffd33d",
-  },
-  avatarPlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: "#2a2f35",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: "#ffd33d",
-  },
-  displayName: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 5,
-  },
-  username: {
-    fontSize: 16,
-    color: "#8b8e92",
-  },
-  infoSection: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#fff",
-    marginBottom: 20,
-  },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#2a2f35",
-  },
-  infoContent: {
-    marginLeft: 15,
-    flex: 1,
-  },
-  infoLabel: {
-    fontSize: 12,
-    color: "#8b8e92",
-    marginBottom: 3,
-  },
-  infoValue: {
-    fontSize: 16,
-    color: "#fff",
-  },
-  actionSection: {
-    padding: 20,
-    gap: 15,
-  },
-  logoutButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 68, 68, 0.1)",
-    padding: 15,
-    borderRadius: 12,
-    gap: 10,
-    borderWidth: 1,
-    borderColor: "#ff4444",
-  },
-  logoutButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#ff4444",
-  },
-  addPhotoButton: {
-    position: "absolute",
-    bottom: 5,
-    right: 5,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#ffd33d",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: "#25292e",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
+const createStyles = (theme: Theme) =>
+  StyleSheet.create({
+    scrollContainer: {
+      flex: 1,
+      backgroundColor: theme.colors.surface.primary,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-});
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    contentContainer: {
+      flexGrow: 1,
+      paddingBottom: 120,
+    },
+    text: {
+      color: "#fff",
+    },
+    profileHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      paddingHorizontal: 36,
+      paddingVertical: 64,
+    },
+    profileInfo: {
+      flexDirection: "column",
+      gap: 12,
+      justifyContent: "flex-start",
+    },
+    profileNames: {
+      flexDirection: "column",
+      gap: 0,
+      justifyContent: "flex-start",
+    },
+    avatar: {
+      width: 96,
+      height: 112,
+      borderRadius: 48,
+    },
+    avatarPlaceholder: {
+      width: 96,
+      height: 112,
+      borderRadius: 48,
+      backgroundColor: theme.colors.surface.tertiary,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    displayName: {
+      fontSize: 28,
+      fontWeight: "bold",
+      color: "#fff",
+      marginBottom: 5,
+    },
+    infoSection: {
+      padding: 20,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontWeight: "600",
+      color: "#fff",
+      marginBottom: 20,
+    },
+    infoRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingVertical: 15,
+      borderBottomWidth: 1,
+      borderBottomColor: "#2a2f35",
+    },
+    infoContent: {
+      marginLeft: 15,
+      flex: 1,
+    },
+    infoLabel: {
+      fontSize: 12,
+      color: "#8b8e92",
+      marginBottom: 3,
+    },
+    infoValue: {
+      fontSize: 16,
+      color: "#fff",
+    },
+    actionSection: {
+      padding: 20,
+      gap: 15,
+    },
+    logoutButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "rgba(255, 68, 68, 0.1)",
+      padding: 15,
+      borderRadius: 12,
+      gap: 10,
+      borderWidth: 1,
+      borderColor: "#ff4444",
+    },
+    logoutButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: "#ff4444",
+    },
+    addPhotoButton: {
+      position: "absolute",
+      bottom: 5,
+      right: 5,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: "#ffd33d",
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 3,
+      borderColor: "#25292e",
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+  });

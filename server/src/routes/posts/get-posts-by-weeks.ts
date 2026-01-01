@@ -2,6 +2,8 @@ import { and, gte, lt, asc, eq } from "drizzle-orm";
 import { postsTable, usersTable } from "../../db/schema.ts";
 import { DateTime } from "luxon";
 import { db } from "../../db/index.ts";
+import { getAnchor, weekQuerySchema } from "./utils.ts";
+import { z } from "zod";
 
 function getWeekStart(year: number, week: number): DateTime {
   return DateTime.fromObject({
@@ -11,24 +13,18 @@ function getWeekStart(year: number, week: number): DateTime {
   }).setZone("utc");
 }
 
-export async function getPostsByWeeks({
-  count,
-  year,
-  week,
-}: {
-  count: number;
-  year?: number;
-  week?: number;
-}) {
-  let anchor: DateTime;
-  if (year !== undefined && week !== undefined) {
-    anchor = getWeekStart(year, week);
-  } else {
-    const now = DateTime.local().setZone("Europe/London");
-    anchor = getWeekStart(now.weekYear, now.weekNumber);
-  }
+export const getPostsByWeeks = z
+  .function()
+  .args(weekQuerySchema)
+  .implement(async ({
+    count,
+    year,
+    week,
+  }) => {
+  const anchor = getAnchor({ count, year, week });
+  const anchorDateTime = getWeekStart(anchor.year, anchor.week);
 
-  const endWeekStart = anchor;
+  const endWeekStart = anchorDateTime;
   const startWeekStart = endWeekStart.minus({ weeks: count - 1 });
   const startDate = startWeekStart.toISODate()!;
   const endDate = endWeekStart.plus({ days: 7 }).toISODate()!;
@@ -82,4 +78,4 @@ export async function getPostsByWeeks({
     weeks,
     next: { year: current.weekYear, week: current.weekNumber },
   };
-}
+});
