@@ -110,6 +110,7 @@ export default function useNameValidatorAndUpdater() {
   };
 
   return {
+    username,
     validateName,
     validationStatus,
     updateName,

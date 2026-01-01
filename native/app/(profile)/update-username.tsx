@@ -19,16 +19,26 @@ export default function UsernameSetup() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const usernameFadeAnim = useRef(new Animated.Value(1)).current;
   const photoFadeAnim = useRef(new Animated.Value(0)).current;
+  const inputWidthAnim = useRef(new Animated.Value(1)).current;
 
   const [profileStep, setProfileStep] = useState<"name" | "photo">("name");
 
   // hooks
-  const { validationStatus, validateName, updateName, usernameUpdateStatus } =
-    useNameValidatorAndUpdater();
+  const {
+    validationStatus,
+    validateName,
+    updateName,
+    usernameUpdateStatus,
+    username,
+  } = useNameValidatorAndUpdater();
 
   const onContinuePress = async () => {
     // Update username on the backend, but don't block process in meantime
     if (profileStep === "name") {
+      // Calculate target width based on username length
+      // Min width of 0.3 (30%) + dynamic width based on character count
+      const targetWidth = Math.min(0.15 + username.length * 0.026, 0.9);
+
       // Animate transition from username to photo
       Animated.parallel([
         Animated.timing(usernameFadeAnim, {
@@ -41,6 +51,12 @@ export default function UsernameSetup() {
           toValue: 1,
           duration: 300,
           useNativeDriver: true,
+          easing: Easing.out(Easing.ease),
+        }),
+        Animated.timing(inputWidthAnim, {
+          toValue: targetWidth,
+          duration: 300,
+          useNativeDriver: false, // Required for width animation
           easing: Easing.out(Easing.ease),
         }),
       ]).start();
@@ -115,7 +131,18 @@ export default function UsernameSetup() {
           </Animated.Text>
         </View>
 
-        <View style={styles.inputContainer}>
+        <Animated.View
+          style={[
+            styles.inputContainer,
+            {
+              width: inputWidthAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: ["0%", "100%"],
+              }),
+              alignSelf: "center",
+            },
+          ]}
+        >
           <Input
             size="lg"
             onChangeText={async (text) => {
@@ -126,9 +153,9 @@ export default function UsernameSetup() {
             autoCorrect={false}
             autoFocus={false}
             maxLength={30}
-            right={<ValidationIconSlot />}
+            right={profileStep === "name" ? <ValidationIconSlot /> : null}
           />
-        </View>
+        </Animated.View>
 
         <View style={styles.buttonContainer}>
           <View style={{ alignSelf: "flex-end" }}>
