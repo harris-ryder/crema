@@ -12,8 +12,25 @@ import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { createPost } from "./create-post.ts";
 import { uploadImage, uploadImageParams } from "../../helpers/upload-image.ts";
+import { DateTime } from "luxon";
+import { getPostsByWeeks } from "./get-posts-by-weeks.ts";
+import { getUserPostsByWeeks } from "./get-user-posts-by-weeks.ts";
 
 export const postsRouter = new Hono();
+
+const weekQuerySchema = z.object({
+  count: z.coerce.number().int().min(1).max(52).default(12),
+  year: z.coerce.number().int().min(1970).max(3000).optional(),
+  week: z.coerce.number().int().min(1).max(53).optional(),
+});
+
+function getAnchor(q: z.infer<typeof weekQuerySchema>) {
+  if (q.year != null && q.week != null) {
+    return { year: q.year, week: q.week };
+  }
+  const now = DateTime.local().setZone("Europe/London");
+  return { year: now.weekYear, week: now.weekNumber };
+}
 
 const route = postsRouter
   .basePath("/posts")
@@ -175,6 +192,41 @@ const route = postsRouter
       }
 
       return c.json({ success: true }, 200);
+    }
+  )
+  .get(
+    "/weeks",
+    zValidator("query", weekQuerySchema),
+    async (c) => {
+      const q = c.req.valid("query");
+      const anchor = getAnchor(q);
+
+      const data = await getPostsByWeeks({
+        count: q.count,
+        year: anchor.year,
+        week: anchor.week,
+      });
+
+      return c.json(data);
+    }
+  )
+  .get(
+    "/:userId/weeks",
+    zValidator("param", z.object({ userId: z.string().uuid() })),
+    zValidator("query", weekQuerySchema),
+    async (c) => {
+      const { userId } = c.req.valid("param");
+      const q = c.req.valid("query");
+      const anchor = getAnchor(q);
+
+      const data = await getUserPostsByWeeks({
+        userId,
+        count: q.count,
+        year: anchor.year,
+        week: anchor.week,
+      });
+
+      return c.json(data);
     }
   );
 
