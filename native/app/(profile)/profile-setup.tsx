@@ -175,6 +175,7 @@ export default function ProfileSetup() {
               }}
               placeholder="username"
               autoCapitalize="none"
+              editable={profileStep === "name"}
               autoCorrect={false}
               autoFocus={false}
               maxLength={30}

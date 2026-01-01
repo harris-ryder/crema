@@ -114,7 +114,7 @@ export function Input({
   const theme = useTheme();
   const stylesForTheme = getInputStyles(theme);
 
-  const isDisabled = disabled || editable === false;
+  const isDisabled = disabled;
 
   const sizeTokens = INPUT_SIZES[size];
 
@@ -138,7 +138,7 @@ export function Input({
 
         <TextInput
           {...props}
-          editable={!isDisabled}
+          editable={editable}
           placeholderTextColor={
             placeholderTextColor ??
             withAlpha(theme.colors.content.tertiary, 0.5)
