@@ -7,7 +7,7 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import { useAuth } from "@/contexts/auth-context";
-import HeartIcon from "@/src/ui/icons/HeartIcon";
+import HeartIcon from "@/src/ui/icons/heart-icon";
 import { type, useTheme, Theme } from "@/src/design";
 
 // Configure Google Sign-In
