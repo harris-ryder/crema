@@ -23,11 +23,14 @@ app.use(
 
 app.route("/", healthRouter);
 
-app
-  .route("/", usersRouter)
+// API v1 routes
+const v1 = new Hono();
+v1.route("/", usersRouter)
   .route("/", oauthRouter)
   .route("/", postsRouter)
   .route("/", imagesRouter);
+
+app.route("/v1", v1);
 
 serve({
   fetch: app.fetch,

@@ -9,11 +9,27 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import Button from "@/components/Button";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import config from "@/config";
 import { useAuth } from "@/contexts/auth-context";
+import * as Localization from "expo-localization";
+import { Button } from "@/components/Button";
+
+function getPostTz(): string {
+  // Expo gives IANA tz like "Europe/London" on iOS; Android usually too.
+  const tz = Localization.getCalendars()?.[0]?.timeZone;
+
+  // Fallback to Intl (sometimes better depending on platform/runtime)
+  if (typeof tz === "string" && tz.length) return tz;
+
+  try {
+    const intlTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (typeof intlTz === "string" && intlTz.length) return intlTz;
+  } catch {}
+
+  return "UTC";
+}
 
 export default function CreatePost() {
   const { header } = useAuth();
@@ -32,6 +48,8 @@ export default function CreatePost() {
     setError("");
 
     try {
+      const postTz = getPostTz();
+
       const formData = new FormData();
       formData.append("file", {
         uri: imageUri,
@@ -39,12 +57,17 @@ export default function CreatePost() {
         name: "post.jpg",
       } as any);
       formData.append("description", description.trim());
+      formData.append("postTz", postTz);
 
       const response = await fetch(`${config.urls.backend}/posts`, {
         method: "POST",
         headers: header,
         body: formData,
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to create post");
+      }
 
       router.back();
     } catch (error) {
@@ -96,7 +119,7 @@ export default function CreatePost() {
 
         <View style={styles.buttonContainer}>
           <Button
-            theme="primary"
+            variant="primary"
             label={isLoading ? "Posting..." : "Share Post"}
             onPress={handleCreatePost}
           />

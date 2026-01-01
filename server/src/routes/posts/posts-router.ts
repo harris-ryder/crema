@@ -71,6 +71,7 @@ const route = postsRouter
       z.object({
         file: uploadImageParams.shape.file,
         description: z.string().optional(),
+        postTz: z.string(),
       })
     ),
     async (c) => {
@@ -96,10 +97,13 @@ const route = postsRouter
       });
 
       const description = body["description"] as string | undefined;
+      const postTz = body["postTz"] as string;
+
       const post = await createPost({
         post: {
           image_uri: imageUri,
           description: description ?? null,
+          post_tz: postTz,
         },
         user: user,
       });
