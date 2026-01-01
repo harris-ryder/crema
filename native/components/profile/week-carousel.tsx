@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, ScrollView, StyleSheet, Image } from "react-native";
-import { lightColors, darkColors } from "@/src/design/colors";
-import { useColorScheme } from "react-native";
 import { Theme, type, useTheme } from "@/src/design";
+
+import { MaterialIcons } from "@expo/vector-icons";
 
 type Post = {
   id: string;
@@ -71,6 +71,13 @@ export default function WeekCarousel({ week }: WeekCarouselProps) {
           );
         }
       })}
+      <View style={styles.addPost}>
+        <MaterialIcons
+          name="add"
+          size={24}
+          color={theme.colors.content.primary}
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -88,6 +95,14 @@ const createStyles = (theme: Theme) =>
     emptyDay: {
       width: 64,
       height: 96,
+      backgroundColor: theme.colors.surface.secondary,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    addPost: {
+      width: 64,
+      height: 96,
+      borderRadius: 32,
       backgroundColor: theme.colors.surface.secondary,
       justifyContent: "center",
       alignItems: "center",
