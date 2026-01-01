@@ -3,6 +3,7 @@ import {
   uuid,
   text,
   timestamp,
+  date,
   type ReferenceConfig,
   pgEnum,
   unique,
@@ -15,8 +16,12 @@ const cascade: ReferenceConfig["actions"] = {
 };
 
 const timestamps = {
-  created_at: timestamp("created_at").defaultNow().notNull(),
-  updated_at: timestamp("updated_at").defaultNow().notNull(),
+  created_at: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updated_at: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 };
 
 export const usersTable = pgTable("users", {
@@ -39,6 +44,8 @@ export const postsTable = pgTable("posts", {
   user_id: uuid()
     .references(() => usersTable.id, cascade)
     .notNull(),
+  post_tz: text().notNull(), // e.g. "Asia/Shanghai"
+  local_date: date("local_date").notNull(), // poster-local calendar date
   ...timestamps,
 });
 

@@ -14,7 +14,7 @@ export const type = {
   },
   heading1: {
     fontFamily: fonts.climate,
-    fontSize: 36,
+    fontSize: 32,
     letterSpacing: tracking(36, -3),
     includeFontPadding: false,
   },
