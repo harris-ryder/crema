@@ -1,29 +1,11 @@
 import React from "react";
 import { View, Text, ScrollView, StyleSheet, Image } from "react-native";
 import { Theme, type, useTheme } from "@/src/design";
-
 import { MaterialIcons } from "@expo/vector-icons";
+import { UserWeeksData } from "@/app/(tabs)/profile";
+import config from "@/config";
 
-type Post = {
-  id: string;
-  imageUri: string;
-  description: string | null;
-  localDate: string;
-  createdAt: string;
-  postTz: string;
-};
-
-type Day = {
-  localDate: string;
-  posts: Post[];
-};
-
-type Week = {
-  weekYear: number;
-  weekNumber: number;
-  weekStartLocalDate: string;
-  days: Day[];
-};
+type Week = UserWeeksData[0];
 
 type WeekCarouselProps = {
   week: Week;
@@ -51,7 +33,9 @@ export default function WeekCarousel({ week }: WeekCarouselProps) {
           return (
             <View key={day.localDate} style={styles.dayWithPosts}>
               <Image
-                source={{ uri: firstPost.imageUri }}
+                source={{
+                  uri: `${config.urls.backend}/images/posts/${firstPost.id}`,
+                }}
                 style={styles.postImage}
               />
             </View>

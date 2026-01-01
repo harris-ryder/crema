@@ -13,23 +13,31 @@ import { Theme, useTheme, type } from "@/src/design";
 import { CoffeeCupIcon, LatteArtIcon } from "@/src/ui/icons";
 import WeekCarousel from "@/components/profile/week-carousel";
 import { client } from "@/api/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { InferResponseType } from "hono/client";
+
+export type GetPostsByWeeksResponse = InferResponseType<
+  typeof client.posts.weeks.$get
+>;
+export type UserWeeksData = Pick<GetPostsByWeeksResponse, "weeks">["weeks"];
+
+// Create 7 empty weeks for demo/fallback
+const EMPTY_WEEKS: UserWeeksData = Array.from({ length: 7 }, (_, index) => ({
+  weekYear: 2024,
+  weekNumber: 52 - index,
+  weekStartLocalDate: `2024-12-${30 - index * 7}`,
+  days: Array.from({ length: 7 }, (_, dayIndex) => ({
+    localDate: `2024-12-${30 - index * 7 + dayIndex}`,
+    posts: [],
+  })),
+}));
 
 export default function Profile() {
   const { user, signOut, header } = useAuth();
   const theme = useTheme();
   const styles = createStyles(theme);
 
-  // Create 7 empty weeks for demo
-  const emptyWeeks = Array.from({ length: 7 }, (_, index) => ({
-    weekYear: 2024,
-    weekNumber: 52 - index,
-    weekStartLocalDate: `2024-12-${30 - index * 7}`,
-    days: Array.from({ length: 7 }, (_, dayIndex) => ({
-      localDate: `2024-12-${30 - index * 7 + dayIndex}`,
-      posts: [],
-    })),
-  }));
+  const [weeks, setWeeks] = useState<UserWeeksData>(EMPTY_WEEKS);
 
   useEffect(() => {
     const fetchUserWeeks = async () => {
@@ -41,9 +49,13 @@ export default function Profile() {
           { headers: header }
         );
         const data = await res.json();
-        console.log("User weeks response:", data.weeks[0].days[0]);
+
+        if (data.weeks && data.weeks.length > 0) {
+          setWeeks(data.weeks);
+        }
       } catch (error) {
         console.error("Error fetching user weeks:", error);
+        // Keep showing fallback data on error
       }
     };
 
@@ -102,7 +114,7 @@ export default function Profile() {
       </View>
 
       <View style={styles.weeksContainer}>
-        {emptyWeeks.map((week, index) => (
+        {weeks.map((week, index) => (
           <WeekCarousel key={index} week={week} />
         ))}
       </View>
