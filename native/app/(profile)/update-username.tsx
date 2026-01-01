@@ -17,6 +17,8 @@ export default function UsernameSetup() {
   const theme = useTheme();
   const styles = createStyles(theme);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const usernameFadeAnim = useRef(new Animated.Value(1)).current;
+  const photoFadeAnim = useRef(new Animated.Value(0)).current;
 
   const [profileStep, setProfileStep] = useState<"name" | "photo">("name");
 
@@ -27,6 +29,22 @@ export default function UsernameSetup() {
   const onContinuePress = async () => {
     // Update username on the backend, but don't block process in meantime
     if (profileStep === "name") {
+      // Animate transition from username to photo
+      Animated.parallel([
+        Animated.timing(usernameFadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+          easing: Easing.out(Easing.ease),
+        }),
+        Animated.timing(photoFadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+          easing: Easing.out(Easing.ease),
+        }),
+      ]).start();
+
       await updateName();
       setProfileStep("photo");
       return;
@@ -82,9 +100,19 @@ export default function UsernameSetup() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <View>
-          <Text style={styles.title}>CHOOSE{"\n"}YOUR</Text>
-          <Text style={styles.titleAction}>USERNAME</Text>
+        <View style={{ position: "relative" }}>
+          <Text style={styles.title}>CHOOSE</Text>
+          <View
+            style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}
+          >
+            <Text style={styles.title}>YOUR </Text>
+            <Animated.Text style={[styles.title, { opacity: photoFadeAnim }]}>
+              PHOTO
+            </Animated.Text>
+          </View>
+          <Animated.Text style={[styles.title, { opacity: usernameFadeAnim }]}>
+            USERNAME
+          </Animated.Text>
         </View>
 
         <View style={styles.inputContainer}>
