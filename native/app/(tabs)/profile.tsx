@@ -9,20 +9,30 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import config from "../../config";
-import { router } from "expo-router";
 import { Theme, useTheme, type } from "@/src/design";
 import { CoffeeCupIcon, LatteArtIcon } from "@/src/ui/icons";
-import { createTokenSchema } from "@server/helpers/token";
+import WeekCarousel from "@/components/profile/week-carousel";
 
 export default function Profile() {
   const { user, signOut } = useAuth();
   const theme = useTheme();
   const styles = createStyles(theme);
 
+  // Create 7 empty weeks for demo
+  const emptyWeeks = Array.from({ length: 7 }, (_, index) => ({
+    weekYear: 2024,
+    weekNumber: 52 - index,
+    weekStartLocalDate: `2024-12-${30 - index * 7}`,
+    days: Array.from({ length: 7 }, (_, dayIndex) => ({
+      localDate: `2024-12-${30 - index * 7 + dayIndex}`,
+      posts: [],
+    })),
+  }));
+
   if (!user) {
     return (
       <View style={styles.container}>
-        <Text style={styles.text}>No user data available</Text>
+        <Text style={type.body}>No user data available</Text>
       </View>
     );
   }
@@ -70,54 +80,16 @@ export default function Profile() {
         )}
       </View>
 
-      <View style={styles.infoSection}>
-        <Text style={styles.sectionTitle}>Account Information</Text>
-
-        <View style={styles.infoRow}>
-          <Ionicons name="mail-outline" size={20} color="#8b8e92" />
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>Email</Text>
-            {/* <Text style={styles.infoValue}>{user.email || "Not provided"}</Text> */}
-          </View>
-        </View>
-
-        <TouchableOpacity
-          style={styles.infoRow}
-          onPress={() => router.push("/(profile)/profile-setup")}
-        >
-          <Ionicons name="person-outline" size={20} color="#8b8e92" />
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>Username</Text>
-            <Text style={styles.infoValue}>@{user.username || "Not set"}</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#8b8e92" />
-        </TouchableOpacity>
-
-        <View style={styles.infoRow}>
-          <Ionicons name="id-card-outline" size={20} color="#8b8e92" />
-          <View style={styles.infoContent}>
-            <Text style={styles.infoLabel}>User ID</Text>
-            <Text style={styles.infoValue}>{user.id || "Unknown"}</Text>
-          </View>
-        </View>
-
-        {/* {user.created_at && (
-          <View style={styles.infoRow}>
-            <Ionicons name="calendar-outline" size={20} color="#8b8e92" />
-            <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Member Since</Text>
-              <Text style={styles.infoValue}>
-                {new Date(user.created_at).toLocaleDateString()}
-              </Text>
-            </View>
-          </View>
-        )} */}
+      <View style={styles.weeksContainer}>
+        {emptyWeeks.map((week, index) => (
+          <WeekCarousel key={index} week={week} />
+        ))}
       </View>
 
-      <View style={styles.actionSection}>
-        <TouchableOpacity style={styles.logoutButton} onPress={signOut}>
+      <View>
+        <TouchableOpacity onPress={signOut}>
           <Ionicons name="log-out-outline" size={20} color="#ff4444" />
-          <Text style={styles.logoutButtonText}>Sign Out</Text>
+          <Text>Sign Out</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -138,9 +110,6 @@ const createStyles = (theme: Theme) =>
     contentContainer: {
       flexGrow: 1,
       paddingBottom: 120,
-    },
-    text: {
-      color: "#fff",
     },
     profileHeader: {
       flexDirection: "row",
@@ -172,80 +141,12 @@ const createStyles = (theme: Theme) =>
       justifyContent: "center",
       alignItems: "center",
     },
-    displayName: {
-      fontSize: 28,
-      fontWeight: "bold",
-      color: "#fff",
-      marginBottom: 5,
+    weeksContainer: {
+      flexDirection: "column",
+      gap: 16,
+      paddingVertical: 20,
     },
     infoSection: {
       padding: 20,
-    },
-    sectionTitle: {
-      fontSize: 20,
-      fontWeight: "600",
-      color: "#fff",
-      marginBottom: 20,
-    },
-    infoRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingVertical: 15,
-      borderBottomWidth: 1,
-      borderBottomColor: "#2a2f35",
-    },
-    infoContent: {
-      marginLeft: 15,
-      flex: 1,
-    },
-    infoLabel: {
-      fontSize: 12,
-      color: "#8b8e92",
-      marginBottom: 3,
-    },
-    infoValue: {
-      fontSize: 16,
-      color: "#fff",
-    },
-    actionSection: {
-      padding: 20,
-      gap: 15,
-    },
-    logoutButton: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: "rgba(255, 68, 68, 0.1)",
-      padding: 15,
-      borderRadius: 12,
-      gap: 10,
-      borderWidth: 1,
-      borderColor: "#ff4444",
-    },
-    logoutButtonText: {
-      fontSize: 16,
-      fontWeight: "600",
-      color: "#ff4444",
-    },
-    addPhotoButton: {
-      position: "absolute",
-      bottom: 5,
-      right: 5,
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      backgroundColor: "#ffd33d",
-      justifyContent: "center",
-      alignItems: "center",
-      borderWidth: 3,
-      borderColor: "#25292e",
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5,
     },
   });
