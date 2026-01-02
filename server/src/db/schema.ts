@@ -44,8 +44,7 @@ export const postsTable = pgTable("posts", {
   user_id: uuid()
     .references(() => usersTable.id, cascade)
     .notNull(),
-  post_tz: text().notNull(), // e.g. "Asia/Shanghai"
-  local_date: date("local_date").notNull(), // poster-local calendar date
+  local_date: date("local_date").notNull(), // user-selected date for the post
   ...timestamps,
 });
 

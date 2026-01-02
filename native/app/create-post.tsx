@@ -14,24 +14,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import DatePicker from "react-native-date-picker";
 import config from "@/config";
 import { useAuth } from "@/contexts/auth-context";
-import * as Localization from "expo-localization";
 import { Button } from "@/components/Button";
 import { Theme, useTheme, type } from "@/src/design";
-
-function getPostTz(): string {
-  // Expo gives IANA tz like "Europe/London" on iOS; Android usually too.
-  const tz = Localization.getCalendars()?.[0]?.timeZone;
-
-  // Fallback to Intl (sometimes better depending on platform/runtime)
-  if (typeof tz === "string" && tz.length) return tz;
-
-  try {
-    const intlTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (typeof intlTz === "string" && intlTz.length) return intlTz;
-  } catch {}
-
-  return "UTC";
-}
 
 export default function CreatePost() {
   const { header } = useAuth();
@@ -53,6 +37,13 @@ export default function CreatePost() {
     });
   };
 
+  const formatDateForAPI = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const handleCreatePost = async () => {
     if (!imageUri) {
       setError("No image selected");
@@ -63,8 +54,6 @@ export default function CreatePost() {
     setError("");
 
     try {
-      const postTz = getPostTz();
-
       const formData = new FormData();
       formData.append("file", {
         uri: imageUri,
@@ -72,8 +61,7 @@ export default function CreatePost() {
         name: "post.jpg",
       } as any);
       formData.append("description", description.trim());
-      formData.append("postTz", postTz);
-      formData.append("postDate", selectedDate.toISOString());
+      formData.append("postDate", formatDateForAPI(selectedDate));
 
       const response = await fetch(`${config.urls.backend}/posts`, {
         method: "POST",
@@ -136,7 +124,7 @@ export default function CreatePost() {
           onCancel={() => {
             setShowDatePicker(false);
           }}
-          maximumDate={new Date(2030, 11, 31)}
+          maximumDate={new Date()}
           minimumDate={new Date(2020, 0, 1)}
         />
 
