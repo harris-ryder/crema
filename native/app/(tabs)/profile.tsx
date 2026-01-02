@@ -67,14 +67,14 @@ export default function Profile() {
         { param: { userId: user.id }, query: { count: "7" } },
         { headers: header }
       );
-      
+
       // Check if response is ok before parsing
       if (!res.ok) {
         const text = await res.text();
         console.error("Error response:", text);
         return;
       }
-      
+
       const data = await res.json();
 
       if (data.weeks && data.weeks.length > 0) {
@@ -133,6 +133,24 @@ export default function Profile() {
               7 coffees made
             </Text>
           </View>
+          <View>
+            <TouchableOpacity
+              style={{
+                backgroundColor: theme.colors.surface.secondary,
+                padding: 4,
+                borderRadius: 99,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              onPress={signOut}
+            >
+              <Text
+                style={[type.body, { color: theme.colors.content.primary }]}
+              >
+                Sign Out
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         {user.id ? (
           <Image
@@ -159,13 +177,6 @@ export default function Profile() {
             <WeekCarousel createPostCallback={createPostCallback} week={week} />
           </View>
         ))}
-      </View>
-
-      <View>
-        <TouchableOpacity onPress={signOut}>
-          <Ionicons name="log-out-outline" size={20} color="#ff4444" />
-          <Text>Sign Out</Text>
-        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -225,8 +236,5 @@ const createStyles = (theme: Theme) =>
       paddingLeft: 36,
       color: theme.colors.content.primary,
       ...type.title,
-    },
-    infoSection: {
-      padding: 20,
     },
   });
