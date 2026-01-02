@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,15 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Image,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from "react-native-reanimated";
 import { router, useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import DatePicker from "react-native-date-picker";
@@ -27,6 +35,48 @@ export default function CreatePost() {
   const [error, setError] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<TextInput>(null);
+
+  // Animation values
+  const focusAnimation = useSharedValue(0);
+
+  // Animated styles for opacity
+  const animatedOpacityStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(focusAnimation.value, [0, 1], [1, 0]),
+    };
+  });
+
+  // Animated styles for input position
+  const animatedInputStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: interpolate(
+            focusAnimation.value,
+            [0, 1],
+            [0, -200] // Adjust this value based on your layout
+          ),
+        },
+      ],
+    };
+  });
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    focusAnimation.value = withTiming(1, { duration: 300 });
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    focusAnimation.value = withTiming(0, { duration: 300 });
+  };
+
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+    inputRef.current?.blur();
+  };
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
@@ -83,7 +133,8 @@ export default function CreatePost() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <SafeAreaView style={styles.container}>
       <TouchableOpacity
         style={styles.closeButton}
         onPress={() => router.back()}
@@ -96,20 +147,27 @@ export default function CreatePost() {
       </TouchableOpacity>
 
       <View style={styles.content}>
-        <TouchableOpacity
-          style={styles.dateSelector}
-          onPress={() => setShowDatePicker(true)}
-        >
-          <MaterialIcons
-            name="calendar-month"
-            size={20}
-            color={theme.colors.content.primary}
-          />
-          <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
-        </TouchableOpacity>
+        <Animated.View style={animatedOpacityStyle}>
+          <TouchableOpacity
+            style={styles.dateSelector}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <MaterialIcons
+              name="calendar-month"
+              size={20}
+              color={theme.colors.content.primary}
+            />
+            <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
+          </TouchableOpacity>
+        </Animated.View>
 
         {imageUri && (
-          <Image source={{ uri: imageUri }} style={styles.selectedImage} />
+          <TouchableWithoutFeedback onPress={dismissKeyboard}>
+            <Animated.Image
+              source={{ uri: imageUri }}
+              style={[styles.selectedImage, animatedOpacityStyle]}
+            />
+          </TouchableWithoutFeedback>
         )}
 
         <DatePicker
@@ -128,21 +186,28 @@ export default function CreatePost() {
           minimumDate={new Date(2020, 0, 1)}
         />
 
-        <TextInput
-          style={styles.input}
-          value={description}
-          onChangeText={(text) => {
-            setDescription(text);
-            setError("");
-          }}
-          placeholder="What's happening?"
-          placeholderTextColor={theme.colors.content.tertiary}
-          multiline={true}
-          numberOfLines={4}
-          textAlignVertical="top"
-          autoFocus={false}
-          maxLength={500}
-        />
+        <Animated.View style={[styles.inputWrapper, animatedInputStyle]}>
+          <TextInput
+            ref={inputRef}
+            style={styles.input}
+            value={description}
+            onChangeText={(text) => {
+              setDescription(text);
+              setError("");
+            }}
+            placeholder="What's happening?"
+            placeholderTextColor={theme.colors.content.tertiary}
+            multiline={true}
+            numberOfLines={4}
+            textAlignVertical="top"
+            autoFocus={false}
+            maxLength={500}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            returnKeyType="done"
+            blurOnSubmit={true}
+          />
+        </Animated.View>
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         {isLoading && (
@@ -158,7 +223,8 @@ export default function CreatePost() {
         onPress={handleCreatePost}
         style={{ position: "absolute", right: 32, bottom: 60 }}
       />
-    </SafeAreaView>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -195,10 +261,14 @@ const createStyles = (theme: Theme) =>
     inputContainer: {
       marginBottom: 30,
     },
+    inputWrapper: {
+      position: "relative",
+      width: 256,
+    },
     input: {
       backgroundColor: theme.colors.surface.secondary,
       paddingHorizontal: 24,
-      width: 256,
+      width: "100%",
       borderRadius: 32,
       ...type.body,
       color: theme.colors.content.primary,
