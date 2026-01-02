@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import { selectUserSchema } from "../../db/schema.types.ts";
 import { uploadImage } from "../../helpers/upload-image.ts";
 import { updateUsername } from "./update-username.ts";
+import { updateDisplayName } from "./update-display-name.ts";
 
 export const usersRouter = new Hono();
 
@@ -189,6 +190,34 @@ const route = usersRouter
 
       const { username } = c.req.valid("json");
       const result = await updateUsername(user.id, username);
+
+      return c.json(result, result.success ? 200 : 400);
+    }
+  )
+  .put(
+    "/display-name",
+    authRequiredMiddleware,
+    zValidator(
+      "json",
+      z.object({
+        display_name: z
+          .string()
+          .min(3, "Username must be at least 3 characters")
+          .max(30, "Username must be at most 30 characters")
+          .regex(
+            /^[a-zA-Z0-9_]+$/,
+            "Username can only contain letters, numbers, and underscores"
+          ),
+      })
+    ),
+    async (c) => {
+      const user = c.get("user");
+      if (!user) {
+        return c.text("Unauthorized", 401);
+      }
+
+      const { display_name } = c.req.valid("json");
+      const result = await updateDisplayName(user.id, display_name);
 
       return c.json(result, result.success ? 200 : 400);
     }

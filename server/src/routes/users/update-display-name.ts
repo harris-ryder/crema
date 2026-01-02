@@ -1,0 +1,32 @@
+import { db } from "../../db/index.ts";
+import { usersTable } from "../../db/schema.ts";
+import { eq } from "drizzle-orm";
+
+interface ErrorResponse {
+  success: false;
+  error: string;
+}
+
+export async function updateDisplayName(userId: string, display_name: string) {
+  try {
+    const [updatedUser] = await db
+      .update(usersTable)
+      .set({
+        display_name,
+        updated_at: new Date(),
+      })
+      .where(eq(usersTable.id, userId))
+      .returning();
+
+    return <{ success: true; user: typeof updatedUser }>{
+      success: true,
+      user: updatedUser,
+    };
+  } catch (error: any) {
+    console.error("Failed to update display name:", error);
+    return <ErrorResponse>{
+      success: false,
+      error: "Failed to update username, it may already be taken",
+    };
+  }
+}

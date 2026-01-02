@@ -119,7 +119,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await saveAuthToken(response.token);
         setToken(response.token);
         await getMe();
-        router.push("/(profile)/profile-setup");
+        router.push("/(profile)/name-setup");
       } else {
         setErrors([
           { message: "Failed to sign in with Google - server error" },

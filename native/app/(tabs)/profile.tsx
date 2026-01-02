@@ -57,17 +57,18 @@ export default function Profile() {
       const month = String(today.getMonth() + 1).padStart(2, "0");
       const day = String(today.getDate()).padStart(2, "0");
       const todayFormatted = `${year}-${month}-${day}`;
-      
+
       // Prepare images with dates extracted from EXIF or fallback to today
       const imagesWithDates = result.assets.map((asset) => {
         let imageDate = todayFormatted; // Default to today's date
-        
+
         // Try to extract date from EXIF data
         if (asset.exif) {
-          const exifDate = asset.exif.DateTimeOriginal || 
-                          asset.exif.DateTimeDigitized || 
-                          asset.exif.DateTime;
-          
+          const exifDate =
+            asset.exif.DateTimeOriginal ||
+            asset.exif.DateTimeDigitized ||
+            asset.exif.DateTime;
+
           if (exifDate) {
             // Convert EXIF date format "YYYY:MM:DD HH:MM:SS" to "YYYY-MM-DD"
             const dateMatch = exifDate.match(/^(\d{4}):(\d{2}):(\d{2})/);
@@ -76,7 +77,7 @@ export default function Profile() {
             }
           }
         }
-        
+
         return {
           uri: asset.uri,
           date: imageDate,
@@ -86,7 +87,7 @@ export default function Profile() {
       // Pass all images with their dates to create-post
       router.push({
         pathname: "/create-post",
-        params: { 
+        params: {
           images: JSON.stringify(imagesWithDates),
           multipleMode: "true",
         },
@@ -150,10 +151,16 @@ export default function Profile() {
           <View style={styles.profileNames}>
             <Text
               style={[type.heading1, { color: theme.colors.content.primary }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
             >
-              Harris
+              {user.display_name}
             </Text>
-            <Text style={[type.body, { color: theme.colors.content.tertiary }]}>
+            <Text 
+              style={[type.body, { color: theme.colors.content.tertiary }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {user.username}
             </Text>
           </View>
@@ -243,6 +250,7 @@ const createStyles = (theme: Theme) =>
       flexDirection: "column",
       gap: 12,
       justifyContent: "flex-start",
+      flex: 1,
     },
     profileNames: {
       flexDirection: "column",
