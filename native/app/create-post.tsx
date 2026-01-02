@@ -29,11 +29,14 @@ export default function CreatePost() {
   const { header } = useAuth();
   const theme = useTheme();
   const styles = createStyles(theme);
-  const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
+  const { imageUri, date } = useLocalSearchParams<{
+    imageUri: string;
+    date: string;
+  }>();
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(date ? new Date(date) : new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<TextInput>(null);
@@ -89,8 +92,8 @@ export default function CreatePost() {
 
   const formatDateForAPI = (date: Date) => {
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 
@@ -135,94 +138,94 @@ export default function CreatePost() {
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <SafeAreaView style={styles.container}>
-      <TouchableOpacity
-        style={styles.closeButton}
-        onPress={() => router.back()}
-      >
-        <MaterialIcons
-          name="close"
-          size={30}
-          color={theme.colors.content.primary}
-        />
-      </TouchableOpacity>
-
-      <View style={styles.content}>
-        <Animated.View style={animatedOpacityStyle}>
-          <TouchableOpacity
-            style={styles.dateSelector}
-            onPress={() => setShowDatePicker(true)}
-          >
-            <MaterialIcons
-              name="calendar-month"
-              size={20}
-              color={theme.colors.content.primary}
-            />
-            <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
-          </TouchableOpacity>
-        </Animated.View>
-
-        {imageUri && (
-          <TouchableWithoutFeedback onPress={dismissKeyboard}>
-            <Animated.Image
-              source={{ uri: imageUri }}
-              style={[styles.selectedImage, animatedOpacityStyle]}
-            />
-          </TouchableWithoutFeedback>
-        )}
-
-        <DatePicker
-          modal
-          open={showDatePicker}
-          date={selectedDate}
-          mode="date"
-          onConfirm={(date) => {
-            setShowDatePicker(false);
-            setSelectedDate(date);
-          }}
-          onCancel={() => {
-            setShowDatePicker(false);
-          }}
-          maximumDate={new Date()}
-          minimumDate={new Date(2020, 0, 1)}
-        />
-
-        <Animated.View style={[styles.inputWrapper, animatedInputStyle]}>
-          <TextInput
-            ref={inputRef}
-            style={styles.input}
-            value={description}
-            onChangeText={(text) => {
-              setDescription(text);
-              setError("");
-            }}
-            placeholder="What's happening?"
-            placeholderTextColor={theme.colors.content.tertiary}
-            multiline={true}
-            numberOfLines={4}
-            textAlignVertical="top"
-            autoFocus={false}
-            maxLength={500}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            returnKeyType="done"
-            blurOnSubmit={true}
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={() => router.back()}
+        >
+          <MaterialIcons
+            name="close"
+            size={30}
+            color={theme.colors.content.primary}
           />
-        </Animated.View>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        </TouchableOpacity>
 
-        {isLoading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={theme.colors.brand.red} />
-          </View>
-        )}
-      </View>
-      <Button
-        variant="primary"
-        size="lg"
-        label={isLoading ? "Posting" : "Share"}
-        onPress={handleCreatePost}
-        style={{ position: "absolute", right: 32, bottom: 60 }}
-      />
+        <View style={styles.content}>
+          <Animated.View style={animatedOpacityStyle}>
+            <TouchableOpacity
+              style={styles.dateSelector}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <MaterialIcons
+                name="calendar-month"
+                size={20}
+                color={theme.colors.content.primary}
+              />
+              <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
+            </TouchableOpacity>
+          </Animated.View>
+
+          {imageUri && (
+            <TouchableWithoutFeedback onPress={dismissKeyboard}>
+              <Animated.Image
+                source={{ uri: imageUri }}
+                style={[styles.selectedImage, animatedOpacityStyle]}
+              />
+            </TouchableWithoutFeedback>
+          )}
+
+          <DatePicker
+            modal
+            open={showDatePicker}
+            date={selectedDate}
+            mode="date"
+            onConfirm={(date) => {
+              setShowDatePicker(false);
+              setSelectedDate(date);
+            }}
+            onCancel={() => {
+              setShowDatePicker(false);
+            }}
+            maximumDate={new Date()}
+            minimumDate={new Date(2020, 0, 1)}
+          />
+
+          <Animated.View style={[styles.inputWrapper, animatedInputStyle]}>
+            <TextInput
+              ref={inputRef}
+              style={styles.input}
+              value={description}
+              onChangeText={(text) => {
+                setDescription(text);
+                setError("");
+              }}
+              placeholder="What's happening?"
+              placeholderTextColor={theme.colors.content.tertiary}
+              multiline={true}
+              numberOfLines={4}
+              textAlignVertical="top"
+              autoFocus={false}
+              maxLength={500}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              returnKeyType="done"
+              blurOnSubmit={true}
+            />
+          </Animated.View>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          {isLoading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={theme.colors.brand.red} />
+            </View>
+          )}
+        </View>
+        <Button
+          variant="primary"
+          size="lg"
+          label={isLoading ? "Posting" : "Share"}
+          onPress={handleCreatePost}
+          style={{ position: "absolute", right: 32, bottom: 60 }}
+        />
       </SafeAreaView>
     </TouchableWithoutFeedback>
   );

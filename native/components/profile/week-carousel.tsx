@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, ScrollView, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import { Theme, type, useTheme } from "@/src/design";
 import { MaterialIcons } from "@expo/vector-icons";
 import { UserWeeksData } from "@/app/(tabs)/profile";
@@ -8,14 +15,19 @@ import config from "@/config";
 type Week = UserWeeksData[0];
 
 type WeekCarouselProps = {
+  createPostCallback: (date: string) => void;
   week: Week;
 };
 
 const DAY_NAMES = ["M", "T", "W", "T", "F", "S", "S"];
 
-export default function WeekCarousel({ week }: WeekCarouselProps) {
+export default function WeekCarousel({
+  createPostCallback,
+  week,
+}: WeekCarouselProps) {
   const theme = useTheme();
   const styles = createStyles(theme);
+  const todaysDate = new Date().toLocaleDateString("en-CA");
 
   return (
     <ScrollView
@@ -42,26 +54,41 @@ export default function WeekCarousel({ week }: WeekCarouselProps) {
           );
         } else {
           return (
-            <View
+            <TouchableOpacity
               key={day.localDate}
-              style={[styles.emptyDay, getEmptyDayBorderRadius(index, week)]}
+              style={[
+                styles.emptyDay,
+                getEmptyDayBorderRadius(index, week),
+                isFutureDay(todaysDate, day.localDate) ? { opacity: 0.5 } : {},
+              ]}
+              onPress={() => {
+                if (isFutureDay(todaysDate, day.localDate)) {
+                  return;
+                }
+                createPostCallback(day.localDate);
+              }}
             >
               <Text
                 style={[type.title, { color: theme.colors.content.primary }]}
               >
                 {dayName}
               </Text>
-            </View>
+            </TouchableOpacity>
           );
         }
       })}
-      <View style={styles.addPost}>
+      <TouchableOpacity
+        style={styles.addPost}
+        onPress={() => {
+          createPostCallback(todaysDate);
+        }}
+      >
         <MaterialIcons
           name="add"
           size={24}
           color={theme.colors.content.primary}
         />
-      </View>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -111,6 +138,10 @@ const getAdjacentDayHasPosts = (
   const targetIndex = direction === "prev" ? dayIndex - 1 : dayIndex + 1;
   if (targetIndex < 0 || targetIndex >= week.days.length) return false;
   return week.days[targetIndex].posts.length > 0;
+};
+
+const isFutureDay = (todaysDate: string, dayDate: string) => {
+  return dayDate > todaysDate;
 };
 
 const getEmptyDayBorderRadius = (dayIndex: number, week: Week) => {

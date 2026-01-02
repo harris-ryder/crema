@@ -15,6 +15,8 @@ import WeekCarousel from "@/components/profile/week-carousel";
 import { client } from "@/api/client";
 import { useEffect, useState } from "react";
 import { InferResponseType } from "hono/client";
+import { router } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 
 export type GetPostsByWeeksResponse = InferResponseType<
   typeof client.posts.weeks.$get
@@ -38,6 +40,23 @@ export default function Profile() {
   const styles = createStyles(theme);
 
   const [weeks, setWeeks] = useState<UserWeeksData>(EMPTY_WEEKS);
+
+  const createPostCallback = async (date: string) => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsMultipleSelection: false,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      router.push({
+        pathname: "/create-post",
+        params: { imageUri: result.assets[0].uri, date },
+      });
+    } else {
+      alert("You did not select any image.");
+    }
+  };
 
   useEffect(() => {
     const fetchUserWeeks = async () => {
@@ -121,7 +140,7 @@ export default function Profile() {
         {weeks.map((week, index) => (
           <View style={{ flexDirection: "column", gap: 12 }} key={index}>
             <Text style={styles.weekText}>Week {week.weekNumber}</Text>
-            <WeekCarousel week={week} />
+            <WeekCarousel createPostCallback={createPostCallback} week={week} />
           </View>
         ))}
       </View>
