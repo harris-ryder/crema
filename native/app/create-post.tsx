@@ -15,6 +15,7 @@ import config from "@/config";
 import { useAuth } from "@/contexts/auth-context";
 import * as Localization from "expo-localization";
 import { Button } from "@/components/Button";
+import { Theme, useTheme, type } from "@/src/design";
 
 function getPostTz(): string {
   // Expo gives IANA tz like "Europe/London" on iOS; Android usually too.
@@ -33,6 +34,8 @@ function getPostTz(): string {
 
 export default function CreatePost() {
   const { header } = useAuth();
+  const theme = useTheme();
+  const styles = createStyles(theme);
   const { imageUri } = useLocalSearchParams<{ imageUri: string }>();
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -84,125 +87,107 @@ export default function CreatePost() {
         style={styles.closeButton}
         onPress={() => router.back()}
       >
-        <Ionicons name="close" size={30} color="#fff" />
+        <Ionicons name="close" size={30} color={theme.colors.content.primary} />
       </TouchableOpacity>
 
       <View style={styles.content}>
-        <View style={styles.imageContainer}>
-          {imageUri && (
-            <Image source={{ uri: imageUri }} style={styles.selectedImage} />
-          )}
-        </View>
+        {imageUri && (
+          <Image source={{ uri: imageUri }} style={styles.selectedImage} />
+        )}
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Description</Text>
-          <TextInput
-            style={styles.input}
-            value={description}
-            onChangeText={(text) => {
-              setDescription(text);
-              setError("");
-            }}
-            placeholder="What's happening?"
-            placeholderTextColor="#666"
-            multiline={true}
-            numberOfLines={4}
-            textAlignVertical="top"
-            autoFocus={false}
-            maxLength={500}
-          />
-          <Text style={styles.characterCount}>
-            {description.length}/500 characters
-          </Text>
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <Button
-            variant="primary"
-            label={isLoading ? "Posting..." : "Share Post"}
-            onPress={handleCreatePost}
-          />
-        </View>
+        <TextInput
+          style={styles.input}
+          value={description}
+          onChangeText={(text) => {
+            setDescription(text);
+            setError("");
+          }}
+          placeholder="What's happening?"
+          placeholderTextColor={theme.colors.content.tertiary}
+          multiline={true}
+          numberOfLines={4}
+          textAlignVertical="top"
+          autoFocus={false}
+          maxLength={500}
+        />
+        {error ? <Text style={styles.error}>{error}</Text> : null}
 
         {isLoading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#ffd33d" />
+            <ActivityIndicator size="large" color={theme.colors.brand.red} />
           </View>
         )}
       </View>
+      <Button
+        variant="primary"
+        size="lg"
+        label={isLoading ? "Posting" : "Share"}
+        onPress={handleCreatePost}
+        style={{ position: "absolute", right: 32, bottom: 60 }}
+      />
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#25292e",
-  },
-  closeButton: {
-    position: "absolute",
-    top: 50,
-    right: 20,
-    zIndex: 1,
-    padding: 10,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "center",
-  },
-  imageContainer: {
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  selectedImage: {
-    width: 200,
-    height: 200,
-    borderRadius: 15,
-    borderWidth: 2,
-    borderColor: "#ffd33d",
-  },
-  inputContainer: {
-    marginBottom: 30,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 8,
-    fontSize: 16,
-    color: "#000",
-    marginBottom: 8,
-    height: 100,
-  },
-  characterCount: {
-    fontSize: 12,
-    color: "#999",
-    textAlign: "right",
-    marginBottom: 5,
-  },
-  error: {
-    fontSize: 14,
-    color: "#ff4444",
-    marginTop: 5,
-  },
-  buttonContainer: {
-    gap: 15,
-  },
-  loadingContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-});
+const createStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.surface.primary,
+    },
+    closeButton: {
+      position: "absolute",
+      top: 50,
+      right: 20,
+      zIndex: 1,
+      padding: 10,
+    },
+    content: {
+      flex: 1,
+      paddingHorizontal: 36,
+      justifyContent: "center",
+      gap: 18,
+      alignItems: "center",
+      position: "relative",
+    },
+    imageContainer: {
+      alignItems: "center",
+      marginBottom: 30,
+    },
+    selectedImage: {
+      width: 256,
+      height: 256,
+      borderRadius: 32,
+    },
+    inputContainer: {
+      marginBottom: 30,
+    },
+    input: {
+      backgroundColor: theme.colors.surface.secondary,
+      paddingHorizontal: 24,
+      width: 256,
+      borderRadius: 32,
+      ...type.body,
+      color: theme.colors.content.primary,
+      paddingVertical: 18,
+      minHeight: 60,
+    },
+    error: {
+      ...type.body,
+      color: theme.colors.brand.red,
+      marginTop: 5,
+    },
+    buttonContainer: {
+      alignItems: "flex-end",
+    },
+    loadingContainer: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "rgba(0,0,0,0.5)",
+    },
+  });
