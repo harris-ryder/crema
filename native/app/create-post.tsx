@@ -54,8 +54,8 @@ export default function CreatePost() {
   const [showMultiDatePicker, setShowMultiDatePicker] = useState(false);
 
   // Track upload status for each image
-  const [imageUploadStatus, setImageUploadStatus] = useState<{ 
-    [key: number]: 'pending' | 'uploading' | 'success' | 'failed' 
+  const [imageUploadStatus, setImageUploadStatus] = useState<{
+    [key: number]: "pending" | "uploading" | "success" | "failed";
   }>({});
 
   // For batch upload progress tracking
@@ -103,9 +103,9 @@ export default function CreatePost() {
       for (let i = 0; i < parsedImages.length; i++) {
         const image = parsedImages[i];
         setUploadProgress((prev) => ({ ...prev, current: i + 1 }));
-        
+
         // Mark image as uploading
-        setImageUploadStatus(prev => ({ ...prev, [i]: 'uploading' }));
+        setImageUploadStatus((prev) => ({ ...prev, [i]: "uploading" }));
 
         try {
           const formData = new FormData();
@@ -132,9 +132,9 @@ export default function CreatePost() {
             ...prev,
             successful: successCount,
           }));
-          
+
           // Mark image as successfully uploaded
-          setImageUploadStatus(prev => ({ ...prev, [i]: 'success' }));
+          setImageUploadStatus((prev) => ({ ...prev, [i]: "success" }));
         } catch (error) {
           console.error(`Error uploading image ${i + 1}:`, error);
           failCount++;
@@ -143,9 +143,9 @@ export default function CreatePost() {
             ...prev,
             failed: failCount,
           }));
-          
+
           // Mark image as failed
-          setImageUploadStatus(prev => ({ ...prev, [i]: 'failed' }));
+          setImageUploadStatus((prev) => ({ ...prev, [i]: "failed" }));
         }
       }
 
@@ -225,115 +225,93 @@ export default function CreatePost() {
             {isLoading && (
               <View style={styles.uploadProgressHeader}>
                 <Text style={styles.uploadProgressText}>
-                  Uploading: {uploadProgress.successful} / {uploadProgress.total}
+                  Uploading: {uploadProgress.successful} /{" "}
+                  {uploadProgress.total}
                 </Text>
               </View>
             )}
-            
+
             {/* Images scroll view */}
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.imagesPreviewScroll}
-              >
-                <View style={styles.imagesPreviewContainer}>
-                  {parsedImages.map((img: any, index: number) => (
-                    <View key={index} style={styles.imagePreviewWrapper}>
-                      <View style={styles.imageContainer}>
-                        <Image
-                          source={{ uri: img.uri }}
-                          style={styles.previewImage}
-                        />
-                        
-                        {/* Show overlay when uploading or uploaded */}
-                        {imageUploadStatus[index] && (
-                          <View style={[
-                            styles.imageOverlay,
-                            imageUploadStatus[index] === 'success' && styles.successOverlay,
-                            imageUploadStatus[index] === 'uploading' && styles.uploadingOverlay,
-                            imageUploadStatus[index] === 'failed' && styles.failedOverlay,
-                          ]}>
-                            {imageUploadStatus[index] === 'success' && (
-                              <HeartIcon width={50} height={50} fill={theme.colors.brand.red} />
-                            )}
-                            {imageUploadStatus[index] === 'uploading' && (
-                              <ActivityIndicator size="large" color={theme.colors.content.inverse} />
-                            )}
-                            {imageUploadStatus[index] === 'failed' && (
-                              <MaterialIcons name="error" size={40} color={theme.colors.content.inverse} />
-                            )}
-                          </View>
-                        )}
-                      </View>
-                      
-                      <TouchableOpacity
-                        style={[
-                          styles.dateButton,
-                          imageUploadStatus[index] === 'success' && styles.disabledDateButton
-                        ]}
-                        onPress={() => {
-                          // Disable date change if already uploaded
-                          if (imageUploadStatus[index] === 'success') return;
-                          setActiveImageIndex(index);
-                          setShowMultiDatePicker(true);
-                        }}
-                        disabled={imageUploadStatus[index] === 'success'}
-                      >
-                        <MaterialIcons
-                          name="calendar-month"
-                          size={16}
-                          color={theme.colors.content.primary}
-                        />
-                        <Text style={styles.imageDateLabel}>
-                          {imageDates[index] || img.date}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                </View>
-              </ScrollView>
-          </>
-        ) : (
-          <>
-            {/* Original single image UI */}
-            <TouchableOpacity
-              style={styles.dateSelector}
-              onPress={() => setShowDatePicker(true)}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.imagesPreviewScroll}
             >
-              <MaterialIcons
-                name="calendar-month"
-                size={20}
-                color={theme.colors.content.primary}
-              />
-              <Text style={styles.dateText}>
-                {formatDate(selectedDate)}
-              </Text>
-            </TouchableOpacity>
+              <View style={styles.imagesPreviewContainer}>
+                {parsedImages.map((img: any, index: number) => (
+                  <View key={index} style={styles.imagePreviewWrapper}>
+                    <View style={styles.imageContainer}>
+                      <Image
+                        source={{ uri: img.uri }}
+                        style={styles.previewImage}
+                      />
 
-            {imageUri && (
-              <Image
-                source={{ uri: imageUri }}
-                style={styles.selectedImage}
-              />
-            )}
+                      {/* Show overlay when uploading or uploaded */}
+                      {imageUploadStatus[index] && (
+                        <View
+                          style={[
+                            styles.imageOverlay,
+                            imageUploadStatus[index] === "success" &&
+                              styles.successOverlay,
+                            imageUploadStatus[index] === "uploading" &&
+                              styles.uploadingOverlay,
+                            imageUploadStatus[index] === "failed" &&
+                              styles.failedOverlay,
+                          ]}
+                        >
+                          {imageUploadStatus[index] === "success" && (
+                            <HeartIcon
+                              width={50}
+                              height={50}
+                              fill={theme.colors.brand.red}
+                            />
+                          )}
+                          {imageUploadStatus[index] === "uploading" && (
+                            <ActivityIndicator
+                              size="large"
+                              color={theme.colors.content.inverse}
+                            />
+                          )}
+                          {imageUploadStatus[index] === "failed" && (
+                            <MaterialIcons
+                              name="error"
+                              size={40}
+                              color={theme.colors.content.inverse}
+                            />
+                          )}
+                        </View>
+                      )}
+                    </View>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.dateButton,
+                        imageUploadStatus[index] === "success" &&
+                          styles.disabledDateButton,
+                      ]}
+                      onPress={() => {
+                        // Disable date change if already uploaded
+                        if (imageUploadStatus[index] === "success") return;
+                        setActiveImageIndex(index);
+                        setShowMultiDatePicker(true);
+                      }}
+                      disabled={imageUploadStatus[index] === "success"}
+                    >
+                      <MaterialIcons
+                        name="calendar-month"
+                        size={16}
+                        color={theme.colors.content.primary}
+                      />
+                      <Text style={styles.imageDateLabel}>
+                        {imageDates[index] || img.date}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
           </>
-        )}
-
-        <DatePicker
-          modal
-          open={showDatePicker}
-          date={selectedDate}
-          mode="date"
-          onConfirm={(date) => {
-            setShowDatePicker(false);
-            setSelectedDate(date);
-          }}
-          onCancel={() => {
-            setShowDatePicker(false);
-          }}
-          maximumDate={new Date()}
-          minimumDate={new Date(2020, 0, 1)}
-        />
+        ) : null}
 
         {/* Date picker for multiple images */}
         {isMultiple && activeImageIndex !== null && (
@@ -514,9 +492,6 @@ const createStyles = (theme: Theme) =>
     },
     disabledDateButton: {
       opacity: 0.5,
-    },
-    imageContainer: {
-      position: "relative",
     },
     imageOverlay: {
       position: "absolute",

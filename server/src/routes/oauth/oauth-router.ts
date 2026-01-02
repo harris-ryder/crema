@@ -7,6 +7,7 @@ import { usersTable } from "../../db/schema.ts";
 import { eq } from "drizzle-orm";
 import { createToken } from "../../helpers/token.ts";
 import { Hono } from "hono";
+import { randomUUID } from "crypto";
 
 const googleClient = new OAuth2Client();
 export const oauthRouter = new Hono();
@@ -40,7 +41,11 @@ const route = oauthRouter.post(
 
     const [user] = await db
       .insert(usersTable)
-      .values({ email: payload?.email, username: payload?.email.split("@")[0] })
+      .values({
+        email: payload?.email,
+        username: randomUUID(),
+        display_name: payload?.email.split("@")[0],
+      })
       .returning();
 
     console.log("user", user);

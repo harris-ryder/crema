@@ -29,6 +29,7 @@ export const usersTable = pgTable("users", {
     .primaryKey()
     .$defaultFn(() => randomUUID()),
   username: text().unique().notNull(),
+  display_name: text().notNull(),
   email: text().unique().notNull(),
   bio: text(),
   avatar_uri: text(),

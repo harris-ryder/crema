@@ -46,14 +46,15 @@ const route = usersRouter
     async (c) => {
       const { id } = c.req.valid("param");
       try {
-        const [{ username, bio, avatar_uri, updated_at }] = await db
-          .select()
-          .from(usersTable)
-          .where(eq(usersTable.id, id))
-          .limit(1);
+        const [{ username, bio, avatar_uri, updated_at, display_name }] =
+          await db
+            .select()
+            .from(usersTable)
+            .where(eq(usersTable.id, id))
+            .limit(1);
         return c.json({
           success: true,
-          user: { id, username, bio, avatar_uri, updated_at },
+          user: { id, username, display_name, bio, avatar_uri, updated_at },
         });
       } catch (error) {
         console.error(error);
