@@ -30,7 +30,7 @@ export default function NameSetup() {
     }
 
     // Navigate immediately without waiting for response
-    router.push("/(profile)/profile-setup");
+    router.push("/(profile)/username-and-photo-setup");
   };
 
   return (
