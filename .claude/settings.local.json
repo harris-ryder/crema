@@ -9,7 +9,13 @@
       "Bash(ls:*)",
       "Bash(curl:*)",
       "Bash(npm install:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npx expo install:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Read(//Users/harrisryder/Library/Android/sdk/**)",
+      "Bash(export ANDROID_HOME=$HOME/Library/Android/sdk)",
+      "Bash(export PATH=$PATH:$ANDROID_HOME/platform-tools)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []

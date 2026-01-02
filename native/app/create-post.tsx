@@ -10,7 +10,8 @@ import {
   Image,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import DatePicker from "react-native-date-picker";
 import config from "@/config";
 import { useAuth } from "@/contexts/auth-context";
 import * as Localization from "expo-localization";
@@ -40,6 +41,17 @@ export default function CreatePost() {
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   const handleCreatePost = async () => {
     if (!imageUri) {
@@ -61,6 +73,7 @@ export default function CreatePost() {
       } as any);
       formData.append("description", description.trim());
       formData.append("postTz", postTz);
+      formData.append("postDate", selectedDate.toISOString());
 
       const response = await fetch(`${config.urls.backend}/posts`, {
         method: "POST",
@@ -87,13 +100,45 @@ export default function CreatePost() {
         style={styles.closeButton}
         onPress={() => router.back()}
       >
-        <Ionicons name="close" size={30} color={theme.colors.content.primary} />
+        <MaterialIcons
+          name="close"
+          size={30}
+          color={theme.colors.content.primary}
+        />
       </TouchableOpacity>
 
       <View style={styles.content}>
+        <TouchableOpacity
+          style={styles.dateSelector}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <MaterialIcons
+            name="calendar-month"
+            size={20}
+            color={theme.colors.content.primary}
+          />
+          <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
+        </TouchableOpacity>
+
         {imageUri && (
           <Image source={{ uri: imageUri }} style={styles.selectedImage} />
         )}
+
+        <DatePicker
+          modal
+          open={showDatePicker}
+          date={selectedDate}
+          mode="date"
+          onConfirm={(date) => {
+            setShowDatePicker(false);
+            setSelectedDate(date);
+          }}
+          onCancel={() => {
+            setShowDatePicker(false);
+          }}
+          maximumDate={new Date(2030, 11, 31)}
+          minimumDate={new Date(2020, 0, 1)}
+        />
 
         <TextInput
           style={styles.input}
@@ -188,6 +233,20 @@ const createStyles = (theme: Theme) =>
       bottom: 0,
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: "rgba(0,0,0,0.5)",
+    },
+    dateSelector: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme.colors.surface.secondary,
+      paddingHorizontal: 24,
+      paddingVertical: 18,
+      borderRadius: 32,
+      minHeight: 60,
+      width: 256,
+      gap: 12,
+    },
+    dateText: {
+      ...type.body,
+      color: theme.colors.content.primary,
     },
   });
