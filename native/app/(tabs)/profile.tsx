@@ -13,9 +13,10 @@ import { Theme, useTheme, type } from "@/src/design";
 import { CoffeeCupIcon, LatteArtIcon } from "@/src/ui/icons";
 import WeekCarousel from "@/components/profile/week-carousel";
 import { client } from "@/api/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { InferResponseType } from "hono/client";
 import { router } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 
 export type GetPostsByWeeksResponse = InferResponseType<
@@ -54,32 +55,47 @@ export default function Profile() {
         params: { imageUri: result.assets[0].uri, date },
       });
     } else {
-      alert("You did not select any image.");
+      // alert("You did not select any image.");
+    }
+  };
+
+  const fetchUserWeeks = async () => {
+    if (!user?.id || !header) return;
+
+    try {
+      const res = await client.posts[":userId"].weeks.$get(
+        { param: { userId: user.id }, query: { count: "7" } },
+        { headers: header }
+      );
+      
+      // Check if response is ok before parsing
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Error response:", text);
+        return;
+      }
+      
+      const data = await res.json();
+
+      if (data.weeks && data.weeks.length > 0) {
+        setWeeks(data.weeks);
+      }
+    } catch (error) {
+      console.error("Error fetching user weeks:", error);
+      // Keep showing fallback data on error
     }
   };
 
   useEffect(() => {
-    const fetchUserWeeks = async () => {
-      if (!user?.id || !header) return;
-
-      try {
-        const res = await client.posts[":userId"].weeks.$get(
-          { param: { userId: user.id }, query: { count: "7" } },
-          { headers: header }
-        );
-        const data = await res.json();
-
-        if (data.weeks && data.weeks.length > 0) {
-          setWeeks(data.weeks);
-        }
-      } catch (error) {
-        console.error("Error fetching user weeks:", error);
-        // Keep showing fallback data on error
-      }
-    };
-
     fetchUserWeeks();
   }, [user?.id, header]);
+
+  // Refetch when screen comes into focus (e.g., after creating a post)
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserWeeks();
+    }, [user?.id, header])
+  );
 
   if (!user) {
     return (
