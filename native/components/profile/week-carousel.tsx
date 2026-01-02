@@ -15,7 +15,7 @@ import config from "@/config";
 type Week = UserWeeksData[0];
 
 type WeekCarouselProps = {
-  createPostCallback: (date: string) => void;
+  createPostCallback: () => void;
   week: Week;
 };
 
@@ -65,7 +65,7 @@ export default function WeekCarousel({
                 if (isFutureDay(todaysDate, day.localDate)) {
                   return;
                 }
-                createPostCallback(day.localDate);
+                createPostCallback();
               }}
             >
               <Text
@@ -80,7 +80,7 @@ export default function WeekCarousel({
       <TouchableOpacity
         style={styles.addPost}
         onPress={() => {
-          createPostCallback(todaysDate);
+          createPostCallback();
         }}
       >
         <MaterialIcons

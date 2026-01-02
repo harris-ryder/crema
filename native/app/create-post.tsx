@@ -17,6 +17,7 @@ import config from "@/config";
 import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/Button";
 import { Theme, useTheme, type } from "@/src/design";
+import HeartIcon from "@/src/ui/icons/heart-icon";
 
 export default function CreatePost() {
   const { header } = useAuth();
@@ -28,16 +29,35 @@ export default function CreatePost() {
     images: string;
     multipleMode: string;
   }>();
-  
+
   // Parse multiple images if in multiple mode
   const isMultiple = multipleMode === "true";
   const parsedImages = isMultiple && images ? JSON.parse(images) : null;
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [selectedDate, setSelectedDate] = useState(date ? new Date(date) : new Date());
+  const [selectedDate, setSelectedDate] = useState(
+    date ? new Date(date) : new Date()
+  );
   const [showDatePicker, setShowDatePicker] = useState(false);
-  
+
+  // For multiple images, track each image's date
+  const [imageDates, setImageDates] = useState<{ [key: number]: string }>(
+    parsedImages
+      ? parsedImages.reduce((acc: any, img: any, index: number) => {
+          acc[index] = img.date;
+          return acc;
+        }, {})
+      : {}
+  );
+  const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
+  const [showMultiDatePicker, setShowMultiDatePicker] = useState(false);
+
+  // Track upload status for each image
+  const [imageUploadStatus, setImageUploadStatus] = useState<{ 
+    [key: number]: 'pending' | 'uploading' | 'success' | 'failed' 
+  }>({});
+
   // For batch upload progress tracking
   const [uploadProgress, setUploadProgress] = useState<{
     current: number;
@@ -45,7 +65,6 @@ export default function CreatePost() {
     successful: number;
     failed: number;
   }>({ current: 0, total: 0, successful: 0, failed: 0 });
-
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
@@ -68,23 +87,26 @@ export default function CreatePost() {
     if (isMultiple && parsedImages) {
       setIsLoading(true);
       setError("");
-      
+
       const totalImages = parsedImages.length;
-      setUploadProgress({ 
-        current: 0, 
-        total: totalImages, 
-        successful: 0, 
-        failed: 0 
+      setUploadProgress({
+        current: 0,
+        total: totalImages,
+        successful: 0,
+        failed: 0,
       });
-      
+
       let successCount = 0;
       let failCount = 0;
       const failedImages: string[] = [];
-      
+
       for (let i = 0; i < parsedImages.length; i++) {
         const image = parsedImages[i];
-        setUploadProgress(prev => ({ ...prev, current: i + 1 }));
+        setUploadProgress((prev) => ({ ...prev, current: i + 1 }));
         
+        // Mark image as uploading
+        setImageUploadStatus(prev => ({ ...prev, [i]: 'uploading' }));
+
         try {
           const formData = new FormData();
           formData.append("file", {
@@ -92,7 +114,8 @@ export default function CreatePost() {
             type: "image/jpeg",
             name: `post_${i}.jpg`,
           } as any);
-          formData.append("postDate", image.date);
+          // Use the updated date from imageDates state
+          formData.append("postDate", imageDates[i] || image.date);
 
           const response = await fetch(`${config.urls.backend}/posts`, {
             method: "POST",
@@ -103,39 +126,47 @@ export default function CreatePost() {
           if (!response.ok) {
             throw new Error(`Failed to upload image ${i + 1}`);
           }
-          
+
           successCount++;
-          setUploadProgress(prev => ({ 
-            ...prev, 
-            successful: successCount 
+          setUploadProgress((prev) => ({
+            ...prev,
+            successful: successCount,
           }));
+          
+          // Mark image as successfully uploaded
+          setImageUploadStatus(prev => ({ ...prev, [i]: 'success' }));
         } catch (error) {
           console.error(`Error uploading image ${i + 1}:`, error);
           failCount++;
           failedImages.push(image.date);
-          setUploadProgress(prev => ({ 
-            ...prev, 
-            failed: failCount 
+          setUploadProgress((prev) => ({
+            ...prev,
+            failed: failCount,
           }));
+          
+          // Mark image as failed
+          setImageUploadStatus(prev => ({ ...prev, [i]: 'failed' }));
         }
       }
-      
+
       // Show summary and navigate back
       if (failCount > 0) {
         Alert.alert(
           "Upload Complete",
-          `Successfully uploaded ${successCount} of ${totalImages} images.${failCount > 0 ? ` ${failCount} failed.` : ''}`,
+          `Successfully uploaded ${successCount} of ${totalImages} images.${
+            failCount > 0 ? ` ${failCount} failed.` : ""
+          }`,
           [{ text: "OK", onPress: () => router.back() }]
         );
       } else {
         // All successful, just go back
         router.back();
       }
-      
+
       setIsLoading(false);
       return;
     }
-    
+
     // Original single image upload logic
     if (!imageUri) {
       setError("No image selected");
@@ -175,130 +206,198 @@ export default function CreatePost() {
 
   return (
     <SafeAreaView style={styles.container}>
-        <TouchableOpacity
-          style={styles.closeButton}
-          onPress={() => router.back()}
-        >
-          <MaterialIcons
-            name="close"
-            size={30}
-            color={theme.colors.content.primary}
-          />
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => router.back()}
+      >
+        <MaterialIcons
+          name="close"
+          size={30}
+          color={theme.colors.content.primary}
+        />
+      </TouchableOpacity>
 
-        <View style={styles.content}>
-          {/* Show batch upload progress for multiple images */}
-          {isMultiple && parsedImages && isLoading ? (
-            <View style={styles.batchUploadContainer}>
-              <Text style={styles.uploadTitle}>
-                Uploading {parsedImages.length} images...
-              </Text>
-              <View style={styles.progressInfo}>
-                <Text style={styles.progressText}>
-                  Progress: {uploadProgress.current} / {uploadProgress.total}
+      <View style={styles.content}>
+        {/* Show multiple images preview - always visible */}
+        {isMultiple && parsedImages ? (
+          <>
+            {/* Show upload progress text when uploading */}
+            {isLoading && (
+              <View style={styles.uploadProgressHeader}>
+                <Text style={styles.uploadProgressText}>
+                  Uploading: {uploadProgress.successful} / {uploadProgress.total}
                 </Text>
-                {uploadProgress.successful > 0 && (
-                  <Text style={[styles.progressText, { color: theme.colors.brand.green }]}>
-                    Successful: {uploadProgress.successful}
-                  </Text>
-                )}
-                {uploadProgress.failed > 0 && (
-                  <Text style={[styles.progressText, { color: theme.colors.brand.red }]}>
-                    Failed: {uploadProgress.failed}
-                  </Text>
-                )}
               </View>
-              <ActivityIndicator size="large" color={theme.colors.brand.red} />
-            </View>
-          ) : (
-            <>
-              {/* Show multiple images preview */}
-              {isMultiple && parsedImages ? (
-                <ScrollView 
-                  horizontal 
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.imagesPreviewScroll}
-                >
-                  <View style={styles.imagesPreviewContainer}>
-                    {parsedImages.map((img: any, index: number) => (
-                      <View key={index} style={styles.imagePreviewWrapper}>
+            )}
+            
+            {/* Images scroll view */}
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.imagesPreviewScroll}
+              >
+                <View style={styles.imagesPreviewContainer}>
+                  {parsedImages.map((img: any, index: number) => (
+                    <View key={index} style={styles.imagePreviewWrapper}>
+                      <View style={styles.imageContainer}>
                         <Image
                           source={{ uri: img.uri }}
                           style={styles.previewImage}
                         />
-                        <Text style={styles.imageDateLabel}>{img.date}</Text>
+                        
+                        {/* Show overlay when uploading or uploaded */}
+                        {imageUploadStatus[index] && (
+                          <View style={[
+                            styles.imageOverlay,
+                            imageUploadStatus[index] === 'success' && styles.successOverlay,
+                            imageUploadStatus[index] === 'uploading' && styles.uploadingOverlay,
+                            imageUploadStatus[index] === 'failed' && styles.failedOverlay,
+                          ]}>
+                            {imageUploadStatus[index] === 'success' && (
+                              <HeartIcon width={50} height={50} fill={theme.colors.brand.red} />
+                            )}
+                            {imageUploadStatus[index] === 'uploading' && (
+                              <ActivityIndicator size="large" color={theme.colors.content.inverse} />
+                            )}
+                            {imageUploadStatus[index] === 'failed' && (
+                              <MaterialIcons name="error" size={40} color={theme.colors.content.inverse} />
+                            )}
+                          </View>
+                        )}
                       </View>
-                    ))}
-                  </View>
-                </ScrollView>
-              ) : (
-                <>
-                  {/* Original single image UI */}
-                  <TouchableOpacity
-                    style={styles.dateSelector}
-                    onPress={() => setShowDatePicker(true)}
-                  >
-                    <MaterialIcons
-                      name="calendar-month"
-                      size={20}
-                      color={theme.colors.content.primary}
-                    />
-                    <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
-                  </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={[
+                          styles.dateButton,
+                          imageUploadStatus[index] === 'success' && styles.disabledDateButton
+                        ]}
+                        onPress={() => {
+                          // Disable date change if already uploaded
+                          if (imageUploadStatus[index] === 'success') return;
+                          setActiveImageIndex(index);
+                          setShowMultiDatePicker(true);
+                        }}
+                        disabled={imageUploadStatus[index] === 'success'}
+                      >
+                        <MaterialIcons
+                          name="calendar-month"
+                          size={16}
+                          color={theme.colors.content.primary}
+                        />
+                        <Text style={styles.imageDateLabel}>
+                          {imageDates[index] || img.date}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              </ScrollView>
+          </>
+        ) : (
+          <>
+            {/* Original single image UI */}
+            <TouchableOpacity
+              style={styles.dateSelector}
+              onPress={() => setShowDatePicker(true)}
+            >
+              <MaterialIcons
+                name="calendar-month"
+                size={20}
+                color={theme.colors.content.primary}
+              />
+              <Text style={styles.dateText}>
+                {formatDate(selectedDate)}
+              </Text>
+            </TouchableOpacity>
 
-                  {imageUri && (
-                    <Image
-                      source={{ uri: imageUri }}
-                      style={styles.selectedImage}
-                    />
-                  )}
-                </>
-              )}
-            </>
-          )}
+            {imageUri && (
+              <Image
+                source={{ uri: imageUri }}
+                style={styles.selectedImage}
+              />
+            )}
+          </>
+        )}
 
+        <DatePicker
+          modal
+          open={showDatePicker}
+          date={selectedDate}
+          mode="date"
+          onConfirm={(date) => {
+            setShowDatePicker(false);
+            setSelectedDate(date);
+          }}
+          onCancel={() => {
+            setShowDatePicker(false);
+          }}
+          maximumDate={new Date()}
+          minimumDate={new Date(2020, 0, 1)}
+        />
+
+        {/* Date picker for multiple images */}
+        {isMultiple && activeImageIndex !== null && (
           <DatePicker
             modal
-            open={showDatePicker}
-            date={selectedDate}
+            open={showMultiDatePicker}
+            date={
+              imageDates[activeImageIndex]
+                ? new Date(imageDates[activeImageIndex])
+                : new Date()
+            }
             mode="date"
             onConfirm={(date) => {
-              setShowDatePicker(false);
-              setSelectedDate(date);
+              if (activeImageIndex !== null) {
+                setImageDates((prev) => ({
+                  ...prev,
+                  [activeImageIndex]: formatDateForAPI(date),
+                }));
+              }
+              setShowMultiDatePicker(false);
+              setActiveImageIndex(null);
             }}
             onCancel={() => {
-              setShowDatePicker(false);
+              setShowMultiDatePicker(false);
+              setActiveImageIndex(null);
             }}
             maximumDate={new Date()}
             minimumDate={new Date(2020, 0, 1)}
           />
+        )}
 
-          {/* Only show input for single image mode */}
-          {!isMultiple && (
-            <>
-              {error ? <Text style={styles.error}>{error}</Text> : null}
+        {/* Only show input for single image mode */}
+        {!isMultiple && (
+          <>
+            {error ? <Text style={styles.error}>{error}</Text> : null}
 
-              {isLoading && (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color={theme.colors.brand.red} />
-                </View>
-              )}
-            </>
-          )}
-        </View>
-        <Button
-          variant="primary"
-          size="lg"
-          label={
-            isLoading 
-              ? (isMultiple ? "Uploading..." : "Posting")
-              : (isMultiple ? `Upload ${parsedImages?.length || 0} Images` : "Share")
-          }
-          onPress={handleCreatePost}
-          style={{ position: "absolute", right: 32, bottom: 60 }}
-          disabled={isLoading}
-        />
-      </SafeAreaView>
+            {isLoading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator
+                  size="large"
+                  color={theme.colors.brand.red}
+                />
+              </View>
+            )}
+          </>
+        )}
+      </View>
+      <Button
+        variant="primary"
+        size="lg"
+        label={
+          isLoading
+            ? isMultiple
+              ? "Uploading..."
+              : "Posting"
+            : isMultiple
+            ? `Upload ${parsedImages?.length || 0} Images`
+            : "Share"
+        }
+        onPress={handleCreatePost}
+        style={{ position: "absolute", right: 32, bottom: 60 }}
+        disabled={isLoading}
+      />
+    </SafeAreaView>
   );
 }
 
@@ -317,7 +416,6 @@ const createStyles = (theme: Theme) =>
     },
     content: {
       flex: 1,
-      paddingHorizontal: 36,
       justifyContent: "center",
       gap: 18,
       alignItems: "center",
@@ -367,7 +465,6 @@ const createStyles = (theme: Theme) =>
     batchUploadContainer: {
       alignItems: "center",
       justifyContent: "center",
-      padding: 32,
       gap: 24,
     },
     uploadTitle: {
@@ -390,7 +487,6 @@ const createStyles = (theme: Theme) =>
     imagesPreviewContainer: {
       flexDirection: "row",
       gap: 12,
-      paddingHorizontal: 20,
     },
     imagePreviewWrapper: {
       alignItems: "center",
@@ -403,7 +499,50 @@ const createStyles = (theme: Theme) =>
     },
     imageDateLabel: {
       ...type.weak,
-      color: theme.colors.content.tertiary,
-      fontSize: 11,
+      color: theme.colors.content.primary,
+      fontSize: 12,
+    },
+    dateButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: theme.colors.surface.secondary,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+      marginTop: 8,
+      gap: 4,
+    },
+    disabledDateButton: {
+      opacity: 0.5,
+    },
+    imageContainer: {
+      position: "relative",
+    },
+    imageOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 16,
+    },
+    successOverlay: {
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
+    },
+    uploadingOverlay: {
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    failedOverlay: {
+      backgroundColor: "rgba(255, 0, 0, 0.3)",
+    },
+    uploadProgressHeader: {
+      paddingVertical: 10,
+      alignItems: "center",
+    },
+    uploadProgressText: {
+      ...type.title,
+      color: theme.colors.content.primary,
     },
   });

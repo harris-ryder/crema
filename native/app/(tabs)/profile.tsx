@@ -41,7 +41,7 @@ export default function Profile() {
 
   const [weeks, setWeeks] = useState<UserWeeksData>(EMPTY_WEEKS);
 
-  const createPostCallback = async (date: string) => {
+  const createPostCallback = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsMultipleSelection: true,
@@ -51,9 +51,16 @@ export default function Profile() {
     });
 
     if (!result.canceled && result.assets.length > 0) {
-      // Prepare images with dates extracted from EXIF or fallback
+      // Get today's date as fallback
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      const todayFormatted = `${year}-${month}-${day}`;
+      
+      // Prepare images with dates extracted from EXIF or fallback to today
       const imagesWithDates = result.assets.map((asset) => {
-        let imageDate = date; // Default to the selected carousel date
+        let imageDate = todayFormatted; // Default to today's date
         
         // Try to extract date from EXIF data
         if (asset.exif) {
