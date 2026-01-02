@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useAuth } from "@/contexts/auth-context";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import config from "../../config";
 import { Theme, useTheme, type } from "@/src/design";
 import { CoffeeCupIcon, LatteArtIcon } from "@/src/ui/icons";
@@ -45,17 +44,46 @@ export default function Profile() {
   const createPostCallback = async (date: string) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      allowsMultipleSelection: false,
+      allowsMultipleSelection: true,
+      selectionLimit: 10,
       quality: 1,
+      exif: true,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets.length > 0) {
+      // Prepare images with dates extracted from EXIF or fallback
+      const imagesWithDates = result.assets.map((asset) => {
+        let imageDate = date; // Default to the selected carousel date
+        
+        // Try to extract date from EXIF data
+        if (asset.exif) {
+          const exifDate = asset.exif.DateTimeOriginal || 
+                          asset.exif.DateTimeDigitized || 
+                          asset.exif.DateTime;
+          
+          if (exifDate) {
+            // Convert EXIF date format "YYYY:MM:DD HH:MM:SS" to "YYYY-MM-DD"
+            const dateMatch = exifDate.match(/^(\d{4}):(\d{2}):(\d{2})/);
+            if (dateMatch) {
+              imageDate = `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`;
+            }
+          }
+        }
+        
+        return {
+          uri: asset.uri,
+          date: imageDate,
+        };
+      });
+
+      // Pass all images with their dates to create-post
       router.push({
         pathname: "/create-post",
-        params: { imageUri: result.assets[0].uri, date },
+        params: { 
+          images: JSON.stringify(imagesWithDates),
+          multipleMode: "true",
+        },
       });
-    } else {
-      // alert("You did not select any image.");
     }
   };
 
@@ -122,9 +150,9 @@ export default function Profile() {
               {user.username}
             </Text>
           </View>
-          <Text style={[type.body, { color: theme.colors.content.primary }]}>
+          {/* <Text style={[type.body, { color: theme.colors.content.primary }]}>
             {user.bio || "bio empty"}
-          </Text>
+          </Text> */}
           <View
             style={{ flexDirection: "row", alignContent: "center", gap: 4 }}
           >

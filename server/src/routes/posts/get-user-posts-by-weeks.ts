@@ -29,7 +29,6 @@ export const getUserPostsByWeeks = z
       .select({
         id: postsTable.id,
         imageUri: postsTable.image_uri,
-        description: postsTable.description,
         localDate: postsTable.local_date,
         createdAt: postsTable.created_at,
       })

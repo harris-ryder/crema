@@ -39,7 +39,6 @@ export const postsTable = pgTable("posts", {
   id: uuid()
     .primaryKey()
     .$defaultFn(() => randomUUID()),
-  description: text(),
   image_uri: text().notNull(),
   user_id: uuid()
     .references(() => usersTable.id, cascade)

@@ -1,22 +1,15 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   SafeAreaView,
   ActivityIndicator,
   TouchableOpacity,
   Image,
-  Keyboard,
-  TouchableWithoutFeedback,
+  ScrollView,
+  Alert,
 } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  interpolate,
-} from "react-native-reanimated";
 import { router, useLocalSearchParams } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import DatePicker from "react-native-date-picker";
@@ -29,57 +22,30 @@ export default function CreatePost() {
   const { header } = useAuth();
   const theme = useTheme();
   const styles = createStyles(theme);
-  const { imageUri, date } = useLocalSearchParams<{
+  const { imageUri, date, images, multipleMode } = useLocalSearchParams<{
     imageUri: string;
     date: string;
+    images: string;
+    multipleMode: string;
   }>();
-  const [description, setDescription] = useState("");
+  
+  // Parse multiple images if in multiple mode
+  const isMultiple = multipleMode === "true";
+  const parsedImages = isMultiple && images ? JSON.parse(images) : null;
+  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedDate, setSelectedDate] = useState(date ? new Date(date) : new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const inputRef = useRef<TextInput>(null);
+  
+  // For batch upload progress tracking
+  const [uploadProgress, setUploadProgress] = useState<{
+    current: number;
+    total: number;
+    successful: number;
+    failed: number;
+  }>({ current: 0, total: 0, successful: 0, failed: 0 });
 
-  // Animation values
-  const focusAnimation = useSharedValue(0);
-
-  // Animated styles for opacity
-  const animatedOpacityStyle = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(focusAnimation.value, [0, 1], [1, 0]),
-    };
-  });
-
-  // Animated styles for input position
-  const animatedInputStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          translateY: interpolate(
-            focusAnimation.value,
-            [0, 1],
-            [0, -200] // Adjust this value based on your layout
-          ),
-        },
-      ],
-    };
-  });
-
-  const handleFocus = () => {
-    setIsFocused(true);
-    focusAnimation.value = withTiming(1, { duration: 300 });
-  };
-
-  const handleBlur = () => {
-    setIsFocused(false);
-    focusAnimation.value = withTiming(0, { duration: 300 });
-  };
-
-  const dismissKeyboard = () => {
-    Keyboard.dismiss();
-    inputRef.current?.blur();
-  };
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("en-US", {
@@ -98,6 +64,79 @@ export default function CreatePost() {
   };
 
   const handleCreatePost = async () => {
+    // Handle multiple images mode
+    if (isMultiple && parsedImages) {
+      setIsLoading(true);
+      setError("");
+      
+      const totalImages = parsedImages.length;
+      setUploadProgress({ 
+        current: 0, 
+        total: totalImages, 
+        successful: 0, 
+        failed: 0 
+      });
+      
+      let successCount = 0;
+      let failCount = 0;
+      const failedImages: string[] = [];
+      
+      for (let i = 0; i < parsedImages.length; i++) {
+        const image = parsedImages[i];
+        setUploadProgress(prev => ({ ...prev, current: i + 1 }));
+        
+        try {
+          const formData = new FormData();
+          formData.append("file", {
+            uri: image.uri,
+            type: "image/jpeg",
+            name: `post_${i}.jpg`,
+          } as any);
+          formData.append("postDate", image.date);
+
+          const response = await fetch(`${config.urls.backend}/posts`, {
+            method: "POST",
+            headers: header,
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to upload image ${i + 1}`);
+          }
+          
+          successCount++;
+          setUploadProgress(prev => ({ 
+            ...prev, 
+            successful: successCount 
+          }));
+        } catch (error) {
+          console.error(`Error uploading image ${i + 1}:`, error);
+          failCount++;
+          failedImages.push(image.date);
+          setUploadProgress(prev => ({ 
+            ...prev, 
+            failed: failCount 
+          }));
+        }
+      }
+      
+      // Show summary and navigate back
+      if (failCount > 0) {
+        Alert.alert(
+          "Upload Complete",
+          `Successfully uploaded ${successCount} of ${totalImages} images.${failCount > 0 ? ` ${failCount} failed.` : ''}`,
+          [{ text: "OK", onPress: () => router.back() }]
+        );
+      } else {
+        // All successful, just go back
+        router.back();
+      }
+      
+      setIsLoading(false);
+      return;
+    }
+    
+    // Original single image upload logic
     if (!imageUri) {
       setError("No image selected");
       return;
@@ -113,7 +152,6 @@ export default function CreatePost() {
         type: "image/jpeg",
         name: "post.jpg",
       } as any);
-      formData.append("description", description.trim());
       formData.append("postDate", formatDateForAPI(selectedDate));
 
       const response = await fetch(`${config.urls.backend}/posts`, {
@@ -136,8 +174,7 @@ export default function CreatePost() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container}>
         <TouchableOpacity
           style={styles.closeButton}
           onPress={() => router.back()}
@@ -150,27 +187,74 @@ export default function CreatePost() {
         </TouchableOpacity>
 
         <View style={styles.content}>
-          <Animated.View style={animatedOpacityStyle}>
-            <TouchableOpacity
-              style={styles.dateSelector}
-              onPress={() => setShowDatePicker(true)}
-            >
-              <MaterialIcons
-                name="calendar-month"
-                size={20}
-                color={theme.colors.content.primary}
-              />
-              <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
-            </TouchableOpacity>
-          </Animated.View>
+          {/* Show batch upload progress for multiple images */}
+          {isMultiple && parsedImages && isLoading ? (
+            <View style={styles.batchUploadContainer}>
+              <Text style={styles.uploadTitle}>
+                Uploading {parsedImages.length} images...
+              </Text>
+              <View style={styles.progressInfo}>
+                <Text style={styles.progressText}>
+                  Progress: {uploadProgress.current} / {uploadProgress.total}
+                </Text>
+                {uploadProgress.successful > 0 && (
+                  <Text style={[styles.progressText, { color: theme.colors.brand.green }]}>
+                    Successful: {uploadProgress.successful}
+                  </Text>
+                )}
+                {uploadProgress.failed > 0 && (
+                  <Text style={[styles.progressText, { color: theme.colors.brand.red }]}>
+                    Failed: {uploadProgress.failed}
+                  </Text>
+                )}
+              </View>
+              <ActivityIndicator size="large" color={theme.colors.brand.red} />
+            </View>
+          ) : (
+            <>
+              {/* Show multiple images preview */}
+              {isMultiple && parsedImages ? (
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.imagesPreviewScroll}
+                >
+                  <View style={styles.imagesPreviewContainer}>
+                    {parsedImages.map((img: any, index: number) => (
+                      <View key={index} style={styles.imagePreviewWrapper}>
+                        <Image
+                          source={{ uri: img.uri }}
+                          style={styles.previewImage}
+                        />
+                        <Text style={styles.imageDateLabel}>{img.date}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </ScrollView>
+              ) : (
+                <>
+                  {/* Original single image UI */}
+                  <TouchableOpacity
+                    style={styles.dateSelector}
+                    onPress={() => setShowDatePicker(true)}
+                  >
+                    <MaterialIcons
+                      name="calendar-month"
+                      size={20}
+                      color={theme.colors.content.primary}
+                    />
+                    <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
+                  </TouchableOpacity>
 
-          {imageUri && (
-            <TouchableWithoutFeedback onPress={dismissKeyboard}>
-              <Animated.Image
-                source={{ uri: imageUri }}
-                style={[styles.selectedImage, animatedOpacityStyle]}
-              />
-            </TouchableWithoutFeedback>
+                  {imageUri && (
+                    <Image
+                      source={{ uri: imageUri }}
+                      style={styles.selectedImage}
+                    />
+                  )}
+                </>
+              )}
+            </>
           )}
 
           <DatePicker
@@ -189,45 +273,32 @@ export default function CreatePost() {
             minimumDate={new Date(2020, 0, 1)}
           />
 
-          <Animated.View style={[styles.inputWrapper, animatedInputStyle]}>
-            <TextInput
-              ref={inputRef}
-              style={styles.input}
-              value={description}
-              onChangeText={(text) => {
-                setDescription(text);
-                setError("");
-              }}
-              placeholder="What's happening?"
-              placeholderTextColor={theme.colors.content.tertiary}
-              multiline={true}
-              numberOfLines={4}
-              textAlignVertical="top"
-              autoFocus={false}
-              maxLength={500}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              returnKeyType="done"
-              blurOnSubmit={true}
-            />
-          </Animated.View>
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {/* Only show input for single image mode */}
+          {!isMultiple && (
+            <>
+              {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          {isLoading && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={theme.colors.brand.red} />
-            </View>
+              {isLoading && (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color={theme.colors.brand.red} />
+                </View>
+              )}
+            </>
           )}
         </View>
         <Button
           variant="primary"
           size="lg"
-          label={isLoading ? "Posting" : "Share"}
+          label={
+            isLoading 
+              ? (isMultiple ? "Uploading..." : "Posting")
+              : (isMultiple ? `Upload ${parsedImages?.length || 0} Images` : "Share")
+          }
           onPress={handleCreatePost}
           style={{ position: "absolute", right: 32, bottom: 60 }}
+          disabled={isLoading}
         />
       </SafeAreaView>
-    </TouchableWithoutFeedback>
   );
 }
 
@@ -261,23 +332,6 @@ const createStyles = (theme: Theme) =>
       height: 256,
       borderRadius: 32,
     },
-    inputContainer: {
-      marginBottom: 30,
-    },
-    inputWrapper: {
-      position: "relative",
-      width: 256,
-    },
-    input: {
-      backgroundColor: theme.colors.surface.secondary,
-      paddingHorizontal: 24,
-      width: "100%",
-      borderRadius: 32,
-      ...type.body,
-      color: theme.colors.content.primary,
-      paddingVertical: 18,
-      minHeight: 60,
-    },
     error: {
       ...type.body,
       color: theme.colors.brand.red,
@@ -309,5 +363,47 @@ const createStyles = (theme: Theme) =>
     dateText: {
       ...type.body,
       color: theme.colors.content.primary,
+    },
+    batchUploadContainer: {
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 32,
+      gap: 24,
+    },
+    uploadTitle: {
+      ...type.heading1,
+      color: theme.colors.content.primary,
+      textAlign: "center",
+      fontSize: 24,
+    },
+    progressInfo: {
+      alignItems: "center",
+      gap: 8,
+    },
+    progressText: {
+      ...type.body,
+      color: theme.colors.content.tertiary,
+    },
+    imagesPreviewScroll: {
+      maxHeight: 300,
+    },
+    imagesPreviewContainer: {
+      flexDirection: "row",
+      gap: 12,
+      paddingHorizontal: 20,
+    },
+    imagePreviewWrapper: {
+      alignItems: "center",
+      gap: 8,
+    },
+    previewImage: {
+      width: 150,
+      height: 150,
+      borderRadius: 16,
+    },
+    imageDateLabel: {
+      ...type.weak,
+      color: theme.colors.content.tertiary,
+      fontSize: 11,
     },
   });

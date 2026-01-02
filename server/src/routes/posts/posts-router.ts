@@ -24,7 +24,6 @@ const route = postsRouter
     const posts = await db
       .select({
         id: postsTable.id,
-        description: postsTable.description,
         image_uri: postsTable.image_uri,
         created_at: postsTable.created_at,
         updated_at: postsTable.updated_at,
@@ -73,7 +72,6 @@ const route = postsRouter
       "form",
       z.object({
         file: uploadImageParams.shape.file,
-        description: z.string().optional(),
         postDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
       })
     ),
@@ -88,18 +86,10 @@ const route = postsRouter
         return c.text("missing user", 401);
       }
 
-      if (
-        body["description"] != null &&
-        typeof body["description"] !== "string"
-      ) {
-        return c.text("Invalid description", 500);
-      }
-
       const imageUri = await uploadImage({
         file: body["file"],
       });
 
-      const description = body["description"] as string | undefined;
       const postDate = body["postDate"] as string;
 
       // Validate date is not too old and not in the future
@@ -125,7 +115,6 @@ const route = postsRouter
       const post = await createPost({
         post: {
           image_uri: imageUri,
-          description: description ?? null,
           local_date: postDate,
         },
         user: user,

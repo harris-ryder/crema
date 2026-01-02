@@ -160,9 +160,6 @@ export default function Index() {
               />
             )}
 
-            {post.description && (
-              <Text style={[type.body, { color: theme.colors.content.primary }]}>{post.description}</Text>
-            )}
           </View>
         ))}
 
