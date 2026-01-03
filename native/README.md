@@ -72,6 +72,24 @@ Then run the build command again.
 - Verify Google Client IDs are correctly set in `.env`
 - Check that the package name matches your Google OAuth configuration
 
+### USB Connection Failed - SocketTimeoutException
+If you see `java.net.SocketTimeoutException: failed to connect to /192.168.x.x (port 8081)` when using USB debugging:
+
+The phone is trying to connect via network IP instead of USB. Fix it by:
+
+1. Set up adb reverse for port forwarding:
+   ```bash
+   adb reverse tcp:8081 tcp:8081
+   adb reverse tcp:8097 tcp:8097  # For debugger
+   ```
+
+2. Launch the app with localhost URL:
+   ```bash
+   adb shell am start -a android.intent.action.VIEW -d "exp+native://expo-development-client/?url=http://localhost:8081"
+   ```
+
+This redirects the connection through USB instead of trying to reach your computer over WiFi.
+
 ## Learn more
 
 To learn more about developing your project with Expo, look at the following resources:
