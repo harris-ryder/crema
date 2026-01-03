@@ -21,7 +21,7 @@ type WeekCarouselProps = {
 
 const DAY_NAMES = ["M", "T", "W", "T", "F", "S", "S"];
 
-export default function WeekCarousel({
+function WeekCarousel({
   createPostCallback,
   week,
 }: WeekCarouselProps) {
@@ -171,3 +171,5 @@ const getEmptyDayBorderRadius = (dayIndex: number, week: Week) => {
 
   return borderRadii;
 };
+
+export default React.memo(WeekCarousel);

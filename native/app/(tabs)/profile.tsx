@@ -5,17 +5,19 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { useAuth } from "@/contexts/auth-context";
 import config from "../../config";
 import { Theme, useTheme, type } from "@/src/design";
 import { CoffeeCupIcon, LatteArtIcon } from "@/src/ui/icons";
+import HeartIcon from "@/src/ui/icons/heart-icon";
 import WeekCarousel from "@/components/profile/week-carousel";
 import { client } from "@/api/client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { InferResponseType } from "hono/client";
-import { router } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
+import { router, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 
 export type GetPostsByWeeksResponse = InferResponseType<
@@ -23,25 +25,22 @@ export type GetPostsByWeeksResponse = InferResponseType<
 >;
 export type UserWeeksData = Pick<GetPostsByWeeksResponse, "weeks">["weeks"];
 
-// Create 7 empty weeks for demo/fallback
-const EMPTY_WEEKS: UserWeeksData = Array.from({ length: 7 }, (_, index) => ({
-  weekYear: 2024,
-  weekNumber: 52 - index,
-  weekStartLocalDate: `2024-12-${30 - index * 7}`,
-  days: Array.from({ length: 7 }, (_, dayIndex) => ({
-    localDate: `2024-12-${30 - index * 7 + dayIndex}`,
-    posts: [],
-  })),
-}));
 
 export default function Profile() {
   const { user, signOut, header } = useAuth();
   const theme = useTheme();
-  const styles = createStyles(theme);
+  const styles = useMemo(() => createStyles(theme), [theme]);
+  const params = useLocalSearchParams();
 
-  const [weeks, setWeeks] = useState<UserWeeksData>(EMPTY_WEEKS);
+  const [weeks, setWeeks] = useState<UserWeeksData>([]);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [nextCursor, setNextCursor] = useState<{
+    year: number;
+    week: number;
+  } | null>(null);
 
-  const createPostCallback = async () => {
+  const createPostCallback = useCallback(async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsMultipleSelection: true,
@@ -93,14 +92,28 @@ export default function Profile() {
         },
       });
     }
-  };
+  }, []);
 
-  const fetchUserWeeks = async () => {
+  const fetchUserWeeks = async (
+    cursor?: { year: number; week: number },
+    append = false
+  ) => {
     if (!user?.id || !header) return;
+    if (loading) return;
+
+    setLoading(true);
 
     try {
+      const query: { count: string; year?: string; week?: string } = {
+        count: "7",
+      };
+      if (cursor) {
+        query.year = cursor.year.toString();
+        query.week = cursor.week.toString();
+      }
+
       const res = await client.posts[":userId"].weeks.$get(
-        { param: { userId: user.id }, query: { count: "7" } },
+        { param: { userId: user.id }, query },
         { headers: header }
       );
 
@@ -114,24 +127,54 @@ export default function Profile() {
       const data = await res.json();
 
       if (data.weeks && data.weeks.length > 0) {
-        setWeeks(data.weeks);
+        if (append) {
+          setWeeks((prev) => [...prev, ...data.weeks]);
+        } else {
+          setWeeks(data.weeks);
+        }
+
+        // Set next cursor for pagination
+        if (data.next) {
+          setNextCursor(data.next);
+        } else {
+          setHasMore(false);
+        }
+      } else {
+        setHasMore(false);
       }
     } catch (error) {
       console.error("Error fetching user weeks:", error);
       // Keep showing fallback data on error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMoreWeeks = () => {
+    if (hasMore && !loading && nextCursor) {
+      fetchUserWeeks(nextCursor, true);
     }
   };
 
   useEffect(() => {
+    // Initial load when user changes
+    setWeeks([]);
+    setHasMore(true);
+    setNextCursor(null);
     fetchUserWeeks();
   }, [user?.id, header]);
 
-  // Refetch when screen comes into focus (e.g., after creating a post)
-  useFocusEffect(
-    useCallback(() => {
+  // Refetch when navigating back with refetch param
+  useEffect(() => {
+    if (params.refetch === 'true') {
+      setWeeks([]);
+      setHasMore(true);
+      setNextCursor(null);
       fetchUserWeeks();
-    }, [user?.id, header])
-  );
+      // Clear the param to prevent repeated refetches
+      router.setParams({ refetch: undefined });
+    }
+  }, [params.refetch]);
 
   if (!user) {
     return (
@@ -141,86 +184,122 @@ export default function Profile() {
     );
   }
 
+  const renderWeek = useCallback(({
+    item: week,
+    index,
+  }: {
+    item: (typeof weeks)[0];
+    index: number;
+  }) => (
+    <View style={{ flexDirection: "column", gap: 12 }}>
+      <Text style={styles.weekText}>Week {week.weekNumber}</Text>
+      <WeekCarousel createPostCallback={createPostCallback} week={week} />
+    </View>
+  ), [createPostCallback, styles.weekText]);
+
+  const renderHeader = useCallback(() => (
+    <View style={styles.profileHeader}>
+      <View style={styles.profileInfo}>
+        <View style={styles.profileNames}>
+          <Text
+            style={[type.heading1, { color: theme.colors.content.primary }]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {user.display_name}
+          </Text>
+          <Text
+            style={[type.body, { color: theme.colors.content.tertiary }]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {user.username}
+          </Text>
+        </View>
+        <View style={{ flexDirection: "row", alignContent: "center", gap: 4 }}>
+          <CoffeeCupIcon fill={theme.colors.content.primary} />
+          <Text style={[type.body, { color: theme.colors.content.primary }]}>
+            7 coffees made
+          </Text>
+        </View>
+        <View>
+          <TouchableOpacity
+            style={{
+              backgroundColor: theme.colors.surface.secondary,
+              padding: 4,
+              borderRadius: 99,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onPress={signOut}
+          >
+            <Text style={[type.body, { color: theme.colors.content.primary }]}>
+              Sign Out
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      {user.id ? (
+        <Image
+          source={{
+            uri: `${config.urls.backend}/images/users/${user.id}?v=${user.updated_at}`,
+          }}
+          style={styles.avatar}
+        />
+      ) : (
+        <View style={styles.avatarPlaceholder}>
+          <LatteArtIcon
+            width={32}
+            height={32}
+            fill={theme.colors.surface.tertiary}
+          />
+        </View>
+      )}
+    </View>
+  ), [user, signOut, styles, theme.colors]);
+
+  const renderFooter = useCallback(() => {
+    if (!loading) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="large" color={theme.colors.content.primary} />
+      </View>
+    );
+  }, [loading, styles.footerLoader, theme.colors.content.primary]);
+
+  // Show heart icon when there's no data and not loading
+  if (weeks.length === 0 && !loading) {
+    return (
+      <View style={styles.scrollContainer}>
+        {renderHeader()}
+        <View style={styles.emptyStateContainer}>
+          <HeartIcon width={120} height={120} fill={theme.colors.brand.red} />
+        </View>
+      </View>
+    );
+  }
+
   return (
-    <ScrollView
+    <FlatList
       style={styles.scrollContainer}
       contentContainerStyle={styles.contentContainer}
-    >
-      <View style={styles.profileHeader}>
-        <View style={styles.profileInfo}>
-          <View style={styles.profileNames}>
-            <Text
-              style={[type.heading1, { color: theme.colors.content.primary }]}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {user.display_name}
-            </Text>
-            <Text 
-              style={[type.body, { color: theme.colors.content.tertiary }]}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {user.username}
-            </Text>
-          </View>
-          {/* <Text style={[type.body, { color: theme.colors.content.primary }]}>
-            {user.bio || "bio empty"}
-          </Text> */}
-          <View
-            style={{ flexDirection: "row", alignContent: "center", gap: 4 }}
-          >
-            <CoffeeCupIcon fill={theme.colors.content.primary} />
-            <Text style={[type.body, { color: theme.colors.content.primary }]}>
-              7 coffees made
-            </Text>
-          </View>
-          <View>
-            <TouchableOpacity
-              style={{
-                backgroundColor: theme.colors.surface.secondary,
-                padding: 4,
-                borderRadius: 99,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              onPress={signOut}
-            >
-              <Text
-                style={[type.body, { color: theme.colors.content.primary }]}
-              >
-                Sign Out
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        {user.id ? (
-          <Image
-            source={{
-              uri: `${config.urls.backend}/images/users/${user.id}?v=${user.updated_at}`,
-            }}
-            style={styles.avatar}
-          />
-        ) : (
-          <View style={styles.avatarPlaceholder}>
-            <LatteArtIcon
-              width={32}
-              height={32}
-              fill={theme.colors.surface.tertiary}
-            />
-          </View>
-        )}
-      </View>
-
-      <View style={styles.weeksContainer}>
-        {weeks.map((week, index) => (
-          <View style={{ flexDirection: "column", gap: 12 }} key={index}>
-            <Text style={styles.weekText}>Week {week.weekNumber}</Text>
-            <WeekCarousel createPostCallback={createPostCallback} week={week} />
-          </View>
-        ))}
-      </View>
-    </ScrollView>
+      data={weeks}
+      renderItem={renderWeek}
+      keyExtractor={(item, index) =>
+        `${item.weekYear}-${item.weekNumber}-${index}`
+      }
+      ListHeaderComponent={renderHeader}
+      ListFooterComponent={renderFooter}
+      onEndReached={loadMoreWeeks}
+      onEndReachedThreshold={0.5}
+      showsVerticalScrollIndicator={false}
+      ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={5}
+      windowSize={10}
+      initialNumToRender={3}
+      updateCellsBatchingPeriod={100}
+    />
   );
 }
 
@@ -245,6 +324,7 @@ const createStyles = (theme: Theme) =>
       alignItems: "flex-start",
       paddingHorizontal: 36,
       paddingTop: 64,
+      marginBottom: 32,
     },
     profileInfo: {
       flexDirection: "column",
@@ -279,5 +359,15 @@ const createStyles = (theme: Theme) =>
       paddingLeft: 36,
       color: theme.colors.content.primary,
       ...type.title,
+    },
+    footerLoader: {
+      paddingVertical: 20,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    emptyStateContainer: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
     },
   });

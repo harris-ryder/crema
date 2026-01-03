@@ -156,11 +156,11 @@ export default function CreatePost() {
           `Successfully uploaded ${successCount} of ${totalImages} images.${
             failCount > 0 ? ` ${failCount} failed.` : ""
           }`,
-          [{ text: "OK", onPress: () => router.back() }]
+          [{ text: "OK", onPress: () => router.push({ pathname: '/(tabs)/profile', params: { refetch: 'true' } }) }]
         );
       } else {
-        // All successful, just go back
-        router.back();
+        // All successful, navigate back to profile with refetch
+        router.push({ pathname: '/(tabs)/profile', params: { refetch: 'true' } });
       }
 
       setIsLoading(false);
@@ -195,7 +195,7 @@ export default function CreatePost() {
         throw new Error("Failed to create post");
       }
 
-      router.back();
+      router.push({ pathname: '/(tabs)/profile', params: { refetch: 'true' } });
     } catch (error) {
       console.error("Post creation error:", error);
       setError("Failed to create post");
