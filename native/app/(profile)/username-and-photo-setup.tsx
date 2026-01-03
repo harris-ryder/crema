@@ -14,8 +14,10 @@ import { MaterialIcons } from "@expo/vector-icons";
 import useNameValidatorAndUpdater from "./hooks/use-name-validator-and-updater";
 import PhotoSelector from "./components/photo-selector";
 import { router } from "expo-router";
+import { useAuth } from "@/contexts/auth-context";
 
-export default function ProfileSetup() {
+export default function UsernameAndPhotoSetup() {
+  const { getMe } = useAuth();
   const theme = useTheme();
   const styles = createStyles(theme);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -37,7 +39,11 @@ export default function ProfileSetup() {
 
   const onContinuePress = async () => {
     if (profileStep === "photo") {
-      router.push("/(tabs)/profile");
+      // TODO: Update photo on the backend
+
+      // Fire and forget
+      getMe();
+      router.push("/(profile)/display-name-setup");
       return;
     }
     // Update username on the backend, but don't block process in meantime

@@ -7,7 +7,7 @@ import { router } from "expo-router";
 import { useAuth } from "@/contexts/auth-context";
 import { client } from "@/api/client";
 
-export default function NameSetup() {
+export default function DisplayNameSetup() {
   const theme = useTheme();
   const styles = createStyles(theme);
   const { user, header } = useAuth();

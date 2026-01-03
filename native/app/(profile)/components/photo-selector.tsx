@@ -121,7 +121,7 @@ export default function PhotoSelector({ isActive = true }: PhotoSelectorProps) {
   const imageUri =
     localImageUri ||
     (user?.id
-      ? `${config.urls.backend}/images/users/${user.id}?v=${imageVersion}`
+      ? `${config.urls.backend}/images/users/${user.id}?v=${user.updated_at}`
       : null);
 
   return (
