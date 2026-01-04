@@ -2,7 +2,11 @@ import { and, gte, lt, asc, eq } from "drizzle-orm";
 import { postsTable } from "../../db/schema.ts";
 import { DateTime } from "luxon";
 import { db } from "../../db/index.ts";
-import { getAnchor, organisePostsByWeeks, weekQuerySchema } from "./utils.ts";
+import {
+  getAnchor,
+  organisePostsByWeeksAndDays,
+  weekQuerySchema,
+} from "./utils.ts";
 import { z } from "zod";
 
 function getWeekStart(year: number, week: number): DateTime {
@@ -42,7 +46,7 @@ export const getUserPostsByWeeks = z
       )
       .orderBy(asc(postsTable.local_date), asc(postsTable.created_at));
 
-    const weeks = organisePostsByWeeks(rows, endWeekStart, count);
+    const weeks = organisePostsByWeeksAndDays(rows, endWeekStart, count);
 
     return {
       count,

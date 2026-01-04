@@ -2,7 +2,12 @@ import { and, gte, lt, asc, eq } from "drizzle-orm";
 import { postsTable, usersTable } from "../../db/schema.ts";
 import { DateTime } from "luxon";
 import { db } from "../../db/index.ts";
-import { getAnchor, weekQuerySchema } from "./utils.ts";
+import {
+  getAnchor,
+  organisePostsByWeeksAndDays,
+  organizeOtherPostsByWeekAndUser,
+  weekQuerySchema,
+} from "./utils.ts";
 import { z } from "zod";
 
 function getWeekStart(year: number, week: number): DateTime {
@@ -10,13 +15,13 @@ function getWeekStart(year: number, week: number): DateTime {
     weekYear: year,
     weekNumber: week,
     weekday: 1,
-  }).setZone("utc");
+  }).setZone("Europe/London");
 }
 
 export const getPostsByWeeks = z
   .function()
-  .args(weekQuerySchema)
-  .implement(async ({ count, year, week }) => {
+  .args(weekQuerySchema.extend({ userId: z.string() }))
+  .implement(async ({ count, year, week, userId }) => {
     const anchor = getAnchor({ count, year, week });
     const anchorDateTime = getWeekStart(anchor.year, anchor.week);
 
@@ -45,32 +50,29 @@ export const getPostsByWeeks = z
       )
       .orderBy(asc(postsTable.local_date), asc(postsTable.created_at));
 
-    const weeks = [];
-    let current = endWeekStart;
-    for (let i = 0; i < count; i++) {
-      const weekYear = current.weekYear;
-      const weekNumber = current.weekNumber;
-      const days = [];
-      for (let d = 0; d < 7; d++) {
-        const dateStr = current.plus({ days: d }).toISODate()!;
-        const dayPosts = rows.filter((r) => r.localDate === dateStr);
-        days.push({
-          localDate: dateStr,
-          posts: dayPosts,
-        });
-      }
-      weeks.push({
-        weekYear,
-        weekNumber,
-        weekStartLocalDate: current.toISODate()!,
-        days,
-      });
-      current = current.minus({ weeks: 1 });
-    }
+    // Handle posts that belong to the user
+    const myPosts = rows.filter((post) => post.userId === userId);
+    const myPostsByWeekDay = organisePostsByWeeksAndDays(
+      myPosts,
+      endWeekStart,
+      count
+    );
+
+    // Handle all other users posts
+    const otherPosts = rows.filter((post) => post.userId !== userId);
+    const otherPostsByWeekAndUser = organizeOtherPostsByWeekAndUser(
+      otherPosts,
+      endWeekStart,
+      count
+    );
 
     return {
       count,
-      weeks,
-      next: { year: current.weekYear, week: current.weekNumber },
+      myPostsByWeekDay,
+      otherPostsByWeekAndUser,
+      next: {
+        year: startWeekStart.minus({ weeks: 1 }).weekYear,
+        week: startWeekStart.minus({ weeks: 1 }).weekNumber,
+      },
     };
   });
