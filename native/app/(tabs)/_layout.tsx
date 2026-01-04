@@ -33,12 +33,14 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Feed",
+          headerShown: false,
         }}
       />
       <Tabs.Screen
         name="activity"
         options={{
           title: "Activity",
+          headerShown: false,
         }}
       />
       <Tabs.Screen

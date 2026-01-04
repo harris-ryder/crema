@@ -8,8 +8,8 @@ interface HeartIconProps {
 }
 
 export default function HeartIcon({
-  width = 212,
-  height = 212,
+  width = 24,
+  height = 24,
   fill = "#FF1616",
 }: HeartIconProps) {
   return (

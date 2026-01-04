@@ -19,12 +19,12 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { InferResponseType } from "hono/client";
 import { router, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export type GetPostsByWeeksResponse = InferResponseType<
   typeof client.posts.weeks.$get
 >;
 export type UserWeeksData = Pick<GetPostsByWeeksResponse, "weeks">["weeks"];
-
 
 export default function Profile() {
   const { user, signOut, header } = useAuth();
@@ -166,7 +166,7 @@ export default function Profile() {
 
   // Refetch when navigating back with refetch param
   useEffect(() => {
-    if (params.refetch === 'true') {
+    if (params.refetch === "true") {
       setWeeks([]);
       setHasMore(true);
       setNextCursor(null);
@@ -184,79 +184,78 @@ export default function Profile() {
     );
   }
 
-  const renderWeek = useCallback(({
-    item: week,
-    index,
-  }: {
-    item: (typeof weeks)[0];
-    index: number;
-  }) => (
-    <View style={{ flexDirection: "column", gap: 12 }}>
-      <Text style={styles.weekText}>Week {week.weekNumber}</Text>
-      <WeekCarousel createPostCallback={createPostCallback} week={week} />
-    </View>
-  ), [createPostCallback, styles.weekText]);
+  const renderWeek = useCallback(
+    ({ item: week, index }: { item: (typeof weeks)[0]; index: number }) => (
+      <View style={{ flexDirection: "column", gap: 12 }}>
+        <Text style={styles.weekText}>Week {week.weekNumber}</Text>
+        <WeekCarousel createPostCallback={createPostCallback} week={week} />
+      </View>
+    ),
+    [createPostCallback, styles.weekText]
+  );
 
-  const renderHeader = useCallback(() => (
-    <View style={styles.profileHeader}>
-      <View style={styles.profileInfo}>
-        <View style={styles.profileNames}>
-          <Text
-            style={[type.heading1, { color: theme.colors.content.primary }]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {user.display_name}
-          </Text>
-          <Text
-            style={[type.body, { color: theme.colors.content.tertiary }]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {user.username}
-          </Text>
-        </View>
-        <View style={{ flexDirection: "row", alignContent: "center", gap: 4 }}>
-          <CoffeeCupIcon fill={theme.colors.content.primary} />
-          <Text style={[type.body, { color: theme.colors.content.primary }]}>
-            7 coffees made
-          </Text>
-        </View>
-        <View>
-          <TouchableOpacity
-            style={{
-              backgroundColor: theme.colors.surface.secondary,
-              padding: 4,
-              borderRadius: 99,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            onPress={signOut}
-          >
-            <Text style={[type.body, { color: theme.colors.content.primary }]}>
-              Sign Out
+  const renderHeader = useCallback(
+    () => (
+      <View style={styles.profileHeader}>
+        <View style={styles.profileInfo}>
+          <View style={styles.profileNames}>
+            <Text
+              style={[
+                type.heading1,
+                { color: theme.colors.content.primary, fontSize: 22 },
+              ]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {user.username}
             </Text>
+            <Text
+              style={[type.body, { color: theme.colors.content.tertiary }]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {user.display_name}
+            </Text>
+          </View>
+          <View
+            style={{ flexDirection: "row", alignContent: "center", gap: 4 }}
+          >
+            <HeartIcon fill={theme.colors.content.primary} />
+            <Text style={[type.body, { color: theme.colors.content.primary }]}>
+              7 coffees made
+            </Text>
+          </View>
+          <View></View>
+        </View>
+        <View style={styles.avatarContainer}>
+          <TouchableOpacity style={styles.settingsIcon} onPress={signOut}>
+            <MaterialIcons
+              name="settings"
+              size={24}
+              color={theme.colors.content.primary}
+            />
           </TouchableOpacity>
+          {user.id ? (
+            <Image
+              source={{
+                uri: `${config.urls.backend}/images/users/${user.id}?v=${user.updated_at}`,
+              }}
+              style={styles.avatar}
+            />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <LatteArtIcon
+                width={32}
+                height={32}
+                fill={theme.colors.surface.tertiary}
+              />
+            </View>
+          )}
         </View>
       </View>
-      {user.id ? (
-        <Image
-          source={{
-            uri: `${config.urls.backend}/images/users/${user.id}?v=${user.updated_at}`,
-          }}
-          style={styles.avatar}
-        />
-      ) : (
-        <View style={styles.avatarPlaceholder}>
-          <LatteArtIcon
-            width={32}
-            height={32}
-            fill={theme.colors.surface.tertiary}
-          />
-        </View>
-      )}
-    </View>
-  ), [user, signOut, styles, theme.colors]);
+    ),
+    [user, signOut, styles, theme.colors]
+  );
 
   const renderFooter = useCallback(() => {
     if (!loading) return null;
@@ -332,6 +331,13 @@ const createStyles = (theme: Theme) =>
       justifyContent: "flex-start",
       flex: 1,
     },
+    avatarContainer: {
+      width: 96,
+      height: 96,
+      borderRadius: 99,
+      justifyContent: "center",
+      alignItems: "center",
+    },
     profileNames: {
       flexDirection: "column",
       gap: 0,
@@ -339,13 +345,22 @@ const createStyles = (theme: Theme) =>
     },
     avatar: {
       width: 96,
-      height: 112,
-      borderRadius: 48,
+      height: 96,
+      borderRadius: 99,
+    },
+    settingsIcon: {
+      position: "absolute",
+      bottom: -4,
+      right: -4,
+      padding: 8,
+      zIndex: 2,
+      backgroundColor: theme.colors.surface.secondary,
+      borderRadius: 99,
     },
     avatarPlaceholder: {
       width: 96,
-      height: 112,
-      borderRadius: 48,
+      height: 96,
+      borderRadius: 99,
       backgroundColor: theme.colors.surface.tertiary,
       justifyContent: "center",
       alignItems: "center",

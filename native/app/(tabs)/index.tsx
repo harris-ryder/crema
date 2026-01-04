@@ -1,76 +1,24 @@
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Text,
-  Image,
-  TouchableOpacity,
-  RefreshControl,
-} from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import * as ImagePicker from "expo-image-picker";
-import { useEffect, useState } from "react";
+import { StyleSheet, FlatList } from "react-native";
+import { useEffect, useState, useMemo } from "react";
 
-import { Button } from "@/components/Button";
-import { router } from "expo-router";
 import { useAuth } from "@/contexts/auth-context";
 import { client } from "@/api/client";
-import config from "@/config";
 import { InferResponseType } from "hono/client";
-import { type, useTheme } from "@/src/design";
-
-// const addReaction = async (postId: string, emoji: "👍" | "❤️" | "😂" | "🔥" | "🎉" | "👏") => {
-//   try {
-//     const res = await client.posts[":postId"]["reaction"].$put(
-//       {
-//         param: { postId },
-//         json: { emoji },
-//       },
-//       { headers: header }
-//     );
-
-//     const response = await res.json();
-//     if (response.success) {
-//       console.log("Reaction added successfully");
-//       // Optionally refresh posts to show updated reactions
-//     }
-//   } catch (error) {
-//     console.error("Failed to add reaction:", error);
-//     Alert.alert("Error", "Failed to add reaction");
-//   }
-// };
+import { Theme, useTheme } from "@/src/design";
+import PostCard from "@/components/post-card";
 
 export default function Index() {
   const { header } = useAuth();
   const theme = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   const [posts, setPosts] = useState<
     InferResponseType<typeof client.posts.$get>["posts"]
   >([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const pickImageAsync = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsMultipleSelection: false,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      router.push({
-        pathname: "/create-post",
-        params: { imageUri: result.assets[0].uri },
-      });
-    } else {
-      alert("You did not select any image.");
-    }
-  };
 
   const fetchPosts = async (isRefresh = false) => {
     if (isRefresh) {
       setIsRefreshing(true);
-    } else {
-      setIsLoading(true);
     }
 
     try {
@@ -85,14 +33,11 @@ export default function Index() {
     } finally {
       if (isRefresh) {
         setIsRefreshing(false);
-      } else {
-        setIsLoading(false);
       }
     }
   };
 
   const onRefresh = () => {
-    console.log("Pull to refresh triggered");
     fetchPosts(true);
   };
 
@@ -100,153 +45,36 @@ export default function Index() {
     fetchPosts();
   }, []);
 
+  const renderPost = ({ item: post }: { item: (typeof posts)[0] }) => (
+    <PostCard post={post} />
+  );
+
   return (
-    <ScrollView
-      style={styles.scrollContainer}
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={true}
-      refreshControl={
-        <RefreshControl
-          refreshing={isRefreshing}
-          onRefresh={onRefresh}
-          colors={["#ffd33d"]}
-          tintColor="#ffd33d"
-          progressBackgroundColor="#25292e"
-        />
-      }
-      bounces={true}
-      alwaysBounceVertical={true}
-    >
-      <View style={styles.footerContainer}>
-        <Text style={[type.display1, { color: theme.colors.content.primary, fontSize: 48, textAlign: 'center', marginBottom: 10 }]}>
-          CREMA
-        </Text>
-        <Text style={[type.heading1, { color: theme.colors.brand.red, marginBottom: 20 }]}>
-          Share Your Moments
-        </Text>
-        <Button variant="primary" label="Create Post" onPress={pickImageAsync} />
-      </View>
-
-      <View style={styles.postsContainer}>
-        {posts.map((post) => (
-          <View key={post.id} style={styles.postCard}>
-            <View style={styles.postHeader}>
-              {post.user?.id ? (
-                <Image
-                  source={{
-                    uri: `${config.urls.backend}/images/users/${post.user.id}`,
-                  }}
-                  style={styles.avatar}
-                />
-              ) : (
-                <View style={styles.avatarPlaceholder}>
-                  <Ionicons name="person" size={50} color="#666" />
-                </View>
-              )}
-              <Text style={[type.title, { color: theme.colors.brand.green }]}>
-                {post.user?.username || "user"}
-              </Text>
-              <Text style={styles.timestamp}>
-                {new Date(post.created_at).toLocaleDateString()}
-              </Text>
-            </View>
-
-            {post.image_uri && (
-              <Image
-                source={{
-                  uri: `${config.urls.backend}/images/posts/${post.id}`,
-                }}
-                style={styles.postImage}
-              />
-            )}
-
-          </View>
-        ))}
-
-        {posts.length === 0 && !isLoading && (
-          <View style={styles.emptyState}>
-            <Text style={[type.weak, { color: theme.colors.content.tertiary, textAlign: 'center' }]}>
-              No posts yet. Create the first one!
-            </Text>
-          </View>
-        )}
-      </View>
-    </ScrollView>
+    <FlatList
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      data={posts}
+      renderItem={renderPost}
+      keyExtractor={(post) => post.id}
+      onRefresh={onRefresh}
+      refreshing={isRefreshing}
+      removeClippedSubviews={true}
+      maxToRenderPerBatch={5}
+      windowSize={10}
+      initialNumToRender={5}
+    />
   );
 }
 
-const styles = StyleSheet.create({
-  scrollContainer: {
-    flex: 1,
-    backgroundColor: "#25292e",
-  },
-  container: {
-    flexGrow: 1,
-    paddingBottom: 120,
-    minHeight: "100%",
-  },
-  footerContainer: {
-    paddingVertical: 20,
-    alignItems: "center",
-  },
-  postsContainer: {
-    paddingHorizontal: 15,
-  },
-  postCard: {
-    backgroundColor: "#2a2f35",
-    borderRadius: 15,
-    marginBottom: 20,
-    padding: 15,
-  },
-  postHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  username: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#ffd33d",
-  },
-  timestamp: {
-    fontSize: 12,
-    color: "#8b8e92",
-  },
-  postImage: {
-    width: "100%",
-    height: 250,
-    borderRadius: 10,
-    marginBottom: 12,
-  },
-  postDescription: {
-    fontSize: 14,
-    color: "#fff",
-    lineHeight: 20,
-  },
-  emptyState: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: "#8b8e92",
-    textAlign: "center",
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#2a2f35",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-});
+const createStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.surface.primary,
+      paddingHorizontal: 36,
+    },
+    contentContainer: {
+      paddingVertical: 16,
+      flexGrow: 1,
+    },
+  });
