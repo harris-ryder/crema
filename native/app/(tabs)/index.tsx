@@ -1,68 +1,39 @@
-import { StyleSheet, FlatList } from "react-native";
-import { useEffect, useState, useMemo } from "react";
+import { StyleSheet, View, Text } from "react-native";
 
-import { useAuth } from "@/contexts/auth-context";
-import { client } from "@/api/client";
-import { InferResponseType } from "hono/client";
-import { Theme, useTheme } from "@/src/design";
-import PostCard from "@/components/post-card";
+import { Theme, type, useTheme } from "@/src/design";
 
 export default function Index() {
-  const { header } = useAuth();
   const theme = useTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
-  const [posts, setPosts] = useState<
-    InferResponseType<typeof client.posts.$get>["posts"]
-  >([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const fetchPosts = async (isRefresh = false) => {
-    if (isRefresh) {
-      setIsRefreshing(true);
-    }
-
-    try {
-      const res = await client.posts.$get({}, { headers: header });
-      const response = await res.json();
-
-      if (response.success) {
-        setPosts(response.posts || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch posts:", error);
-    } finally {
-      if (isRefresh) {
-        setIsRefreshing(false);
-      }
-    }
-  };
-
-  const onRefresh = () => {
-    fetchPosts(true);
-  };
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  const renderPost = ({ item: post }: { item: (typeof posts)[0] }) => (
-    <PostCard post={post} />
-  );
+  const styles = createStyles(theme);
 
   return (
-    <FlatList
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      data={posts}
-      renderItem={renderPost}
-      keyExtractor={(post) => post.id}
-      onRefresh={onRefresh}
-      refreshing={isRefreshing}
-      removeClippedSubviews={true}
-      maxToRenderPerBatch={5}
-      windowSize={10}
-      initialNumToRender={5}
-    />
+    <View style={styles.container}>
+      <View style={styles.textContainer}>
+        <Text
+          style={[
+            type.heading1,
+            {
+              color: theme.colors.content.primary,
+              includeFontPadding: false,
+            },
+          ]}
+        >
+          WEEK
+        </Text>
+        <Text
+          style={[
+            type.display1,
+            {
+              color: theme.colors.content.primary,
+              includeFontPadding: false,
+              marginVertical: -22,
+            },
+          ]}
+        >
+          52
+        </Text>
+      </View>
+    </View>
   );
 }
 
@@ -72,6 +43,15 @@ const createStyles = (theme: Theme) =>
       flex: 1,
       backgroundColor: theme.colors.surface.primary,
       paddingHorizontal: 36,
+      justifyContent: "flex-start",
+      alignItems: "center",
+    },
+    textContainer: {
+      flexDirection: "row",
+      alignItems: "flex-end",
+      backgroundColor: "red",
+      gap: 8,
+      marginTop: 50,
     },
     contentContainer: {
       paddingVertical: 16,
