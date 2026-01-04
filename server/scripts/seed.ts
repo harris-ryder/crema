@@ -3,6 +3,9 @@ import { usersTable, postsTable, postReactionsTable } from "../src/db/schema.ts"
 import { DateTime } from "luxon";
 import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
+import fs from "fs/promises";
+import path from "path";
+import config from "../config.ts";
 
 // Configuration
 const NUM_USERS = 8;
@@ -24,9 +27,16 @@ const lastNames = [
 
 const emojis = ["👍", "❤️", "😂", "🔥", "🎉", "👏"] as const;
 
-// Helper to generate Picsum image URL
-function getPicsumUrl(seed: string, width = 800, height = 600): string {
-  return `https://picsum.photos/seed/${seed}/${width}/${height}`;
+// Load available images from data/images directory
+async function loadAvailableImages(): Promise<string[]> {
+  const imagesDir = path.join(config.storage.dataPath, "images");
+  const files = await fs.readdir(imagesDir);
+  return files.filter(file => file.endsWith('.jpg') || file.endsWith('.png'));
+}
+
+// Get a random image from available images
+function getRandomImage(availableImages: string[]): string {
+  return availableImages[Math.floor(Math.random() * availableImages.length)];
 }
 
 // Generate a random username
@@ -47,6 +57,15 @@ async function seed() {
   console.log("🌱 Starting database seed...");
 
   try {
+    // Load available images
+    console.log("📸 Loading available images...");
+    const availableImages = await loadAvailableImages();
+    console.log(`   Found ${availableImages.length} images in data/images/`);
+
+    if (availableImages.length === 0) {
+      throw new Error("No images found in data/images/ directory. Please add some .jpg or .png files first.");
+    }
+
     // Clear existing data
     console.log("🗑️  Clearing existing data...");
     await db.delete(postReactionsTable);
@@ -68,7 +87,7 @@ async function seed() {
         display_name: `${firstName} ${lastName}`,
         email: `${username}@example.com`,
         bio: `Hi, I'm ${firstName}! I love sharing moments from my daily life.`,
-        avatar_uri: getPicsumUrl(`avatar-${username}`, 200, 200),
+        avatar_uri: getRandomImage(availableImages),
       }).returning();
       
       users.push(user);
@@ -104,7 +123,7 @@ async function seed() {
           const [post] = await db.insert(postsTable).values({
             id: randomUUID(),
             user_id: user.id,
-            image_uri: getPicsumUrl(`post-${user.id}-${weekOffset}-${p}`, 800, 600),
+            image_uri: getRandomImage(availableImages),
             local_date: postDate.toISODate()!,
             created_at: postDate.toJSDate(),
             updated_at: postDate.toJSDate(),

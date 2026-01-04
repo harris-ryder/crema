@@ -4,9 +4,9 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  Image,
   TouchableOpacity,
 } from "react-native";
+import { Image } from "expo-image";
 import { Theme, type, useTheme } from "@/src/design";
 import { MaterialIcons } from "@expo/vector-icons";
 import { UserWeeksData } from "@/app/(tabs)/profile";
@@ -45,10 +45,13 @@ function WeekCarousel({
           return (
             <View key={day.localDate} style={styles.dayWithPosts}>
               <Image
-                source={{
-                  uri: `${config.urls.backend}/images/posts/${firstPost.id}`,
-                }}
+                source={`${config.urls.backend}/images/posts/${firstPost.id}`}
                 style={styles.postImage}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                priority="normal"
+                recyclingKey={`week-post-${firstPost.id}`}
+                placeholder="#E8E8E8"
               />
             </View>
           );
