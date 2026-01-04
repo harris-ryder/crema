@@ -108,9 +108,9 @@ const createStyles = (theme: Theme) =>
       gap: 8,
     },
     postImageContainer: {
-      width: 80,
-      height: 80,
-      borderRadius: 40,
+      width: 250,
+      height: 250,
+      borderRadius: 32,
       overflow: "hidden",
       position: "relative",
     },
@@ -135,7 +135,7 @@ const createStyles = (theme: Theme) =>
     },
     username: {
       color: theme.colors.content.secondary,
-      maxWidth: 80,
+      maxWidth: 250,
     },
   });
 
