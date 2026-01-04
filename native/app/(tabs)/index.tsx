@@ -26,7 +26,7 @@ export default function Index() {
             {
               color: theme.colors.content.primary,
               includeFontPadding: false,
-              marginVertical: -22,
+              marginVertical: -28,
             },
           ]}
         >
@@ -48,8 +48,7 @@ const createStyles = (theme: Theme) =>
     },
     textContainer: {
       flexDirection: "row",
-      alignItems: "flex-end",
-      backgroundColor: "red",
+      alignItems: "flex-start",
       gap: 8,
       marginTop: 50,
     },
