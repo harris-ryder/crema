@@ -9,7 +9,9 @@
     "start": "node --experimental-transform-types src/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:seed": "node --experimental-transform-types scripts/seed.ts",
+    "db:reset": "node --experimental-transform-types scripts/seed.ts --reset"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.0",

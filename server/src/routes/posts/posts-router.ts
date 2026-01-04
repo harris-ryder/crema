@@ -38,33 +38,6 @@ const route = postsRouter
       .limit(50);
     return c.json({ success: true, posts });
   })
-  .get(
-    "/:postId",
-    zValidator("param", z.object({ postId: selectPostSchema.shape.id })),
-    async (c) => {
-      const postId = c.req.valid("param").postId;
-
-      const post = await db
-        .select()
-        .from(postsTable)
-        .where(eq(postsTable.id, postId));
-
-      if (!post) {
-        return c.json<{ success: false; error: string }>(
-          {
-            success: false,
-            error: "post not found",
-          },
-          404
-        );
-      }
-
-      return c.json<{ success: true; data: { post: typeof post } }>(
-        { success: true, data: { post } },
-        201
-      );
-    }
-  )
   .post(
     "/",
     authRequiredMiddleware,
@@ -131,6 +104,70 @@ const route = postsRouter
       return c.json({ success: true, post }, 201);
     }
   )
+  .get("/weeks", zValidator("query", weekQuerySchema), async (c) => {
+    const user = c.get("user");
+    if (!user) {
+      return c.text("missing user", 401);
+    }
+
+    const q = c.req.valid("query");
+    const anchor = getAnchor(q);
+
+    const data = await getPostsByWeeks({
+      count: q.count,
+      year: anchor.year,
+      week: anchor.week,
+      userId: user.id,
+    });
+
+    return c.json(data);
+  })
+  .get(
+    "/:userId/weeks",
+    zValidator("param", z.object({ userId: z.string().uuid() })),
+    zValidator("query", weekQuerySchema),
+    async (c) => {
+      const { userId } = c.req.valid("param");
+      const q = c.req.valid("query");
+      const anchor = getAnchor(q);
+
+      const data = await getUserPostsByWeeks({
+        userId,
+        count: q.count,
+        year: anchor.year,
+        week: anchor.week,
+      });
+
+      return c.json(data);
+    }
+  )
+  .get(
+    "/:postId",
+    zValidator("param", z.object({ postId: selectPostSchema.shape.id })),
+    async (c) => {
+      const postId = c.req.valid("param").postId;
+
+      const post = await db
+        .select()
+        .from(postsTable)
+        .where(eq(postsTable.id, postId));
+
+      if (!post) {
+        return c.json<{ success: false; error: string }>(
+          {
+            success: false,
+            error: "post not found",
+          },
+          404
+        );
+      }
+
+      return c.json<{ success: true; data: { post: typeof post } }>(
+        { success: true, data: { post } },
+        201
+      );
+    }
+  )
   .put(
     "/:postId/reaction",
     authRequiredMiddleware,
@@ -195,43 +232,6 @@ const route = postsRouter
       }
 
       return c.json({ success: true }, 200);
-    }
-  )
-  .get("/weeks", zValidator("query", weekQuerySchema), async (c) => {
-    const user = c.get("user");
-    if (!user) {
-      return c.text("missing user", 401);
-    }
-
-    const q = c.req.valid("query");
-    const anchor = getAnchor(q);
-
-    const data = await getPostsByWeeks({
-      count: q.count,
-      year: anchor.year,
-      week: anchor.week,
-      userId: user.id,
-    });
-
-    return c.json(data);
-  })
-  .get(
-    "/:userId/weeks",
-    zValidator("param", z.object({ userId: z.string().uuid() })),
-    zValidator("query", weekQuerySchema),
-    async (c) => {
-      const { userId } = c.req.valid("param");
-      const q = c.req.valid("query");
-      const anchor = getAnchor(q);
-
-      const data = await getUserPostsByWeeks({
-        userId,
-        count: q.count,
-        year: anchor.year,
-        week: anchor.week,
-      });
-
-      return c.json(data);
     }
   );
 
