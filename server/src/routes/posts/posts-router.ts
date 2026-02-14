@@ -16,9 +16,7 @@ import { getPostsByWeeks } from "./get-posts-by-weeks.ts";
 import { getUserPostsByWeeks } from "./get-user-posts-by-weeks.ts";
 import { weekQuerySchema, getAnchor } from "./utils.ts";
 
-export const postsRouter = new Hono();
-
-const route = postsRouter
+export const postsRouter = new Hono()
   .basePath("/posts")
   .get("/", async (c) => {
     const posts = await db
@@ -234,5 +232,3 @@ const route = postsRouter
       return c.json({ success: true }, 200);
     }
   );
-
-export type PostsRoute = typeof route;

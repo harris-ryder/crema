@@ -1,13 +1,14 @@
-import { InferResponseType } from "hono/client";
+import type { InferResponseType } from "hono/client";
 import { client } from "@/api/client";
 import {
   createContext,
-  ReactNode,
+  type ReactNode,
   useContext,
   useEffect,
   useState,
 } from "react";
-import { ZodIssue } from "zod";
+
+type AuthError = { message: string };
 
 export type User = InferResponseType<
   (typeof client.users)[":id"]["$get"]
@@ -19,7 +20,7 @@ export interface AuthContextType {
   isLoading: boolean;
   googleSignIn(idToken: string): Promise<void>;
   signOut: () => Promise<void>;
-  errors: ZodIssue[];
+  errors: AuthError[];
   getMe: () => Promise<void>;
 }
 
@@ -53,7 +54,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [errors, setErrors] = useState<ZodIssue[]>([]);
+  const [errors, setErrors] = useState<AuthError[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [token, setToken] = useState<string | null>(null);
 
@@ -110,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.error("Error response:", errorText);
         setErrors([
           { message: "Failed to sign in with Google - server error" },
-        ] as ZodIssue[]);
+        ] as AuthError[]);
         setIsLoading(false);
         return;
       }
@@ -124,13 +125,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         setErrors([
           { message: "Failed to sign in with Google - server error" },
-        ] as ZodIssue[]);
+        ] as AuthError[]);
       }
     } catch (error) {
       console.error("Google Sign-In error:", error);
       setErrors([
         { message: "Failed to sign in with Google - network error" },
-      ] as ZodIssue[]);
+      ] as AuthError[]);
     } finally {
       setIsLoading(false);
     }

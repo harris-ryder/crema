@@ -10,9 +10,7 @@ import { uploadImage } from "../../helpers/upload-image.ts";
 import { updateUsername } from "./update-username.ts";
 import { updateDisplayName } from "./update-display-name.ts";
 
-export const usersRouter = new Hono();
-
-const route = usersRouter
+export const usersRouter = new Hono()
   .basePath("/users")
   .get("/me", authRequiredMiddleware, async (c) => {
     const user = c.get("user");
@@ -222,5 +220,3 @@ const route = usersRouter
       return c.json(result, result.success ? 200 : 400);
     }
   );
-
-export type UsersRoute = typeof route;

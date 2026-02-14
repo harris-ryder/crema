@@ -24,11 +24,13 @@ app.use(
 app.route("/", healthRouter);
 
 // API v1 routes
-const v1 = new Hono();
-v1.route("/", usersRouter)
+const v1 = new Hono()
+  .route("/", usersRouter)
   .route("/", oauthRouter)
   .route("/", postsRouter)
   .route("/", imagesRouter);
+
+export type AppType = typeof v1;
 
 app.route("/v1", v1);
 

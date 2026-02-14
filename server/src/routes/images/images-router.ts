@@ -12,9 +12,7 @@ import { getImageMimeType } from "../../mime.ts";
 import { authRequiredMiddleware } from "../../middlewares/auth-required-middleware.ts";
 import { uploadImage } from "../../helpers/upload-image.ts";
 
-export const imagesRouter = new Hono();
-
-const route = imagesRouter
+export const imagesRouter = new Hono()
   .basePath("/images")
   .get(
     "/posts/:postId",
@@ -136,5 +134,3 @@ const route = imagesRouter
       }
     }
   );
-
-export type ImagesRoute = typeof route;

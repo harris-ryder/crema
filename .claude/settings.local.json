@@ -17,7 +17,11 @@
       "Bash(export PATH=$PATH:$ANDROID_HOME/platform-tools)",
       "Bash(echo:*)",
       "WebFetch(domain:docs.swmansion.com)",
-      "Bash(xcodebuild:*)"
+      "Bash(xcodebuild:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node -e:*)",
+      "Bash(npx:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

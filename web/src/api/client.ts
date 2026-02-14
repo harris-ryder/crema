@@ -1,5 +1,5 @@
 import { hc } from "hono/client";
-import type { AppType } from "@server/type.d";
+import type { AppType } from "@server/src/index.ts";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 

@@ -10,9 +10,7 @@ import { Hono } from "hono";
 import { randomUUID } from "crypto";
 
 const googleClient = new OAuth2Client();
-export const oauthRouter = new Hono();
-
-const route = oauthRouter.post(
+export const oauthRouter = new Hono().post(
   "/oauth/google",
   zValidator("json", z.object({ token: z.string() })),
   async (c) => {
@@ -53,5 +51,3 @@ const route = oauthRouter.post(
     return c.json({ success: true, token: createToken(user) });
   }
 );
-
-export type OAuthRoute = typeof route;
