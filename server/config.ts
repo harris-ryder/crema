@@ -38,6 +38,10 @@ const config = {
         "GOOGLE_WEB_CLIENT_ID",
         "157821791942-m36u8iqssodtm9440adgr8noq3vmut9m.apps.googleusercontent.com"
       ),
+      iosClientId: getEnv(
+        "GOOGLE_IOS_CLIENT_ID",
+        "157821791942-1jnohk8p92q1js0nfkvsc3iod80rkngr.apps.googleusercontent.com"
+      ),
     },
   },
   storage: {

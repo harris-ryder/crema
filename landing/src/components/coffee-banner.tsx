@@ -1,8 +1,6 @@
-export default function CoffeeBanner() {
-  const coffeeImages = Array.from({ length: 28 }, (_, i) => i + 1).sort(
-    () => Math.random() - 0.5
-  );
+const coffeeImages = Array.from({ length: 28 }, (_, i) => i + 1);
 
+export default function CoffeeBanner() {
   return (
     <div className="w-full overflow-hidden">
       <div

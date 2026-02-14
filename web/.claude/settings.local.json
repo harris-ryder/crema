@@ -4,7 +4,9 @@
       "WebFetch(domain:blog.logto.io)",
       "WebFetch(domain:cruip.com)",
       "WebSearch",
-      "Read(//Users/harrisryder/repos/Personal/crema/**)"
+      "Read(//Users/harrisryder/repos/Personal/crema/**)",
+      "Bash(npx vite build:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

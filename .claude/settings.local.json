@@ -16,7 +16,8 @@
       "Bash(export ANDROID_HOME=$HOME/Library/Android/sdk)",
       "Bash(export PATH=$PATH:$ANDROID_HOME/platform-tools)",
       "Bash(echo:*)",
-      "WebFetch(domain:docs.swmansion.com)"
+      "WebFetch(domain:docs.swmansion.com)",
+      "Bash(xcodebuild:*)"
     ],
     "deny": [],
     "ask": []
