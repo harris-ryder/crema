@@ -7,7 +7,7 @@ function AppContent() {
   if (isLoading) {
     return (
       <div className="w-full h-[100dvh] flex flex-col justify-center items-center bg-surface-primary">
-        <p className="text-body text-content-secondary">Loading...</p>
+        <p className="typo-body text-content-secondary">Loading...</p>
       </div>
     );
   }

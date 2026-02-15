@@ -30,61 +30,85 @@
 
   --color-surface-primary: var(--color-neutral-0);
   --color-surface-secondary: var(--color-neutral-100);
+  --color-surface-inverse-primary: var(--color-neutral-900);
   --color-content-primary: var(--color-neutral-900);
   --color-content-secondary: var(--color-neutral-600);
   --color-content-tertiary: var(--color-neutral-400);
+  --color-content-inverse-primary: var(--color-neutral-0);
+  --color-content-inverse-secondary: var(--color-neutral-300);
+  --color-content-inverse-tertiary: var(--color-neutral-500);
 }
 
 .dark {
   --color-surface-primary: var(--color-neutral-1000);
   --color-surface-secondary: var(--color-neutral-900);
+  --color-surface-inverse-primary: var(--color-neutral-100);
   --color-content-primary: var(--color-neutral-0);
-  --color-content-secondary: var(--color-neutral-300);
+  --color-content-secondary: var(--color-neutral-400);
   --color-content-tertiary: var(--color-neutral-500);
+  --color-content-inverse-primary: var(--color-neutral-900);
+  --color-content-inverse-secondary: var(--color-neutral-600);
+  --color-content-inverse-tertiary: var(--color-neutral-400);
 }
 
 @theme inline {
   --color-surface-primary: var(--color-surface-primary);
   --color-surface-secondary: var(--color-surface-secondary);
+  --color-surface-inverse-primary: var(--color-surface-inverse-primary);
   --color-content-primary: var(--color-content-primary);
   --color-content-secondary: var(--color-content-secondary);
   --color-content-tertiary: var(--color-content-tertiary);
+  --color-content-inverse-primary: var(--color-content-inverse-primary);
+  --color-content-inverse-secondary: var(--color-content-inverse-secondary);
+  --color-content-inverse-tertiary: var(--color-content-inverse-tertiary);
   --color-brand-red: var(--color-brand-red);
   --color-brand-green: var(--color-brand-green);
 
   --font-climate: "Climate Crisis", system-ui, sans-serif;
   --font-inter: "Inter", system-ui, sans-serif;
 
-  --text-display-1: 120px;
-  --text-display-1--line-height: 100%;
-  --text-display-1--letter-spacing: -0.03em;
-  --text-display-1--font-weight: 400;
+}
 
-  --text-display-2: 32px;
-  --text-display-2--line-height: 100%;
-  --text-display-2--letter-spacing: -0.03em;
-  --text-display-2--font-weight: 400;
+@utility typo-display-1 {
+  font-size: 120px;
+  line-height: 100%;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
 
-  --text-title: 16px;
-  --text-title--line-height: 100%;
-  --text-title--letter-spacing: -0.03em;
-  --text-title--font-weight: 600;
+@utility typo-heading-1 {
+  font-size: 32px;
+  line-height: 100%;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
 
-  --text-body: 16px;
-  --text-body--line-height: 100%;
-  --text-body--letter-spacing: -0.03em;
-  --text-body--font-weight: 400;
+@utility typo-title {
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
 
-  --text-caption: 12px;
-  --text-caption--line-height: 100%;
-  --text-caption--letter-spacing: -0.01em;
-  --text-caption--font-weight: 400;
+@utility typo-body {
+  font-size: 16px;
+  line-height: 100%;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+}
+
+@utility typo-caption {
+  font-size: 12px;
+  line-height: 100%;
+  letter-spacing: -0.01em;
+  font-weight: 400;
 }
 
 @keyframes infinite-scroll {
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(-50%);
   }

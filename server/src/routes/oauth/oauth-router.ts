@@ -1,4 +1,3 @@
-import { OAuth2Client } from "google-auth-library";
 import { zValidator } from "@hono/zod-validator";
 import z from "zod";
 import config from "../../../config.ts";
@@ -9,16 +8,33 @@ import { createToken } from "../../helpers/token.ts";
 import { Hono } from "hono";
 import { randomUUID } from "crypto";
 
-const googleClient = new OAuth2Client();
 export const oauthRouter = new Hono().post(
   "/oauth/google",
   zValidator("json", z.object({ token: z.string() })),
   async (c) => {
-    const ticket = await googleClient.verifyIdToken({
-      idToken: c.req.valid("json").token,
-      audience: config.oauth.google.webClientId,
-    });
-    const payload = ticket.getPayload();
+    const accessToken = c.req.valid("json").token;
+
+    // Verify the token was issued for our app
+    const tokenInfoRes = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?access_token=${accessToken}`
+    );
+    if (!tokenInfoRes.ok) {
+      throw new Error("Invalid Google access token");
+    }
+    const tokenInfo = await tokenInfoRes.json();
+    if (tokenInfo.aud !== config.oauth.google.webClientId) {
+      throw new Error("Token was not issued for this application");
+    }
+
+    // Fetch user info
+    const res = await fetch(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    if (!res.ok) {
+      throw new Error("Failed to fetch Google user info");
+    }
+    const payload = await res.json();
     console.log("payload", payload);
     if (!payload?.email) {
       throw new Error("no email found in google user");
