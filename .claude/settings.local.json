@@ -21,7 +21,9 @@
       "Bash(npx tsc:*)",
       "Bash(node -e:*)",
       "Bash(npx:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(git -C /Users/harrisryder/repos/Personal/crema log --oneline -10)",
+      "Bash(git -C /Users/harrisryder/repos/Personal/crema status --short)"
     ],
     "deny": [],
     "ask": []
