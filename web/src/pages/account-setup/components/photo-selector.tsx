@@ -55,7 +55,7 @@ export default function PhotoSelector({ className }: { className: ClassValue }) 
 
   const imageUri =
     localImageUri ||
-    (user?.id
+    (user?.avatar_uri
       ? `${config.backendUrl}/images/users/${user.id}?v=${user.updated_at}`
       : null);
 
