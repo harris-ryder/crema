@@ -33,20 +33,15 @@ export function TabBar({
         />
 
         {/* Tab buttons */}
-        {TABS.map((tab) => {
-          const isActive = tab.id === activeTab;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className="relative z-10 w-[72px] h-[52px] flex items-center justify-center rounded-full"
-            >
-              <tab.icon
-                className={`w-6 h-6 ${isActive ? "text-content-primary" : "text-content-inverse"}`}
-              />
-            </button>
-          );
-        })}
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            className="relative z-10 w-[72px] h-[52px] flex items-center justify-center rounded-full mix-blend-difference"
+          >
+            <tab.icon className="w-6 h-6 text-white" />
+          </button>
+        ))}
       </div>
     </div>
   );
