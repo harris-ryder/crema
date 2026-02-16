@@ -32,8 +32,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <div className="max-w-3xl mx-auto min-h-[100dvh]">
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </div>
   );
 }

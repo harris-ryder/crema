@@ -13,7 +13,7 @@ FROM node:${NODE_VERSION}-alpine
 WORKDIR /server
 
 COPY server/package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy the rest of the server source code
 COPY server/ ./
@@ -24,4 +24,4 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Start the server
-CMD ["npm", "start"]
+CMD ["sh", "-c", "npm run db:push && npm start"]

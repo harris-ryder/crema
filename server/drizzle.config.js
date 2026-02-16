@@ -6,7 +6,7 @@ export default defineConfig({
   dialect: "postgresql",
   dbCredentials: {
     url:
-      process.env.POSTGRES_CONNECTION_STRING ||
+      process.env.POSTGRES_CONNECTION ||
       "postgres://postgres:shh@localhost:5433/crema",
   },
 });
