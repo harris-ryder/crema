@@ -39,9 +39,11 @@ html::-webkit-scrollbar {
   --color-surface-primary: var(--color-neutral-0);
   --color-surface-secondary: var(--color-neutral-100);
   --color-surface-inverse-primary: var(--color-neutral-900);
+  --color-surface-inverse: var(--color-neutral-1000);
   --color-content-primary: var(--color-neutral-900);
   --color-content-secondary: var(--color-neutral-600);
   --color-content-tertiary: var(--color-neutral-400);
+  --color-content-inverse: var(--color-neutral-0);
   --color-content-inverse-primary: var(--color-neutral-0);
   --color-content-inverse-secondary: var(--color-neutral-300);
   --color-content-inverse-tertiary: var(--color-neutral-500);
@@ -51,9 +53,11 @@ html::-webkit-scrollbar {
   --color-surface-primary: var(--color-neutral-1000);
   --color-surface-secondary: var(--color-neutral-900);
   --color-surface-inverse-primary: var(--color-neutral-100);
+  --color-surface-inverse: var(--color-neutral-0);
   --color-content-primary: var(--color-neutral-0);
   --color-content-secondary: var(--color-neutral-400);
   --color-content-tertiary: var(--color-neutral-500);
+  --color-content-inverse: var(--color-neutral-1000);
   --color-content-inverse-primary: var(--color-neutral-900);
   --color-content-inverse-secondary: var(--color-neutral-600);
   --color-content-inverse-tertiary: var(--color-neutral-400);
@@ -63,9 +67,11 @@ html::-webkit-scrollbar {
   --color-surface-primary: var(--color-surface-primary);
   --color-surface-secondary: var(--color-surface-secondary);
   --color-surface-inverse-primary: var(--color-surface-inverse-primary);
+  --color-surface-inverse: var(--color-surface-inverse);
   --color-content-primary: var(--color-content-primary);
   --color-content-secondary: var(--color-content-secondary);
   --color-content-tertiary: var(--color-content-tertiary);
+  --color-content-inverse: var(--color-content-inverse);
   --color-content-inverse-primary: var(--color-content-inverse-primary);
   --color-content-inverse-secondary: var(--color-content-inverse-secondary);
   --color-content-inverse-tertiary: var(--color-content-inverse-tertiary);
