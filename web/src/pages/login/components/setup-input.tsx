@@ -3,6 +3,7 @@ import { useRef, useState, useLayoutEffect } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Input } from "@/shared/primitives";
 import { cn } from "@/lib/utils";
+import type { ClassValue } from "clsx";
 
 const setupInputContainerVariants = cva(
   "w-full flex flex-row items-center rounded-3xl bg-surface-secondary gap-2",
@@ -26,7 +27,7 @@ type SetupInputProps = Omit<React.ComponentProps<"input">, "size" | "style"> &
     helperText?: string;
     left?: React.ReactNode;
     right?: React.ReactNode;
-    containerClassName?: string;
+    containerClassName?: ClassValue;
     shrink?: boolean;
     style?: React.CSSProperties;
   };
@@ -45,39 +46,40 @@ export function SetupInput({
   ...props
 }: SetupInputProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
   const [fullWidth, setFullWidth] = useState(0);
   const [fitWidth, setFitWidth] = useState(0);
 
   useLayoutEffect(() => {
-    if (wrapperRef.current && !shrink) {
-      // Temporarily remove override to measure fit-content width
-      wrapperRef.current.style.width = '';
-      const fit = wrapperRef.current.offsetWidth;
-      setFitWidth(fit);
-
-      // Measure parent's full width and re-apply override
-      const full = wrapperRef.current.parentElement?.offsetWidth ?? fit;
+    if (measureRef.current && wrapperRef.current) {
+      setFitWidth(measureRef.current.offsetWidth + 48);
+      const full = wrapperRef.current.parentElement?.offsetWidth ?? 0;
       setFullWidth(full);
-      wrapperRef.current.style.width = full + 'px';
     }
-  }, [shrink, props.value]);
+  }, [props.value, shrink]);
 
   return (
     <div
       ref={wrapperRef}
-      className="w-fit"
+      className={cn("relative", containerClassName)}
       style={{
-        width: shrink ? `${fitWidth}px` : `${fullWidth}px`,
-        transition: 'width 300ms ease',
+        width: shrink ? `${fitWidth}px` : fullWidth ? `${fullWidth}px` : '100%',
+        transition: 'width 500ms ease-in-out',
         ...style,
       }}
     >
+      <span
+        ref={measureRef}
+        className="absolute invisible whitespace-pre typo-body pointer-events-none"
+        aria-hidden="true"
+      >
+        {String(props.value || props.placeholder || '')}
+      </span>
       <div
         className={cn(
           setupInputContainerVariants({ inputSize }),
           error && "ring-1 ring-brand-red",
-          disabled && "opacity-55",
-          containerClassName
+          disabled && "opacity-55"
         )}
       >
         {left && (

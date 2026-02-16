@@ -102,7 +102,7 @@ export function AccountSetupPage() {
             </div>
 
 
-            <div className="self-center grid justify-center w-full">
+            <div className="relative self-center grid place-items-center w-full">
                 <SetupInput
                     inputSize="lg"
                     value={displayName}
@@ -113,48 +113,65 @@ export function AccountSetupPage() {
                     autoFocus
                     maxLength={50}
                     shrink={step !== "displayName"}
-                    containerClassName="self-center w-full"
+                    containerClassName="col-start-1 row-start-1"
                     style={{
-                        transform: step === "displayName" ? 'translateY(0)' : 'translateY(-2rem)',
+                        transform: step === "displayName" ? 'translateY(0)' : 'translateY(-120%)',
                         opacity: step === "displayName" ? 1 : 0,
-                        transition: 'width 300ms ease, transform 300ms ease 250ms, opacity 300ms ease 250ms',
+                        transition: 'width 500ms ease-in-out, transform 500ms ease-in-out 600ms, opacity 500ms ease 600ms',
                     }}
                 />
+                <div className="relative col-start-1 row-start-1 w-full flex justify-center items-center"
+                    style={{
+                        transform: step === "username" ? 'translateY(0)'
+                            : step === "displayName" ? 'translateY(120%)'
+                                : 'translateY(170px)',
+                        opacity: ["username", "photo"].includes(step) ? 1 : 0,
+                        transition: 'transform 500ms ease-in-out 600ms, opacity 500ms ease 600ms',
+                    }}
+                >
+                    <PhotoSelector className={cn(
+                        "absolute transition duration-500 ease-in-out delay-600 bottom-[90px]",
+                        step === "photo"
+                            ? "opacity-100 pointer-events-auto"
+                            : "opacity-0 pointer-events-none"
+                    )} />
+                    <SetupInput
+                        inputSize="lg"
+                        value={username}
+                        onChange={(e) => validateName(e.target.value)}
+                        placeholder="username"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        maxLength={30}
+                        shrink={["photo"].includes(step)}
+                        className={cn(step === "photo" ? "pointer-events-none" : "")}
+                        right={
+                            step !== "photo" ? (
+                                <div
+                                    className={cn(
+                                        "w-6 h-6 flex items-center justify-center transition-opacity duration-300",
+                                        validationStatus === "idle"
+                                            ? "opacity-0"
+                                            : "opacity-100"
+                                    )}
+                                >
+                                    {validationStatus === "valid" && (
+                                        <Check className="w-6 h-6 text-brand-green" />
+                                    )}
+                                    {(validationStatus === "invalid" ||
+                                        validationStatus === "error") && (
+                                            <X className="w-6 h-6 text-brand-red" />
+                                        )}
+                                </div>
+                            ) : null
+                        }
+                        style={{
+                            transition: 'width 500ms ease-in-out',
+                        }}
+                    />
+                </div>
             </div>
 
-            <PhotoSelector isActive={step === "photo"} />
-
-            {/* Step 1: Display Name */}
-
-            {/* <SetupInput
-                            inputSize="lg"
-                            onChange={(e) => validateName(e.target.value)}
-                            placeholder="username"
-                            autoCapitalize="none"
-                            autoCorrect="off"
-                            maxLength={30}
-                            disabled={step === "photo"}
-                            right={
-                                step !== "photo" ? (
-                                    <div
-                                        className={cn(
-                                            "w-6 h-6 flex items-center justify-center transition-opacity duration-300",
-                                            validationStatus === "idle"
-                                                ? "opacity-0"
-                                                : "opacity-100"
-                                        )}
-                                    >
-                                        {validationStatus === "valid" && (
-                                            <Check className="w-6 h-6 text-brand-green" />
-                                        )}
-                                        {(validationStatus === "invalid" ||
-                                            validationStatus === "error") && (
-                                                <X className="w-6 h-6 text-brand-red" />
-                                            )}
-                                    </div>
-                                ) : null
-                            }
-                        /> */}
             <div className="self-end">
                 <Button onClick={handleContinue} disabled={isContinueDisabled()}>
                     {continueLabel}
