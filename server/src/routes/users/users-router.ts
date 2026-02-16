@@ -6,7 +6,6 @@ import { db } from "../../db/index.ts";
 import { usersTable } from "../../db/schema.ts";
 import { eq } from "drizzle-orm";
 import { selectUserSchema } from "../../db/schema.types.ts";
-import { uploadImage } from "../../helpers/upload-image.ts";
 import { updateUsername } from "./update-username.ts";
 import { updateDisplayName } from "./update-display-name.ts";
 
