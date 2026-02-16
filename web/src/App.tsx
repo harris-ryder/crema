@@ -17,7 +17,7 @@ function AppContent() {
     return <LoginPage />;
   }
 
-  if (user) {
+  if (!localStorage.getItem(`setup-completed-${user.id}`)) {
     return <AccountSetupPage />;
   }
 

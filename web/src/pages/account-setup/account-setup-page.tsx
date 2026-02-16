@@ -47,6 +47,7 @@ export function AccountSetupPage() {
         }
 
         if (step === "photo") {
+            localStorage.setItem(`setup-completed-${user?.id}`, "true");
             await getMe();
         }
     };
