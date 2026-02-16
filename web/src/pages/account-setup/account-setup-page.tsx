@@ -72,7 +72,7 @@ export function AccountSetupPage() {
     return (
         <div
             className="w-full h-[100dvh] relative bg-surface-primary overflow-hidden flex flex-col justify-between px-9 py-16"
-            style={keyboardHeight > 0 ? { paddingBottom: keyboardHeight } : undefined}
+            style={keyboardHeight > 0 ? { paddingBottom: keyboardHeight + 64 } : undefined}
         >
             {/*Title*/}
             <div className="grid">
