@@ -1,5 +1,6 @@
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { LoginPage } from "@/pages/login/login-page";
+import { AccountSetupPage } from "@/pages/login/account-setup-page";
 
 function AppContent() {
   const { user, isLoading } = useAuth();
@@ -14,6 +15,10 @@ function AppContent() {
 
   if (!user) {
     return <LoginPage />;
+  }
+
+  if (user) {
+    return <AccountSetupPage />;
   }
 
   return (
