@@ -1,6 +1,7 @@
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { LoginPage } from "@/pages/login/login-page";
 import { AccountSetupPage } from "@/pages/account-setup/account-setup-page";
+import { ProfilePage } from "@/pages/profile/profile-page";
 
 function AppContent() {
   const { user, isLoading } = useAuth();
@@ -21,13 +22,7 @@ function AppContent() {
     return <AccountSetupPage />;
   }
 
-  return (
-    <div className="w-full h-[100dvh] flex flex-col justify-center items-center bg-surface-primary">
-      <h1 className="text-display-2 font-climate text-content-primary uppercase">
-        CREMA
-      </h1>
-    </div>
-  );
+  return <ProfilePage />;
 }
 
 export default function App() {

@@ -96,7 +96,7 @@
 @utility typo-body {
   font-family: var(--font-inter);
   font-size: 16px;
-  line-height: 100%;
+  line-height: 108%;
   letter-spacing: -0.03em;
   font-weight: 400;
 }
