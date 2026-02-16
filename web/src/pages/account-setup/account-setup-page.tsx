@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { client } from "@/api/client";
 import { Button } from "@/shared/primitives";
 import { cn } from "@/lib/utils";
+import { useKeyboardHeight } from "@/hooks/use-keyboard-height";
 import useNameValidatorAndUpdater from "./hooks/use-name-validator-and-updater";
 import PhotoSelector from "./components/photo-selector";
 import { SetupInput } from "./components/setup-input";
@@ -14,6 +15,7 @@ export function AccountSetupPage() {
     const { user, header, getMe } = useAuth();
     const [step, setStep] = useState<SetupStep>("displayName");
     const [displayName, setDisplayName] = useState(user?.display_name || "");
+    const keyboardHeight = useKeyboardHeight();
 
     const {
         username,
@@ -68,7 +70,10 @@ export function AccountSetupPage() {
             : "Continue";
 
     return (
-        <div className="w-full h-[100dvh] relative bg-surface-primary overflow-hidden flex flex-col justify-between px-9 py-16">
+        <div
+            className="w-full h-[100dvh] relative bg-surface-primary overflow-hidden flex flex-col justify-between px-9 py-16"
+            style={keyboardHeight > 0 ? { paddingBottom: keyboardHeight } : undefined}
+        >
             {/*Title*/}
             <div className="grid">
                 <h1
