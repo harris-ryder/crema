@@ -23,15 +23,15 @@ function LoginContent() {
   return (
     <div className="w-full h-[100dvh] flex flex-col justify-center items-center bg-surface-primary gap-8">
       <div className="flex flex-col items-center">
-      <Lottie
-        animationData={animationData}
-        autoplay
-        loop={false}
-        style={{ width: 96, height: 96 }}
-      />
-      <h1 className="typo-heading-1 font-climate text-content-primary uppercase">
-        CREMA
-      </h1>
+        <Lottie
+          animationData={animationData}
+          autoplay
+          loop={false}
+          style={{ width: 96, height: 96 }}
+        />
+        <h1 className="typo-heading-1 font-climate text-content-primary uppercase">
+          CREMA
+        </h1>
       </div>
       <Button onClick={() => login()}>
         <GoogleIcon />

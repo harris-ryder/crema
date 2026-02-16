@@ -1,6 +1,6 @@
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { LoginPage } from "@/pages/login/login-page";
-import { AccountSetupPage } from "@/pages/login/account-setup-page";
+import { AccountSetupPage } from "@/pages/account-setup/account-setup-page";
 
 function AppContent() {
   const { user, isLoading } = useAuth();
