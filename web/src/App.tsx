@@ -3,11 +3,18 @@ import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { LoginPage } from "@/pages/login/login-page";
 import { AccountSetupPage } from "@/pages/account-setup/account-setup-page";
 import { ProfilePage } from "@/pages/profile/profile-page";
-import { TabBar, type Tab } from "@/components/tab-bar";
+import { CreatePostPage } from "@/pages/create-post/create-post-page";
+import { TabBar } from "@/components/tab-bar";
+
+export type Tab = "home" | "activity" | "profile";
+
+export type Page =
+  | { name: Tab }
+  | { name: "create-post"; files: File[]; defaultDate: string };
 
 function AppContent() {
-  const { user, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>("profile");
+  const { user, isLoading, header } = useAuth();
+  const [page, setPage] = useState<Page>({ name: "profile" });
 
   if (isLoading) {
     return (
@@ -17,28 +24,41 @@ function AppContent() {
     );
   }
 
-  if (!user) {
-    return <LoginPage />;
-  }
+  if (!user) return <LoginPage />;
 
   if (!localStorage.getItem(`setup-completed-${user.id}`)) {
     return <AccountSetupPage />;
   }
 
+  if (page.name === "create-post") {
+    return (
+      <CreatePostPage
+        images={page.files}
+        defaultDate={page.defaultDate}
+        onBack={() => setPage({ name: "profile" })}
+        onComplete={() => setPage({ name: "profile" })}
+        header={header}
+      />
+    );
+  }
+
   return (
     <>
-      {activeTab === "home" && (
+      {page.name === "home" && (
         <div className="w-full min-h-[100dvh] flex flex-col justify-center items-center bg-surface-primary">
           <p className="typo-body text-content-tertiary">Home</p>
         </div>
       )}
-      {activeTab === "activity" && (
+      {page.name === "activity" && (
         <div className="w-full min-h-[100dvh] flex flex-col justify-center items-center bg-surface-primary">
           <p className="typo-body text-content-tertiary">Activity</p>
         </div>
       )}
-      {activeTab === "profile" && <ProfilePage />}
-      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      {page.name === "profile" && (
+        <ProfilePage navigate={setPage} />
+      )}
+      <TabBar activeTab={page.name} onTabChange={(tab) => setPage({ name: tab })} />
+
     </>
   );
 }

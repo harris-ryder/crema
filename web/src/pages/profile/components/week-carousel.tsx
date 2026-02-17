@@ -44,7 +44,13 @@ function getEmptyDayBorderRadius(dayIndex: number, week: WeekData) {
   return radii;
 }
 
-export function WeekCarousel({ week }: { week: WeekData }) {
+export function WeekCarousel({
+  week,
+  onCreatePost,
+}: {
+  week: WeekData;
+  onCreatePost: (defaultDate: string) => void;
+}) {
   const todaysDate = new Date().toLocaleDateString("en-CA");
 
   return (
@@ -84,12 +90,16 @@ export function WeekCarousel({ week }: { week: WeekData }) {
               opacity: future ? 0.5 : 1,
             }}
             disabled={future}
+            onClick={() => !future && onCreatePost(day.localDate)}
           >
             <span className="typo-title text-content-primary">{dayName}</span>
           </button>
         );
       })}
-      <button className="w-16 h-24 rounded-full bg-surface-secondary flex items-center justify-center shrink-0">
+      <button
+        className="w-16 h-24 rounded-full bg-surface-secondary flex items-center justify-center shrink-0"
+        onClick={() => onCreatePost(todaysDate)}
+      >
         <Plus className="w-6 h-6 text-content-primary" />
       </button>
     </div>

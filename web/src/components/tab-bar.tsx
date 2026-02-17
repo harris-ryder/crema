@@ -1,6 +1,5 @@
+import type { Tab } from "@/App";
 import { CoffeeCupIcon, HeartIcon, ProfileIcon } from "@/shared/icons"
-
-export type Tab = "home" | "activity" | "profile";
 
 const TABS: { id: Tab; icon: React.FC<React.SVGProps<SVGSVGElement>> }[] = [
   { id: "home", icon: CoffeeCupIcon },

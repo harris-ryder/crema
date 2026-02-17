@@ -6,7 +6,8 @@
       "WebSearch",
       "Read(//Users/harrisryder/repos/Personal/crema/**)",
       "Bash(npx vite build:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

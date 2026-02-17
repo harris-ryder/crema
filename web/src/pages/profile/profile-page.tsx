@@ -3,6 +3,7 @@ import { client } from "@/api/client";
 import config from "@/config";
 import { useEffect, useState, useRef, useCallback } from "react";
 import type { InferResponseType } from "hono/client";
+import type { Page } from "@/App";
 import { Settings, Loader2 } from "lucide-react";
 import { HeartIcon } from "@/shared/icons/heart-icon";
 import { LatteArtIcon } from "@/shared/icons/latte-art-icon";
@@ -14,8 +15,14 @@ type GetPostsByWeeksResponse = InferResponseType<
 export type UserWeeksData = Pick<GetPostsByWeeksResponse, "weeks">["weeks"];
 export type WeekData = UserWeeksData[number];
 
-export function ProfilePage() {
+export function ProfilePage({
+  navigate,
+}: {
+  navigate: (page: Page) => void;
+}) {
   const { user, signOut, header } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const pendingDateRef = useRef<string>("");
 
   const [weeks, setWeeks] = useState<UserWeeksData>([]);
   const [loading, setLoading] = useState(false);
@@ -26,6 +33,19 @@ export function ProfilePage() {
   } | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const handleCreatePost = (defaultDate: string) => {
+    pendingDateRef.current = defaultDate;
+    fileInputRef.current?.click();
+  };
+
+  const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      navigate({ name: "create-post", files, defaultDate: pendingDateRef.current });
+    }
+    e.target.value = "";
+  };
 
   const fetchUserWeeks = useCallback(
     async (cursor?: { year: number; week: number }, append = false) => {
@@ -175,6 +195,14 @@ export function ProfilePage() {
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-surface-primary pb-[120px]">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={handleFilesSelected}
+      />
       {headerSection}
       <div className="flex flex-col gap-4">
         {weeks.map((week, index) => (
@@ -185,7 +213,7 @@ export function ProfilePage() {
             <span className="typo-title text-content-primary pl-[36px]">
               Week {week.weekNumber}
             </span>
-            <WeekCarousel week={week} />
+            <WeekCarousel week={week} onCreatePost={handleCreatePost} />
           </div>
         ))}
       </div>
