@@ -18,7 +18,7 @@ function AppContent() {
 
   if (isLoading) {
     return (
-      <div className="w-full h-[100dvh] flex flex-col justify-center items-center bg-surface-primary">
+      <div className="w-full h-full flex flex-col justify-center items-center bg-surface-primary">
         <p className="typo-body text-content-secondary">Loading...</p>
       </div>
     );
@@ -45,12 +45,12 @@ function AppContent() {
   return (
     <>
       {page.name === "home" && (
-        <div className="w-full min-h-[100dvh] flex flex-col justify-center items-center bg-surface-primary">
+        <div className="w-full min-h-full flex flex-col justify-center items-center bg-surface-primary">
           <p className="typo-body text-content-tertiary">Home</p>
         </div>
       )}
       {page.name === "activity" && (
-        <div className="w-full min-h-[100dvh] flex flex-col justify-center items-center bg-surface-primary">
+        <div className="w-full min-h-full flex flex-col justify-center items-center bg-surface-primary">
           <p className="typo-body text-content-tertiary">Activity</p>
         </div>
       )}
@@ -65,7 +65,7 @@ function AppContent() {
 
 export default function App() {
   return (
-    <div className="max-w-xl mx-auto min-h-[100dvh]">
+    <div className="max-w-xl mx-auto h-full overflow-hidden">
       <AuthProvider>
         <AppContent />
       </AuthProvider>

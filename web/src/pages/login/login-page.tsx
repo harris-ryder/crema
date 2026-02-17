@@ -21,7 +21,7 @@ function LoginContent() {
   });
 
   return (
-    <div className="w-full h-[100dvh] flex flex-col justify-center items-center bg-surface-primary gap-8">
+    <div className="w-full h-full flex flex-col justify-center items-center bg-surface-primary gap-8">
       <div className="flex flex-col items-center">
         <Lottie
           animationData={animationData}

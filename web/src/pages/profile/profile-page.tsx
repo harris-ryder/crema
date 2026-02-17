@@ -182,7 +182,7 @@ export function ProfilePage({
 
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-surface-primary pb-[120px]">
+    <div className="flex flex-col min-h-full bg-surface-primary pb-[120px]">
       <input
         ref={fileInputRef}
         type="file"

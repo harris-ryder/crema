@@ -85,7 +85,7 @@ export function CreatePostPage({
   }, [images, imageDates, defaultDate, header, onComplete]);
 
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-surface-primary">
+    <div className="flex flex-col min-h-full bg-surface-primary">
       {/* Header */}
       <div className="flex items-center gap-3 px-[36px] pt-16 pb-6">
         {!isUploading && (

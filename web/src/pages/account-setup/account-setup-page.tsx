@@ -67,7 +67,7 @@ export function AccountSetupPage() {
             : "Continue";
 
     return (
-        <div className="w-full h-[100dvh] relative bg-surface-primary overflow-hidden flex flex-col justify-between px-9 py-16 transition-[height] duration-300 ease-out">
+        <div className="w-full h-full relative bg-surface-primary overflow-hidden flex flex-col justify-between px-9 py-16 transition-[height] duration-300 ease-out">
             {/*Title*/}
             <div className="grid">
                 <h1
