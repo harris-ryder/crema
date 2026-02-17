@@ -139,6 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signOut = async () => {
     setIsLoading(true);
     try {
+      localStorage.removeItem(`setup-completed-${user?.id}`)
       await clearAuthToken();
       setToken(null);
       setUser(null);
