@@ -7,7 +7,8 @@
       "Read(//Users/harrisryder/repos/Personal/crema/**)",
       "Bash(npx vite build:*)",
       "Bash(npm install:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(xargs:*)"
     ],
     "deny": [],
     "ask": []

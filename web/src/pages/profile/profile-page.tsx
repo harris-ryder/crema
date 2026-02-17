@@ -7,6 +7,7 @@ import type { Page } from "@/App";
 import { Settings, Loader2 } from "lucide-react";
 import { HeartIcon } from "@/shared/icons/heart-icon";
 import { LatteArtIcon } from "@/shared/icons/latte-art-icon";
+import { Avatar, AvatarImage, AvatarFallback } from "@/shared/primitives/avatar";
 import { WeekCarousel } from "./components/week-carousel";
 
 type GetPostsByWeeksResponse = InferResponseType<
@@ -166,32 +167,19 @@ export function ProfilePage({
         >
           <Settings className="w-6 h-6 text-content-primary" />
         </button>
-        {user.id ? (
-          <img
+        <Avatar className="w-24 h-24">
+          <AvatarImage
             src={`${config.backendUrl}/images/users/${user.id}?v=${user.updated_at}`}
             alt={user.username ?? ""}
-            className="w-24 h-24 rounded-full object-cover"
           />
-        ) : (
-          <div className="w-24 h-24 rounded-full bg-surface-secondary flex items-center justify-center">
-            <LatteArtIcon className="w-8 h-8 text-content-tertiary" />
-          </div>
-        )}
+          <AvatarFallback className="bg-surface-secondary">
+            <LatteArtIcon className="w-24 h-24 text-content-tertiary" />
+          </AvatarFallback>
+        </Avatar>
       </div>
     </div>
   );
 
-  // Empty state
-  if (weeks.length === 0 && !loading) {
-    return (
-      <div className="flex flex-col min-h-[100dvh] bg-surface-primary">
-        {headerSection}
-        <div className="flex-1 flex items-center justify-center">
-          <HeartIcon className="w-[120px] h-[120px] text-brand-red" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-surface-primary pb-[120px]">
