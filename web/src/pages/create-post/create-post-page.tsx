@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft, Loader2, AlertCircle, Calendar as CalendarIcon } from "lucide-react";
 import { format, parse } from "date-fns";
+import exifr from "exifr";
 import { HeartIcon } from "@/shared/icons";
 import { Button } from "@/shared/primitives/button";
 import { Calendar } from "@/shared/primitives/calendar";
@@ -42,8 +43,25 @@ export function CreatePostPage({
   useEffect(() => {
     const urls = images.map((file) => URL.createObjectURL(file));
     setPreviewUrls(urls);
+
+    Promise.all(
+      images.map(async (file) => {
+        try {
+          const exif = await exifr.parse(file, ["DateTimeOriginal"]);
+          if (exif?.DateTimeOriginal) {
+            return format(exif.DateTimeOriginal, "yyyy-MM-dd");
+          }
+        } catch {
+          // No EXIF data available
+        }
+        return defaultDate;
+      })
+    ).then((dates) => {
+      setImageDates(Object.fromEntries(dates.map((d, i) => [i, d])));
+    });
+
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
-  }, [images]);
+  }, [images, defaultDate]);
 
   const handleUpload = useCallback(async () => {
     setIsUploading(true);
