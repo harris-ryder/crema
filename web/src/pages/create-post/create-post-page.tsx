@@ -103,118 +103,123 @@ export function CreatePostPage({
   }, [images, imageDates, defaultDate, header, onComplete]);
 
   return (
-    <div className="flex flex-col min-h-full bg-surface-primary">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-[36px] pt-16 pb-6">
-        {!isUploading && (
-          <button onClick={onBack} className="p-1 -ml-1">
-            <ArrowLeft className="w-6 h-6 text-content-primary" />
-          </button>
-        )}
-        {(isUploading || uploadSummary) && (
-          <span className="typo-title text-content-primary">
-            {isUploading ? "Uploading..." : "Upload Complete"}
-          </span>
-        )}
-      </div>
-
-      {/* Image previews */}
-      <div className="flex-1 px-[36px]">
-        <div className="grid grid-cols-2 gap-3 overflow-y-auto py-1">
-          {previewUrls.map((url, i) => (
-            <div key={i} className="flex flex-col gap-2">
-              <div className="relative aspect-square rounded-2xl overflow-hidden">
-                <img
-                  src={url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-                {uploadStatus[i] && (
-                  <div
-                    className={`absolute inset-0 flex items-center justify-center ${
-                      uploadStatus[i] === "failed"
+    <div className="grid h-dvh bg-surface-primary [grid-template:1fr/1fr]">
+      {/* Scrollable image grid — full height, scrolls under header & button */}
+      <div className="overflow-y-auto [grid-area:1/1] px-[36px]">
+        <div className="pt-28 pb-28">
+          <div className="grid grid-cols-2 gap-3">
+            {previewUrls.map((url, i) => (
+              <div key={i} className="flex flex-col gap-2">
+                <div className="relative aspect-square rounded-2xl overflow-hidden">
+                  <img
+                    src={url}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                  {uploadStatus[i] && (
+                    <div
+                      className={`absolute inset-0 flex items-center justify-center ${uploadStatus[i] === "failed"
                         ? "bg-red-500/30"
                         : "bg-black/40"
-                    }`}
-                  >
-                    {uploadStatus[i] === "uploading" && (
-                      <Loader2 className="w-10 h-10 text-white animate-spin" />
-                    )}
-                    {uploadStatus[i] === "success" && (
-                      <HeartIcon className="w-12 h-12 text-brand-red" />
-                    )}
-                    {uploadStatus[i] === "failed" && (
-                      <AlertCircle className="w-10 h-10 text-white" />
-                    )}
-                  </div>
-                )}
-              </div>
-              <Popover>
-                <PopoverTrigger
-                  disabled={isUploading || uploadStatus[i] === "success"}
-                  render={
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="w-full justify-start typo-caption disabled:opacity-50"
-                    />
-                  }
-                >
-                  <CalendarIcon className="w-4 h-4" />
-                  {format(
-                    parse(imageDates[i] || defaultDate, "yyyy-MM-dd", new Date()),
-                    "MMM d, yyyy"
+                        }`}
+                    >
+                      {uploadStatus[i] === "uploading" && (
+                        <Loader2 className="w-10 h-10 text-white animate-spin" />
+                      )}
+                      {uploadStatus[i] === "success" && (
+                        <HeartIcon className="w-12 h-12 text-brand-red" />
+                      )}
+                      {uploadStatus[i] === "failed" && (
+                        <AlertCircle className="w-10 h-10 text-white" />
+                      )}
+                    </div>
                   )}
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={parse(imageDates[i] || defaultDate, "yyyy-MM-dd", new Date())}
-                    onSelect={(date) => {
-                      if (date) {
-                        setImageDates((prev) => ({
-                          ...prev,
-                          [i]: format(date, "yyyy-MM-dd"),
-                        }));
-                      }
-                    }}
-                    disabled={{ after: new Date(), before: new Date(2020, 0, 1) }}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          ))}
-        </div>
+                </div>
+                <Popover>
+                  <PopoverTrigger
+                    disabled={isUploading || uploadStatus[i] === "success"}
+                    render={
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="w-full justify-start typo-caption disabled:opacity-50"
+                      />
+                    }
+                  >
+                    <CalendarIcon className="w-4 h-4" />
+                    {format(
+                      parse(imageDates[i] || defaultDate, "yyyy-MM-dd", new Date()),
+                      "MMM d, yyyy"
+                    )}
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={parse(imageDates[i] || defaultDate, "yyyy-MM-dd", new Date())}
+                      onSelect={(date) => {
+                        if (date) {
+                          setImageDates((prev) => ({
+                            ...prev,
+                            [i]: format(date, "yyyy-MM-dd"),
+                          }));
+                        }
+                      }}
+                      disabled={{ after: new Date(), before: new Date(2020, 0, 1) }}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            ))}
+          </div>
 
-        {/* Summary message */}
-        {uploadSummary && (
-          <p className="typo-body text-content-secondary mt-4">
-            {uploadSummary.successful} of {images.length} uploaded.{" "}
-            {uploadSummary.failed} failed.
-          </p>
-        )}
+          {/* Summary message */}
+          {uploadSummary && (
+            <p className="typo-body text-content-secondary mt-4">
+              {uploadSummary.successful} of {images.length} uploaded.{" "}
+              {uploadSummary.failed} failed.
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Action button */}
-      <div className="px-[36px] pb-12 pt-4">
-        {uploadSummary ? (
-          <button
-            onClick={onComplete}
-            className="w-full h-14 rounded-full bg-surface-inverse text-content-inverse typo-title"
-          >
-            Done
-          </button>
-        ) : (
-          <button
-            onClick={handleUpload}
-            disabled={isUploading}
-            className="w-full h-14 rounded-full bg-surface-inverse text-content-inverse typo-title disabled:opacity-50"
-          >
-            {isUploading
-              ? "Uploading..."
-              : `Upload ${images.length} ${images.length === 1 ? "Image" : "Images"}`}
-          </button>
-        )}
+      {/* Header — overlaps on top */}
+      <div className="[grid-area:1/1] self-start pointer-events-none z-10">
+        <div className="flex items-center gap-3 px-[36px] pt-16 pb-6 pointer-events-auto">
+          {!isUploading && (
+            <Button onClick={onBack} size="icon">
+              <ArrowLeft className="w-6 h-6 text-content-inverse" />
+            </Button>
+          )}
+          {(isUploading || uploadSummary) && (
+            <span className="typo-title text-content-primary">
+              {isUploading ? "Uploading..." : "Upload Complete"}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Action button — overlaps on bottom */}
+      <div className="[grid-area:1/1] self-end pointer-events-none z-10">
+        <div className="px-[36px] pb-12 pt-8 pointer-events-auto">
+          {uploadSummary ? (
+            <Button
+              onClick={onComplete}
+              className="w-full h-14 rounded-full bg-surface-inverse text-content-inverse typo-title"
+            >
+              Done
+            </Button>
+          ) : (
+            <button
+              onClick={handleUpload}
+              disabled={isUploading}
+              className="w-full h-14 rounded-full bg-surface-inverse text-content-inverse typo-title disabled:opacity-50"
+            >
+              {isUploading
+                ? "Uploading..."
+                : `Upload ${images.length} ${images.length === 1 ? "Image" : "Images"}`}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
