@@ -1,16 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { ArrowLeft, Loader2, AlertCircle, Calendar as CalendarIcon } from "lucide-react";
-import { format, parse } from "date-fns";
+import { ArrowLeft } from "lucide-react";
+import { format } from "date-fns";
 import exifr from "exifr";
-import { HeartIcon } from "@/shared/icons";
 import { Button } from "@/shared/primitives/button";
-import { Calendar } from "@/shared/primitives/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/shared/primitives/popover";
 import config from "@/config";
+import { ImagePreviewCard } from "./components/image-preview-card";
 
 type UploadStatus = "pending" | "uploading" | "success" | "failed";
 
@@ -109,66 +103,17 @@ export function CreatePostPage({
         <div className="pt-28 pb-28">
           <div className="grid grid-cols-2 gap-3">
             {previewUrls.map((url, i) => (
-              <div key={i} className="flex flex-col gap-2">
-                <div className="relative aspect-square rounded-2xl overflow-hidden">
-                  <img
-                    src={url}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                  {uploadStatus[i] && (
-                    <div
-                      className={`absolute inset-0 flex items-center justify-center ${uploadStatus[i] === "failed"
-                        ? "bg-red-500/30"
-                        : "bg-black/40"
-                        }`}
-                    >
-                      {uploadStatus[i] === "uploading" && (
-                        <Loader2 className="w-10 h-10 text-white animate-spin" />
-                      )}
-                      {uploadStatus[i] === "success" && (
-                        <HeartIcon className="w-12 h-12 text-brand-red" />
-                      )}
-                      {uploadStatus[i] === "failed" && (
-                        <AlertCircle className="w-10 h-10 text-white" />
-                      )}
-                    </div>
-                  )}
-                </div>
-                <Popover>
-                  <PopoverTrigger
-                    disabled={isUploading || uploadStatus[i] === "success"}
-                    render={
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="w-full justify-start typo-caption disabled:opacity-50"
-                      />
-                    }
-                  >
-                    <CalendarIcon className="w-4 h-4" />
-                    {format(
-                      parse(imageDates[i] || defaultDate, "yyyy-MM-dd", new Date()),
-                      "MMM d, yyyy"
-                    )}
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={parse(imageDates[i] || defaultDate, "yyyy-MM-dd", new Date())}
-                      onSelect={(date) => {
-                        if (date) {
-                          setImageDates((prev) => ({
-                            ...prev,
-                            [i]: format(date, "yyyy-MM-dd"),
-                          }));
-                        }
-                      }}
-                      disabled={{ after: new Date(), before: new Date(2020, 0, 1) }}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+              <ImagePreviewCard
+                key={i}
+                url={url}
+                date={imageDates[i]}
+                defaultDate={defaultDate}
+                status={uploadStatus[i]}
+                disabled={isUploading || uploadStatus[i] === "success"}
+                onDateChange={(date) =>
+                  setImageDates((prev) => ({ ...prev, [i]: date }))
+                }
+              />
             ))}
           </div>
 
@@ -184,9 +129,9 @@ export function CreatePostPage({
 
       {/* Header — overlaps on top */}
       <div className="[grid-area:1/1] self-start pointer-events-none z-10">
-        <div className="flex items-center gap-3 px-[36px] pt-16 pb-6 pointer-events-auto">
+        <div className="flex items-center gap-3 px-[36px] pt-16 pb-6 pointer-events-auto bg-gradient-to-b from-surface-primary to-transparent">
           {!isUploading && (
-            <Button onClick={onBack} size="icon">
+            <Button onClick={onBack} size="icon" className="bg-surface-inverse">
               <ArrowLeft className="w-6 h-6 text-content-inverse" />
             </Button>
           )}
@@ -200,7 +145,7 @@ export function CreatePostPage({
 
       {/* Action button — overlaps on bottom */}
       <div className="[grid-area:1/1] self-end pointer-events-none z-10">
-        <div className="px-[36px] pb-12 pt-8 pointer-events-auto">
+        <div className="px-[36px] pb-12 pt-8 pointer-events-auto bg-gradient-to-t from-surface-primary to-transparent">
           {uploadSummary ? (
             <Button
               onClick={onComplete}
@@ -209,7 +154,7 @@ export function CreatePostPage({
               Done
             </Button>
           ) : (
-            <button
+            <Button
               onClick={handleUpload}
               disabled={isUploading}
               className="w-full h-14 rounded-full bg-surface-inverse text-content-inverse typo-title disabled:opacity-50"
@@ -217,7 +162,7 @@ export function CreatePostPage({
               {isUploading
                 ? "Uploading..."
                 : `Upload ${images.length} ${images.length === 1 ? "Image" : "Images"}`}
-            </button>
+            </Button>
           )}
         </div>
       </div>
