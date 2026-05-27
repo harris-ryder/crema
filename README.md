@@ -259,6 +259,27 @@ cd native/android
 - `npx expo run:android` - Build and run Android app
 - `npx expo prebuild` - Generate native projects
 
+### Running via PM2 (`ecosystem.config.js`)
+
+Runs the server + web dev server together under PM2, configured for the `crema.love` tunnel host so other devices on your LAN can hit the same dev backend.
+
+**Requires:**
+
+- `pm2` installed globally: `npm install -g pm2`
+- `crema.love` mapped to `127.0.0.1` in `/etc/hosts`
+- File contains hardcoded `cwd` paths and dev secrets — edit them for your checkout before running
+
+**Commands:**
+
+```bash
+pm2 start ecosystem.config.js
+pm2 logs                        # tail logs
+pm2 restart ecosystem.config.js
+pm2 stop ecosystem.config.js
+```
+
+Starts `crema-server` on port 3004 and `crema-web` on 5173.
+
 ## Project Structure
 
 ```
