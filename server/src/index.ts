@@ -36,6 +36,7 @@ app.route("/v1", v1);
 
 serve({
   fetch: app.fetch,
+  host: '0.0.0.0',
   port: config.ports.server,
 });
 

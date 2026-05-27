@@ -21,7 +21,7 @@ const config = {
   },
   urls: {
     // Frontend apps
-    web: getEnv("FRONTEND_URL", "http://localhost:5173"),
+    web: getEnv("FRONTEND_URL", "http://crema.love:5173"),
   },
   database: {
     connectionString: getEnv(
