@@ -156,7 +156,7 @@ export function ProfilePage({
         <div className="flex flex-row items-center gap-1">
           <HeartIcon className="w-6 h-6 text-content-primary" />
           <span className="typo-body text-content-primary">
-            7 coffees made
+            8 coffees made
           </span>
         </div>
       </div>
