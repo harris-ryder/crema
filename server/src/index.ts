@@ -16,7 +16,7 @@ app.use(decodeTokenMiddleware);
 app.use(
   "*",
   cors({
-    origin: [config.urls.web],
+    origin: ["http://crema.love:5173", "http://localhost:5173"],
     credentials: true,
   })
 );
@@ -36,6 +36,7 @@ app.route("/v1", v1);
 
 serve({
   fetch: app.fetch,
+  host: '0.0.0.0',
   port: config.ports.server,
 });
 
