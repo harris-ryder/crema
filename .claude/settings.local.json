@@ -23,7 +23,13 @@
       "Bash(npx:*)",
       "Bash(grep:*)",
       "Bash(git -C /Users/harrisryder/repos/Personal/crema log --oneline -10)",
-      "Bash(git -C /Users/harrisryder/repos/Personal/crema status --short)"
+      "Bash(git -C /Users/harrisryder/repos/Personal/crema status --short)",
+      "Bash(git checkout *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(gh auth *)",
+      "Bash(GH_TOKEN=__CMDSUB_OUTPUT__ git -c credential.helper= -c 'credential.helper=!f\\(\\) { echo \"username=harris-ryder\"; echo \"password=$GH_TOKEN\"; }; f' push -u origin dev-tunnel-setup)"
     ],
     "deny": [],
     "ask": []
